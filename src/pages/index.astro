@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+---
+
+<BaseLayout>
+  <h1>{t('home.greeting')}</h1>
+  <p class="role">{t('home.role')}</p>
+  <p>{t('home.intro')}</p>
+  <p>
+    {t('home.links')}
+    <a href="https://github.com/djamart" data-testid="link-github">
+      GitHub
+    </a>
+    .
+  </p>
+</BaseLayout>
+
+<style>
+  .role {
+    margin-top: -0.75rem;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+</style>
