@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+
+const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+---
+
+<BaseLayout title={t('notFound.title')}>
+  <h1>{t('notFound.title')}</h1>
+  <p>{t('notFound.message')}</p>
+  <p>
+    <a href={import.meta.env.BASE_URL} data-testid="link-home">
+      {t('notFound.back')}
+    </a>
+  </p>
+</BaseLayout>
