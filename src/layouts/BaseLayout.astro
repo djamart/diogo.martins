@@ -2,14 +2,17 @@
 import '../styles/global.css';
 import { themeCss } from '../styles/tokens';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { isCurrentPage, navItems, pageHref } from '../utils/nav';
 
 interface Props {
   title?: string;
 }
 
-const lang = getLangFromUrl(Astro.url, import.meta.env.BASE_URL);
+const base = import.meta.env.BASE_URL;
+const lang = getLangFromUrl(Astro.url, base);
 const t = useTranslations(lang);
-const { title = t('site.title') } = Astro.props;
+const { title } = Astro.props;
+const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
 ---
 
 <!doctype html>
@@ -18,13 +21,42 @@ const { title = t('site.title') } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={t('site.description')} />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
-    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <title>{pageTitle}</title>
     <style is:inline set:html={themeCss()}></style>
   </head>
   <body>
-    <main>
+    <a class="skip-link" href="#content">
+      {t('nav.skip')}
+    </a>
+    <header class="site-header">
+      <nav aria-label={t('nav.label')}>
+        <ul>
+          {navItems.map((item) => (
+            <li>
+              <a
+                href={pageHref(base, item.path)}
+                aria-current={
+                  isCurrentPage(Astro.url.pathname, base, item.path) ? 'page' : undefined
+                }
+                data-testid={`nav-${item.path || 'home'}`}
+              >
+                {t(item.labelKey)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+    <main id="content" tabindex="-1">
       <slot />
     </main>
+    <footer class="site-footer">
+      <p>
+        <a href="https://github.com/djamart/diogo.martins" data-testid="link-source">
+          {t('footer.builtWith')}
+        </a>
+      </p>
+    </footer>
   </body>
 </html>
