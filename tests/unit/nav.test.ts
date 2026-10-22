@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isCurrentPage, navItems, pageHref } from '../../src/utils/nav';
+import { fileHref, isCurrentPage, navItems, pageHref } from '../../src/utils/nav';
 import { ui } from '../../src/i18n/ui';
 
 describe('pageHref', () => {
@@ -9,6 +9,13 @@ describe('pageHref', () => {
 
   it('adds a trailing slash to the base path when missing', () => {
     expect(pageHref('/diogo.martins', 'about')).toBe('/diogo.martins/about/');
+  });
+});
+
+describe('fileHref', () => {
+  it('places a file at the site root, with or without a trailing slash on the base', () => {
+    expect(fileHref('/diogo.martins', 'cv.pdf')).toBe('/diogo.martins/cv.pdf');
+    expect(fileHref('/diogo.martins/', 'cv.pdf')).toBe('/diogo.martins/cv.pdf');
   });
 });
 

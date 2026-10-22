@@ -25,6 +25,7 @@ export const ui = {
       'I help teams ship with confidence by building the tests, quality gates and AI tooling they rely on.',
     'home.ctaContact': 'Get in touch',
     'home.ctaExperience': 'See my experience',
+    'home.ctaCv': 'Download CV (PDF)',
     'home.proof':
       'This site is built like a product: every change passes linting, type checks, unit, end-to-end and accessibility tests before it goes live.',
     'about.title': 'About',
@@ -51,6 +52,11 @@ export const ui = {
     'contact.title': 'Contact',
     'contact.intro':
       "I'm happy to talk about QA roles, quality engineering or AI in testing. Email is the fastest way to reach me.",
+    'cv.profile': 'Profile',
+    'cv.summary':
+      'QA engineer who builds test automation, helps teams treat quality as a shared practice, and uses AI to make testing faster and smarter. Moved a team from manual to AI-assisted testing, found security vulnerabilities published as CVEs, and coaches developers to catch defects earlier.',
+    'cv.earlier': 'Earlier career',
+    'cv.download': 'Download my CV (PDF)',
     'notFound.title': 'Page not found',
     'notFound.message': "This page doesn't exist, or it moved. That one escaped the test suite.",
     'notFound.back': 'Back to the home page',

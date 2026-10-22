@@ -36,6 +36,10 @@ npm run dev          # local dev server at http://localhost:4321/diogo.martins/
 
 To run the E2E tests against a deployed site: `BASE_URL=https://djamart.github.io/diogo.martins/ npm run test:e2e`.
 
+## CV
+
+The CV at `/diogo-martins-cv.pdf` is generated at build time from the same data as the site (`src/data/profile.ts`), so the PDF and the pages never drift apart. The layout lives in `src/cv/pdf.ts` (PDFKit, built-in fonts) and unit tests read the text back from the PDF to check its content.
+
 ## Translations
 
 The site is in English and ready for more languages. To add Portuguese:

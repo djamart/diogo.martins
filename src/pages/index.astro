@@ -2,7 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import { profile } from '../data/profile';
-import { pageHref } from '../utils/nav';
+import { fileHref, pageHref } from '../utils/nav';
+import { cvFileName } from '../cv/model';
 
 const base = import.meta.env.BASE_URL;
 const t = useTranslations(getLangFromUrl(Astro.url, base));
@@ -23,6 +24,9 @@ const t = useTranslations(getLangFromUrl(Astro.url, base));
     </a>
     <a href={pageHref(base, 'experience')} data-testid="cta-experience">
       {t('home.ctaExperience')}
+    </a>
+    <a href={fileHref(base, cvFileName)} download data-testid="cta-cv">
+      {t('home.ctaCv')}
     </a>
   </p>
   <p class="proof">{t('home.proof')}</p>

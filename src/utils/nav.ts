@@ -29,3 +29,8 @@ export function isCurrentPage(pathname: string, base: string, path: string): boo
   const normalize = (value: string) => withTrailingSlash(value.replace(/\.html$/, ''));
   return normalize(pathname) === normalize(pageHref(base, path));
 }
+
+/** Builds the href of a file at the site root, e.g. ("/diogo.martins", "cv.pdf") → "/diogo.martins/cv.pdf". */
+export function fileHref(base: string, fileName: string): string {
+  return `${withTrailingSlash(base)}${fileName}`;
+}
