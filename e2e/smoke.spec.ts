@@ -16,10 +16,12 @@ test.describe('Smoke', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 
-  test('home page links to GitHub', async ({ page }) => {
-    const home = new HomePage(page);
-    await home.goto();
-    await expect(home.githubLink).toHaveAttribute('href', 'https://github.com/djamart');
+  test('footer links to the source code', async ({ page }) => {
+    await new HomePage(page).goto();
+    await expect(page.getByTestId('link-source')).toHaveAttribute(
+      'href',
+      'https://github.com/djamart/diogo.martins',
+    );
   });
 
   test('unknown page shows the 404 page with a way back home', async ({ page }) => {

@@ -27,7 +27,7 @@ describe('getLangFromUrl', () => {
 describe('useTranslations', () => {
   it('returns the string for the requested language', () => {
     const t = useTranslations('en');
-    expect(t('home.role')).toBe(ui.en['home.role']);
+    expect(t('nav.about')).toBe(ui.en['nav.about']);
   });
 
   it('has a non-empty value for every key in the default language', () => {

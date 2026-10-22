@@ -1,27 +1,60 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { profile } from '../data/profile';
+import { pageHref } from '../utils/nav';
 
-const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+const base = import.meta.env.BASE_URL;
+const t = useTranslations(getLangFromUrl(Astro.url, base));
 ---
 
 <BaseLayout>
   <h1>{t('home.greeting')}</h1>
-  <p class="role">{t('home.role')}</p>
-  <p>{t('home.intro')}</p>
-  <p>
-    {t('home.links')}
-    <a href="https://github.com/djamart" data-testid="link-github">
-      GitHub
-    </a>
-    .
+  <p class="role" data-testid="role">
+    {profile.title}
   </p>
+  <p class="pillars" data-testid="pillars">
+    {profile.pillars.join(' · ')}
+  </p>
+  <p class="intro">{t('home.intro')}</p>
+  <p class="actions">
+    <a href={pageHref(base, 'contact')} data-testid="cta-contact">
+      {t('home.ctaContact')}
+    </a>
+    <a href={pageHref(base, 'experience')} data-testid="cta-experience">
+      {t('home.ctaExperience')}
+    </a>
+  </p>
+  <p class="proof">{t('home.proof')}</p>
 </BaseLayout>
 
 <style>
   .role {
-    margin-top: -0.75rem;
+    margin-bottom: 0;
+    font-size: 1.25rem;
     font-weight: 600;
+  }
+
+  .pillars {
+    margin-top: 0.25rem;
     color: var(--color-muted);
+  }
+
+  .intro {
+    font-size: 1.15rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    font-weight: 600;
+  }
+
+  .proof {
+    margin-top: 2.5rem;
+    padding: 1rem;
+    border-left: 4px solid var(--color-accent);
+    font-size: 0.95rem;
   }
 </style>

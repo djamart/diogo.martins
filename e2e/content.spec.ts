@@ -1,0 +1,56 @@
+import { expect, test } from '@playwright/test';
+import { SitePage } from './pages/SitePage';
+import { HomePage } from './pages/HomePage';
+
+test.describe('Content', () => {
+  test('home page shows the role and the three focus areas', async ({ page }) => {
+    const home = new HomePage(page);
+    await home.goto();
+
+    await expect(home.role).toHaveText('Quality Enablement Engineer');
+    await expect(page.getByTestId('pillars')).toHaveText(
+      'Test automation · Quality engineering · AI-driven testing',
+    );
+  });
+
+  test('experience lists roles from the most recent', async ({ page }) => {
+    await new SitePage(page).goto('experience');
+    const roles = page.getByTestId('role');
+
+    await expect(roles).toHaveCount(3);
+    await expect(roles.first()).toContainText('Capital on Tap');
+    await expect(roles.first()).toContainText('present');
+  });
+
+  test('about lists certifications and has no education section', async ({ page }) => {
+    await new SitePage(page).goto('about');
+
+    await expect(page.getByTestId('certifications').getByRole('listitem')).not.toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Education' })).toHaveCount(0);
+  });
+
+  test('contact offers email, LinkedIn and GitHub, and no phone number', async ({ page }) => {
+    await new SitePage(page).goto('contact');
+
+    await expect(page.getByTestId('contact-email')).toHaveAttribute('href', /^mailto:/);
+    await expect(page.getByTestId('contact-linkedin')).toHaveAttribute(
+      'href',
+      'https://www.linkedin.com/in/diogojamartins/',
+    );
+    await expect(page.getByTestId('contact-github')).toHaveAttribute(
+      'href',
+      'https://github.com/djamart',
+    );
+    await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
+  });
+
+  test('projects links to the source code and the test plan', async ({ page }) => {
+    await new SitePage(page).goto('projects');
+
+    await expect(page.getByTestId('link-repo')).toHaveAttribute(
+      'href',
+      'https://github.com/djamart/diogo.martins',
+    );
+    await expect(page.getByTestId('link-test-plan')).toHaveAttribute('href', /test-plan\.md$/);
+  });
+});

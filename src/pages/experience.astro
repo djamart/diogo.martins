@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { earlierCareer, experience, formatPeriod } from '../data/profile';
+
+const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+---
+
+<BaseLayout title={t('experience.title')}>
+  <h1>{t('experience.title')}</h1>
+  {experience.map((role) => (
+    <article class="role" data-testid="role">
+      <h2>
+        {role.title} · {role.company}
+        {role.client && (
+          <span class="client">
+            {t('experience.for')} {role.client}
+          </span>
+        )}
+      </h2>
+      <p class="meta">{formatPeriod(role)}</p>
+      <p>{role.summary}</p>
+      {role.highlights.length > 0 && (
+        <ul>
+          {role.highlights.map((highlight) => (
+            <li>{highlight}</li>
+          ))}
+        </ul>
+      )}
+    </article>
+  ))}
+  <h2>{t('experience.earlier')}</h2>
+  <p>{earlierCareer}</p>
+</BaseLayout>
+
+<style>
+  .role h2 {
+    margin-bottom: 0.25rem;
+  }
+
+  .client {
+    display: block;
+    font-size: 1.5rem;
+  }
+
+  .role + .role {
+    margin-top: 2.5rem;
+  }
+</style>
