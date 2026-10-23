@@ -6,6 +6,7 @@ export const sitePages = [
   { path: 'about', name: 'About', heading: 'About' },
   { path: 'experience', name: 'Experience', heading: 'Experience' },
   { path: 'projects', name: 'Projects', heading: 'Projects' },
+  { path: 'quality', name: 'Quality', heading: 'Quality' },
   { path: 'contact', name: 'Contact', heading: 'Contact' },
 ] as const;
 

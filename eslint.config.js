@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['dist/', '.astro/', 'coverage/', 'playwright-report/', 'test-results/'],
+    ignores: ['dist/', '.astro/', 'coverage/', 'playwright-report/', 'test-results/', 'reports/'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

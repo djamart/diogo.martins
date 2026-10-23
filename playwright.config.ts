@@ -8,7 +8,14 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: process.env.CI ? [['html', { open: 'never' }], ['github']] : 'list',
+  // The JSON report feeds the results on the /quality page (see .github/workflows/ci.yml).
+  reporter: process.env.CI
+    ? [
+        ['html', { open: 'never' }],
+        ['github'],
+        ['json', { outputFile: process.env.E2E_REPORT_FILE ?? 'reports/e2e.json' }],
+      ]
+    : 'list',
   use: {
     baseURL: process.env.BASE_URL ?? `http://localhost:${port}${basePath}`,
     trace: 'on-first-retry',

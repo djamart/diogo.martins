@@ -1,0 +1,187 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  ciRunFromEnv,
+  formatCounts,
+  formatPercent,
+  loadQualityReport,
+  parseCoverageSummary,
+  parseE2eReport,
+  parseUnitReport,
+} from '../../src/quality/report';
+
+const unitJson = { numTotalTests: 42, numPassedTests: 41, numFailedTests: 1, success: false };
+const coverageJson = {
+  total: {
+    lines: { pct: 97.31 },
+    branches: { pct: 90 },
+    functions: { pct: 100 },
+    statements: { pct: 96.5 },
+  },
+};
+const e2eJson = (expected: number, flaky = 0) => ({
+  stats: { expected, unexpected: 0, flaky, skipped: 0, duration: 1234 },
+});
+const githubEnv = {
+  GITHUB_SERVER_URL: 'https://github.com',
+  GITHUB_REPOSITORY: 'djamart/diogo.martins',
+  GITHUB_RUN_ID: '123456',
+  GITHUB_SHA: 'dde877c1c35bf3fc2754b453a8eb041ca81da272',
+};
+const labels = { passed: 'passed', failed: 'failed', flaky: 'passed on retry' };
+
+describe('parseUnitReport', () => {
+  it('reads the totals from a Vitest JSON report', () => {
+    expect(parseUnitReport(unitJson)).toEqual({ total: 42, passed: 41, failed: 1 });
+  });
+
+  it('rejects a report without test counts', () => {
+    expect(() => parseUnitReport({ numTotalTests: 3 })).toThrow(/"numPassedTests"/);
+    expect(() => parseUnitReport(null)).toThrow(/expected an object/);
+  });
+
+  it('rejects a negative count', () => {
+    expect(() => parseUnitReport({ ...unitJson, numFailedTests: -1 })).toThrow(/non-negative/);
+  });
+});
+
+describe('parseCoverageSummary', () => {
+  it('reads the total percentage of each metric', () => {
+    expect(parseCoverageSummary(coverageJson)).toEqual({
+      lines: 97.31,
+      branches: 90,
+      functions: 100,
+      statements: 96.5,
+    });
+  });
+
+  it('rejects a summary with a missing metric', () => {
+    expect(() => parseCoverageSummary({ total: { lines: { pct: 90 } } })).toThrow(/branches/);
+  });
+});
+
+describe('parseE2eReport', () => {
+  it('reads the totals of a Playwright JSON report and names the browser', () => {
+    expect(parseE2eReport('webkit', e2eJson(40, 2))).toEqual({
+      browser: 'WebKit',
+      passed: 40,
+      failed: 0,
+      flaky: 2,
+      skipped: 0,
+    });
+  });
+
+  it('keeps an unknown browser id as its name', () => {
+    expect(parseE2eReport('mobile-safari', e2eJson(1)).browser).toBe('mobile-safari');
+  });
+
+  it('rejects a report without stats', () => {
+    expect(() => parseE2eReport('chromium', {})).toThrow(/e2e-chromium\.json stats/);
+  });
+});
+
+describe('ciRunFromEnv', () => {
+  it('links to the run and the commit that built the site', () => {
+    expect(ciRunFromEnv(githubEnv)).toEqual({
+      url: 'https://github.com/djamart/diogo.martins/actions/runs/123456',
+      commit: 'dde877c',
+      commitUrl:
+        'https://github.com/djamart/diogo.martins/commit/dde877c1c35bf3fc2754b453a8eb041ca81da272',
+    });
+  });
+
+  it('is undefined outside GitHub Actions', () => {
+    expect(ciRunFromEnv({})).toBeUndefined();
+    expect(ciRunFromEnv({ ...githubEnv, GITHUB_RUN_ID: '' })).toBeUndefined();
+  });
+});
+
+describe('formatPercent', () => {
+  it('keeps at most one decimal and drops a trailing zero', () => {
+    expect(formatPercent(97.31)).toBe('97.3%');
+    expect(formatPercent(100)).toBe('100%');
+    expect(formatPercent(90.04)).toBe('90%');
+  });
+});
+
+describe('formatCounts', () => {
+  it('shows passed and failed tests', () => {
+    expect(formatCounts({ passed: 41, failed: 1 }, labels)).toBe('41 passed, 1 failed');
+  });
+
+  it('mentions retries only when a test needed one', () => {
+    expect(formatCounts({ passed: 40, failed: 0, flaky: 0 }, labels)).toBe('40 passed, 0 failed');
+    expect(formatCounts({ passed: 40, failed: 0, flaky: 2 }, labels)).toBe(
+      '40 passed, 0 failed (2 passed on retry)',
+    );
+  });
+});
+
+describe('loadQualityReport', () => {
+  let dir: string;
+  const write = (name: string, json: unknown) =>
+    writeFileSync(join(dir, name), JSON.stringify(json));
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'quality-report-'));
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('loads every report in the folder, with browsers in a stable order', () => {
+    write('unit.json', unitJson);
+    write('coverage-summary.json', coverageJson);
+    write('e2e-webkit.json', e2eJson(3));
+    write('e2e-chromium.json', e2eJson(1));
+    write('e2e-firefox.json', e2eJson(2));
+    write('notes.json', {});
+
+    const report = loadQualityReport(dir, githubEnv);
+
+    expect(report.unit?.total).toBe(42);
+    expect(report.coverage?.lines).toBe(97.31);
+    expect(report.e2e.map((result) => [result.browser, result.passed])).toEqual([
+      ['Chromium', 1],
+      ['Firefox', 2],
+      ['WebKit', 3],
+    ]);
+    expect(report.run?.commit).toBe('dde877c');
+  });
+
+  it('leaves out missing reports so a local build still works', () => {
+    expect(loadQualityReport(join(dir, 'missing'))).toEqual({
+      unit: undefined,
+      coverage: undefined,
+      e2e: [],
+      run: undefined,
+    });
+  });
+
+  it('fails the deploy build when a report is missing', () => {
+    write('unit.json', unitJson);
+
+    expect(() => loadQualityReport(dir, { ...githubEnv, REQUIRE_QUALITY_REPORT: 'true' })).toThrow(
+      /missing coverage-summary\.json, e2e-<browser>\.json$/,
+    );
+  });
+
+  it('passes the deploy build when every report is there', () => {
+    write('unit.json', unitJson);
+    write('coverage-summary.json', coverageJson);
+    write('e2e-chromium.json', e2eJson(1));
+
+    expect(() =>
+      loadQualityReport(dir, { ...githubEnv, REQUIRE_QUALITY_REPORT: 'true' }),
+    ).not.toThrow();
+  });
+
+  it('fails the deploy build outside GitHub Actions', () => {
+    expect(() => loadQualityReport(dir, { REQUIRE_QUALITY_REPORT: 'true' })).toThrow(
+      /GitHub Actions run details/,
+    );
+  });
+});
