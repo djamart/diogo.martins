@@ -41,7 +41,7 @@ export interface ContactLink {
 
 export const profile = {
   name: 'Diogo Martins',
-  title: 'Quality Enablement Engineer',
+  title: 'Quality Assurance Engineer',
   pillars: [
     {
       name: { en: 'Test automation', pt: 'Automação de testes' },

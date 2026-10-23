@@ -15,9 +15,9 @@ export const languageTags: Record<Lang, string> = {
 };
 
 const en = {
-  'site.title': 'Diogo Martins | Quality Enablement Engineer',
+  'site.title': 'Diogo Martins | Quality Assurance Engineer',
   'site.description':
-    'Diogo Martins, Quality Enablement Engineer: test automation, quality engineering and AI-driven testing.',
+    'Diogo Martins, Quality Assurance Engineer: test automation, quality engineering and AI-driven testing.',
   'nav.label': 'Main',
   'nav.skip': 'Skip to content',
   'nav.menu': 'Menu',
@@ -210,9 +210,9 @@ export type UiKey = keyof typeof en;
 
 // Typed against the English keys, so a missing or misspelled translation fails `astro check`.
 const pt: Record<UiKey, string> = {
-  'site.title': 'Diogo Martins | Quality Enablement Engineer',
+  'site.title': 'Diogo Martins | Quality Assurance Engineer',
   'site.description':
-    'Diogo Martins, Quality Enablement Engineer: automação de testes, engenharia de qualidade e testes com IA.',
+    'Diogo Martins, Quality Assurance Engineer: automação de testes, engenharia de qualidade e testes com IA.',
   'nav.label': 'Principal',
   'nav.skip': 'Saltar para o conteúdo',
   'nav.menu': 'Menu',

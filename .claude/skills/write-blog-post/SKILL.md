@@ -27,7 +27,7 @@ pubDate: 2026-10-23
 
 ## 2. The content
 
-- Follow the content rules in `CLAUDE.md`: no phone number, CVEs without their identifiers, the "Quality Enablement Engineer" title.
+- Follow the content rules in `CLAUDE.md`: no phone number, CVEs without their identifiers, the "Quality Assurance Engineer" title.
 - Portuguese is pt-PT (ecrã, ficheiro, equipa), never pt-BR.
 - Code blocks wrap instead of scrolling, so long commands stay readable at 320 px; keep them short anyway.
 - Images need alt text that says what the image shows. Prefer text and code to screenshots of them.
