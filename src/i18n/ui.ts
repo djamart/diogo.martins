@@ -83,6 +83,9 @@ const en = {
   'quality.gate.mobile.name': 'Phone screens',
   'quality.gate.mobile.description':
     'Runs the end-to-end and accessibility tests again on an emulated Pixel 7 and iPhone 15, with touch, and checks that every page fits 320 pixels wide and its controls are large enough to tap.',
+  'quality.gate.visual.name': 'Visual changes',
+  'quality.gate.visual.description':
+    'Takes a screenshot of every page in light and dark themes, on a desktop and on a phone, and fails if it differs from the approved one. A change in the look comes with new screenshots, reviewed in the pull request.',
   'quality.gate.lighthouse.name': 'Performance and SEO',
   'quality.gate.lighthouse.description':
     'Audits every page with Lighthouse and fails if performance, accessibility, best practices or SEO scores below 95.',
@@ -239,6 +242,9 @@ const pt: Record<UiKey, string> = {
   'quality.gate.mobile.name': 'Ecrãs de telemóvel',
   'quality.gate.mobile.description':
     'Repete os testes end-to-end e de acessibilidade num Pixel 7 e num iPhone 15 emulados, com toque, e verifica que cada página cabe em 320 píxeis de largura e que os controlos são grandes o suficiente para tocar.',
+  'quality.gate.visual.name': 'Mudanças visuais',
+  'quality.gate.visual.description':
+    'Tira uma captura de ecrã de cada página nos temas claro e escuro, num computador e num telemóvel, e falha se for diferente da aprovada. Uma mudança no aspeto vem com novas capturas, revistas no pull request.',
   'quality.gate.lighthouse.name': 'Desempenho e SEO',
   'quality.gate.lighthouse.description':
     'Audita cada página com o Lighthouse e falha se o desempenho, a acessibilidade, as boas práticas ou o SEO ficarem abaixo de 95.',

@@ -18,7 +18,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:lighthouse": "node scripts/lighthouse.mjs",
-    "test:links": "node scripts/check-links.mjs"
+    "test:links": "node scripts/check-links.mjs",
+    "test:visual:update": "node scripts/update-screenshots.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",

@@ -48,6 +48,13 @@ export const qualityGates: QualityGate[] = [
     stage: 'pull-request',
   },
   {
+    id: 'visual',
+    tools: 'Playwright screenshots',
+    nameKey: 'quality.gate.visual.name',
+    descriptionKey: 'quality.gate.visual.description',
+    stage: 'pull-request',
+  },
+  {
     id: 'lighthouse',
     tools: 'Lighthouse CI',
     nameKey: 'quality.gate.lighthouse.name',
