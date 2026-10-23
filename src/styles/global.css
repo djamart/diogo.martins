@@ -137,17 +137,24 @@ main {
   position: relative;
 }
 
+/* Text only, padded to a comfortable tap target; underlined on hover like the menu links. */
 .language-button {
   min-width: 2.5rem;
   padding: 0.4rem 0.6rem;
-  border: 2px solid var(--color-accent);
-  border-radius: 999px;
+  border: 0;
+  border-radius: 0.5rem;
   font: inherit;
   font-weight: 600;
   line-height: 1.25rem;
   color: var(--color-text);
   background: transparent;
   cursor: pointer;
+}
+
+.language-button:hover,
+.language-button[aria-expanded='true'] {
+  text-decoration: underline var(--color-accent) 2px;
+  text-underline-offset: 3px;
 }
 
 .language-menu .language-options {
