@@ -73,7 +73,7 @@ These are deliberate decisions; tests enforce several of them.
 - No phone number anywhere, including the CV. Contact is email (mailto), LinkedIn, GitHub and the CV PDF.
 - CVEs can be mentioned, but never their identifiers.
 - No Education section; certifications take its place.
-- Accent colours (raspberry red, cinnabar) only on large text, underlines and focus rings, to keep contrast at WCAG AA.
+- The accent colour is cinnabar in both themes, used only on large text, underlines and focus rings to keep contrast at WCAG AA. Raspberry red stays in the CV and the favicon.
 
 ## Working agreements
 

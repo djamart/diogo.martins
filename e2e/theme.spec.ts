@@ -41,6 +41,22 @@ test.describe('Theme menu', () => {
     await expect(site.themeButton).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test('on a wide screen, the menu opens to the right of the button, clear of the text', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    const site = new SitePage(page);
+    await site.goto('');
+
+    await site.themeButton.click();
+    await expect(site.themeMenu).toBeVisible();
+
+    const button = await site.themeButton.boundingBox();
+    const menu = await site.themeMenu.boundingBox();
+    expect(menu!.x).toBeGreaterThanOrEqual(button!.x + button!.width);
+    expect(menu!.x + menu!.width).toBeLessThanOrEqual(1280);
+  });
+
   test('light and dark override the system preference', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     const site = new SitePage(page);

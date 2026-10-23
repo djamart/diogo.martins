@@ -39,9 +39,10 @@ export const themes: Record<ThemeName, Theme> = {
     surface: palette.ashGrey,
     text: palette.graphite,
     muted: palette.graphite,
-    heading: palette.raspberryRed,
-    accent: palette.raspberryRed,
-    focus: palette.raspberryRed,
+    // Cinnabar on both themes, so the accent looks the same in light and dark (3.06:1 here).
+    heading: palette.cinnabar,
+    accent: palette.cinnabar,
+    focus: palette.cinnabar,
     decor: palette.cinnabar,
   },
   dark: {

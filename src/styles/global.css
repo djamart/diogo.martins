@@ -172,6 +172,15 @@ main:focus {
   background: var(--color-bg);
 }
 
+/* Where there is room beside the content column, the menu opens to the right of the button. */
+@media (min-width: 64rem) {
+  .theme-menu [role='menu'] {
+    top: 0;
+    right: auto;
+    left: calc(100% + 0.5rem);
+  }
+}
+
 .theme-menu [role='menuitemradio'] {
   display: flex;
   align-items: center;
