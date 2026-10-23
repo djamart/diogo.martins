@@ -18,6 +18,18 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Moving to another page of the site fades between the two instead of flashing, and the header
+   stays put. Browsers without cross-document view transitions simply load the page. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  .site-header {
+    view-transition-name: site-header;
+  }
+}
+
 body {
   margin: 0;
   min-height: 100vh;
