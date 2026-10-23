@@ -23,6 +23,7 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `src/i18n/ui.ts`                 | Every user-facing string in every language, keyed by `section.name`                             |
 | `src/data/profile.ts`            | Experience, certifications and contact links. Single source for the pages and the CV            |
 | `src/cv/`                        | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                                 |
+| `src/contact/`                   | Contact form: field checks and what is sent to Web3Forms, which forwards messages by email      |
 | `src/quality/`                   | Build-time readers for the /quality page: CI reports, deploy history and skills                 |
 | `src/styles/tokens.ts`           | Colour palette and themes, with the contrast pairs they must meet                               |
 | `src/utils/`                     | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested            |

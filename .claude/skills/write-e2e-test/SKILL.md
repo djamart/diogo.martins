@@ -23,6 +23,7 @@ Check the existing specs first; extend a test rather than adding a near-duplicat
 | `mobile.spec.ts`        | Phones only: reflow at 320 px, tap target size, touch           |
 | `language.spec.ts`      | Language switch, `lang` and `hreflang`, Portuguese content      |
 | `blog.spec.ts`          | Blog index, RSS feed, and every post in `postPages`             |
+| `contact-form.spec.ts`  | Contact form: sending, field errors, failures (service faked)   |
 | `visual.spec.ts`        | Screenshots of every English page, light and dark               |
 
 Only add to `smoke.spec.ts` if a failure would mean the live site is broken for everyone. A new concern that does not fit these gets its own `<concern>.spec.ts`.
