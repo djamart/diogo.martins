@@ -22,7 +22,6 @@ const en = {
   'nav.skip': 'Skip to content',
   'nav.home': 'Home',
   'nav.about': 'About',
-  'nav.experience': 'Experience',
   'nav.quality': 'Quality',
   'nav.blog': 'Blog',
   'nav.contact': 'Contact',
@@ -52,17 +51,16 @@ const en = {
   'home.project.testPlan': 'Test plan',
   'about.title': 'About',
   'about.p1':
-    "I'm a Quality Enablement Engineer. I build test automation, help teams treat quality as a shared practice, and use AI to make testing faster and smarter.",
+    "I'm a Quality Enablement Engineer. In practice that means helping teams build quality into their work from the start: I write test automation, show developers how to test their own changes, and use AI to take the repetitive parts of testing off people's plates.",
   'about.p2':
-    'Before software, I worked in quality control and logistics, which is where I learned that quality is a process, not a final check. I taught myself software testing through online courses, and my first QA role was testing genomic data pipelines for a pharmaceutical company.',
+    "Before software, I worked in quality control and logistics. That's where I learned that quality is a process, not a final check. I taught myself software testing through online courses, and my first QA job was testing genomic data pipelines for a pharmaceutical company.",
   'about.p3':
-    "Since then I've moved teams from manual to AI-assisted testing, found security vulnerabilities published as CVEs, and coached developers to catch defects earlier.",
+    "Since then I've helped teams move from manual to AI-assisted testing, found security bugs that were published as CVEs, and spent a lot of time with developers on catching problems before they reach QA.",
   'about.certifications': 'Certifications',
   'about.languages': 'Languages',
   'about.languagesList': 'Portuguese (native), English (full professional)',
   'experience.title': 'Experience',
   'experience.for': 'for',
-  'experience.earlier': 'Earlier',
   'experience.present': 'present',
   'quality.title': 'Quality',
   'quality.intro':
@@ -167,7 +165,6 @@ const pt: Record<UiKey, string> = {
   'nav.skip': 'Saltar para o conteúdo',
   'nav.home': 'Início',
   'nav.about': 'Sobre',
-  'nav.experience': 'Experiência',
   'nav.quality': 'Qualidade',
   'nav.blog': 'Blog',
   'nav.contact': 'Contacto',
@@ -198,17 +195,16 @@ const pt: Record<UiKey, string> = {
   'home.project.testPlan': 'Plano de testes',
   'about.title': 'Sobre',
   'about.p1':
-    'Sou Quality Enablement Engineer. Construo automação de testes, ajudo as equipas a tratar a qualidade como uma prática partilhada e uso IA para tornar os testes mais rápidos e inteligentes.',
+    'Sou Quality Enablement Engineer. Na prática, isto quer dizer ajudar as equipas a pôr a qualidade no trabalho desde o início: escrevo automação de testes, mostro aos programadores como testar as próprias alterações e uso IA para tirar às pessoas a parte repetitiva dos testes.',
   'about.p2':
-    'Antes do software, trabalhei em controlo de qualidade e logística, onde aprendi que a qualidade é um processo e não uma verificação final. Aprendi testes de software por conta própria, com cursos online, e o meu primeiro trabalho em QA foi testar pipelines de dados genómicos para uma farmacêutica.',
+    'Antes do software, trabalhei em controlo de qualidade e logística. Foi aí que aprendi que a qualidade é um processo e não uma verificação final. Aprendi testes de software sozinho, com cursos online, e o meu primeiro trabalho em QA foi testar pipelines de dados genómicos para uma farmacêutica.',
   'about.p3':
-    'Desde então, levei equipas dos testes manuais para os testes assistidos por IA, encontrei vulnerabilidades de segurança publicadas como CVE e orientei programadores para detetarem defeitos mais cedo.',
+    'Desde então, ajudei equipas a passar dos testes manuais para os testes assistidos por IA, encontrei falhas de segurança que foram publicadas como CVE e passei muito tempo com programadores a apanhar problemas antes de chegarem ao QA.',
   'about.certifications': 'Certificações',
   'about.languages': 'Línguas',
   'about.languagesList': 'Português (nativo), inglês (proficiência profissional plena)',
   'experience.title': 'Experiência',
   'experience.for': 'para a',
-  'experience.earlier': 'Percurso anterior',
   'experience.present': 'presente',
   'quality.title': 'Qualidade',
   'quality.intro':

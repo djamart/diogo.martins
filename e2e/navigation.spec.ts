@@ -43,7 +43,9 @@ test.describe('Navigation', () => {
     await expect(home.contactCta).toBeFocused();
   });
 
-  test('home call-to-action buttons lead to contact and experience', async ({ page }) => {
+  test('home call-to-action buttons lead to contact and the experience on about', async ({
+    page,
+  }) => {
     const home = new HomePage(page);
     const site = new SitePage(page);
 
@@ -53,6 +55,8 @@ test.describe('Navigation', () => {
 
     await home.goto();
     await home.experienceCta.click();
-    await expect(site.heading).toHaveText('Experience');
+    await expect(site.heading).toHaveText('About');
+    await expect(page).toHaveURL(/\/about\/#experience$/);
+    await expect(page.getByRole('heading', { name: 'Experience', level: 2 })).toBeInViewport();
   });
 });
