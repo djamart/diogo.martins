@@ -155,7 +155,7 @@ const pt: Record<UiKey, string> = {
   'nav.home': 'Início',
   'nav.about': 'Sobre',
   'nav.experience': 'Experiência',
-  'nav.projects': 'Projetos',
+  'nav.projects': 'Projectos',
   'nav.quality': 'Qualidade',
   'nav.contact': 'Contacto',
   'theme.label': 'Tema',
@@ -186,7 +186,7 @@ const pt: Record<UiKey, string> = {
   'experience.for': 'para a',
   'experience.earlier': 'Percurso anterior',
   'experience.present': 'presente',
-  'projects.title': 'Projetos',
+  'projects.title': 'Projectos',
   'projects.intro':
     'A maior parte do meu trabalho está em código privado das empresas onde trabalhei. Isto é o que posso mostrar publicamente, e vai crescer.',
   'projects.site.title': 'Este site',

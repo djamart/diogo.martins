@@ -12,7 +12,7 @@ export const sitePages = [
   { lang: 'pt', path: '', name: 'Início', heading: /Diogo Martins/ },
   { lang: 'pt', path: 'about', name: 'Sobre', heading: 'Sobre' },
   { lang: 'pt', path: 'experience', name: 'Experiência', heading: 'Experiência' },
-  { lang: 'pt', path: 'projects', name: 'Projetos', heading: 'Projetos' },
+  { lang: 'pt', path: 'projects', name: 'Projectos', heading: 'Projectos' },
   { lang: 'pt', path: 'quality', name: 'Qualidade', heading: 'Qualidade' },
   { lang: 'pt', path: 'contact', name: 'Contacto', heading: 'Contacto' },
 ] as const satisfies { lang: Lang; path: string; name: string; heading: string | RegExp }[];
