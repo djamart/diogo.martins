@@ -43,9 +43,31 @@ jobs:
           path: reports/
           retention-days: 14
 
+  # The E2E jobs run in the official Playwright image, which ships the browsers and their system
+  # packages. Installing them on the runner downloaded from a slow apt mirror and could take over
+  # ten minutes. The image tag follows the locked @playwright/test version, so they never drift.
+  playwright-version:
+    name: Playwright version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          sparse-checkout: package-lock.json
+          sparse-checkout-cone-mode: false
+      - id: version
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
   e2e:
     name: End-to-end tests (${{ matrix.browser }})
+    needs: playwright-version
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
+      # Firefox refuses to run as root with a HOME it does not own; 1001 is the runner user.
+      options: --user 1001
     strategy:
       fail-fast: false
       matrix:
@@ -63,9 +85,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # The install sometimes hangs on GitHub runners; fail fast so a re-run can fix it.
-      - run: npx playwright install --with-deps ${{ matrix.browser }}
-        timeout-minutes: 10
       - run: npm run build
       - run: npm run test:e2e -- --project=${{ matrix.browser }}
         env:
@@ -183,8 +202,12 @@ jobs:
 
   smoke:
     name: Smoke test the live site
-    needs: deploy
+    needs: [deploy, playwright-version]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v${{ needs.playwright-version.outputs.version }}-noble
+      options: --user 1001
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -192,8 +215,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-        timeout-minutes: 10
       - run: npm run test:e2e -- --project=chromium --project=mobile-chrome
         env:
           BASE_URL: ${{ needs.deploy.outputs.page_url }}
