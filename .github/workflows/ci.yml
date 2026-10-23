@@ -50,6 +50,12 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
+        # Phones run in the job of the engine they emulate, reusing its browser install.
+        include:
+          - browser: chromium
+            mobile: mobile-chrome
+          - browser: webkit
+            mobile: mobile-safari
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -57,11 +63,19 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # The install sometimes hangs on GitHub runners; fail fast so a re-run can fix it.
       - run: npx playwright install --with-deps ${{ matrix.browser }}
+        timeout-minutes: 10
       - run: npm run build
       - run: npm run test:e2e -- --project=${{ matrix.browser }}
         env:
           E2E_REPORT_FILE: reports/e2e-${{ matrix.browser }}.json
+      # Runs even when the desktop tests fail, so one run shows both.
+      - if: ${{ !cancelled() && matrix.mobile }}
+        run: npm run test:e2e -- --project=${{ matrix.mobile }}
+        env:
+          E2E_REPORT_FILE: reports/e2e-${{ matrix.mobile }}.json
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-mobile
       - uses: actions/upload-artifact@v4
         with:
           name: quality-report-e2e-${{ matrix.browser }}
@@ -72,7 +86,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.browser }}
-          path: playwright-report/
+          path: |
+            playwright-report/
+            playwright-report-mobile/
           retention-days: 14
 
   lighthouse:
@@ -177,6 +193,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --project=chromium
+        timeout-minutes: 10
+      - run: npm run test:e2e -- --project=chromium --project=mobile-chrome
         env:
           BASE_URL: ${{ needs.deploy.outputs.page_url }}

@@ -10,7 +10,7 @@ Every pull request runs:
 
 - ESLint, Prettier and `astro check` (TypeScript)
 - Vitest unit tests with an 80% coverage threshold
-- Playwright end-to-end and accessibility tests against the production build, in Chromium, Firefox and WebKit
+- Playwright end-to-end and accessibility tests against the production build, in Chromium, Firefox and WebKit, and on emulated Android and iPhone screens
 - Lighthouse CI on every page, with a minimum score of 95 in performance, accessibility, best practices and SEO
 - linkinator, which follows every link on the build (pages, anchors, downloads and external sites) and fails on a broken one
 
@@ -38,7 +38,7 @@ npm run dev          # local dev server at http://localhost:4321/diogo.martins/
 | `npm run test:lighthouse` | Audits the build with Lighthouse CI        |
 | `npm run test:links`      | Checks every link on the build             |
 
-The E2E tests run in all three browsers; to run a single one, add `-- --project=firefox` (or `chromium`, `webkit`). To run them against a deployed site: `BASE_URL=https://djamart.github.io/diogo.martins/ npm run test:e2e`.
+The E2E tests run in all three browsers; to run a single one, add `-- --project=firefox` (or `chromium`, `webkit`, `mobile-chrome`, `mobile-safari`). To run them against a deployed site: `BASE_URL=https://djamart.github.io/diogo.martins/ npm run test:e2e`.
 
 Lighthouse needs Chrome; if it is not found, point `CHROME_PATH` at a Chrome or Chromium binary. Its HTML reports land in `lighthouse-report/`.
 

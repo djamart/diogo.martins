@@ -4,6 +4,8 @@ import { ui } from '../../src/i18n/ui';
 import { navItems } from '../../src/utils/nav';
 import lighthouseConfig from '../../lighthouserc.json';
 import vitestConfig from '../../vitest.config';
+import playwrightConfig from '../../playwright.config';
+import { devices } from '@playwright/test';
 
 describe('qualityGates', () => {
   it('has unique ids', () => {
@@ -32,6 +34,18 @@ describe('qualityGates', () => {
       expect(thresholds[metric], metric).toBe(80);
     }
     expect(ui.en['quality.gate.unit.description']).toContain('80%');
+  });
+
+  it('names the phones the end-to-end tests actually emulate', () => {
+    const phones = (playwrightConfig.projects ?? []).filter((project) => project.use?.isMobile);
+    expect(phones.map((project) => project.name)).toEqual(['mobile-chrome', 'mobile-safari']);
+    for (const project of phones) {
+      const device = Object.entries(devices).find(
+        ([, descriptor]) => descriptor.userAgent === project.use?.userAgent,
+      )?.[0];
+      expect(device, project.name).toBeDefined();
+      expect(ui.en['quality.gate.mobile.description']).toContain(device);
+    }
   });
 });
 

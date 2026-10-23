@@ -41,6 +41,13 @@ export const qualityGates: QualityGate[] = [
     stage: 'pull-request',
   },
   {
+    id: 'mobile',
+    tools: 'Playwright, axe-core',
+    nameKey: 'quality.gate.mobile.name',
+    descriptionKey: 'quality.gate.mobile.description',
+    stage: 'pull-request',
+  },
+  {
     id: 'lighthouse',
     tools: 'Lighthouse CI',
     nameKey: 'quality.gate.lighthouse.name',

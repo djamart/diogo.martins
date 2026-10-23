@@ -183,7 +183,8 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
           event.preventDefault();
           items[index].focus();
         });
-        document.addEventListener('click', (event) => {
+        // pointerdown, not click: iOS Safari fires no click for a tap on text that is not a control.
+        document.addEventListener('pointerdown', (event) => {
           if (!container.contains(event.target as Node)) close(false);
         });
 

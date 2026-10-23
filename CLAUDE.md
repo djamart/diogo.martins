@@ -46,7 +46,7 @@ npm run test:lighthouse # Lighthouse CI on every page, 95 minimum in all four ca
 npm run test:links      # linkinator: every link on the build resolves (after a build)
 ```
 
-E2E runs in Chromium, Firefox and WebKit (one CI job per browser). Locally, pick one with `-- --project=chromium`.
+E2E runs in Chromium, Firefox and WebKit (one CI job per browser), and on phones: `mobile-chrome` (Pixel 7) in the Chromium job and `mobile-safari` (iPhone 15) in the WebKit job. `e2e/mobile.spec.ts` (reflow at 320 px, tap targets, touch) runs only in the phone projects. Locally, pick one with `-- --project=chromium`.
 
 A new page must also be added to `lighthouserc.json`; a unit test fails until it is.
 
