@@ -10,8 +10,6 @@ export const palette = {
   cinnabar: '#f0544f',
   papayaWhip: '#fdf0d5',
   ashGrey: '#c6d8d3',
-  /** Papaya whip a shade darker, for cards on the light background. */
-  papayaDeep: '#f5e2bd',
   /** Graphite lifted a step, for cards on the dark background. */
   graphiteRaised: '#4a4245',
 } as const;
@@ -40,7 +38,7 @@ export interface Theme {
 export const themes: Record<ThemeName, Theme> = {
   light: {
     bg: palette.papayaWhip,
-    surface: palette.papayaDeep,
+    surface: palette.ashGrey,
     text: palette.graphite,
     muted: palette.graphite,
     // Cinnabar on both themes, so the accent looks the same in light and dark (3.06:1 here).
