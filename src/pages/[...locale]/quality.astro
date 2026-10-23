@@ -13,6 +13,7 @@ import {
   summarize,
 } from '../../quality/summary';
 import { loadSkills } from '../../quality/skills';
+import { formatDeployDate, linePoints, loadHistory, niceMax } from '../../quality/history';
 
 export const getStaticPaths = localeStaticPaths;
 
@@ -35,6 +36,16 @@ const minimumTick = {
   from: pointOnCircle(lighthouseMinimum, ring.radius - 7, ring.center),
   to: pointOnCircle(lighthouseMinimum, ring.radius + 7, ring.center),
 };
+// Trend charts: one plot area per chart, in the units of the SVG viewBox (0 0 320 160).
+const history = loadHistory(join(process.cwd(), 'reports'), report);
+const latestDeploy = history.at(-1);
+const plot = { left: 36, top: 10, width: 272, height: 116 };
+const testsArea = { ...plot, min: 0, max: niceMax(Math.max(0, ...history.map((d) => d.tests))) };
+const scoresArea = { ...plot, min: coverageMinimum, max: 100 };
+const testsTicks = [0, testsArea.max / 2, testsArea.max];
+const scoresTicks = [coverageMinimum, 90, 100];
+const tickY = (value: number, area: { min: number; max: number }) =>
+  plot.top + plot.height - ((value - area.min) / (area.max - area.min)) * plot.height;
 const perBrowser = report.e2e[0]
   ? report.e2e[0].passed + report.e2e[0].flaky + report.e2e[0].failed
   : undefined;
@@ -254,6 +265,162 @@ const perBrowser = report.e2e[0]
     </section>
   )}
 
+  {history.length === 1 && (
+    <section aria-labelledby="history-title">
+      <h2 id="history-title">{t('quality.history.title')}</h2>
+      <p data-testid="history-first">{t('quality.history.first')}</p>
+    </section>
+  )}
+
+  {history.length > 1 && latestDeploy && (
+    <section aria-labelledby="history-title" data-testid="history">
+      <h2 id="history-title">{t('quality.history.title')}</h2>
+      <p>{t('quality.history.intro').replace('{count}', String(history.length))}</p>
+      <div class="trends">
+        <figure class="trend">
+          <h3>{t('quality.history.tests')}</h3>
+          <svg viewBox="0 0 320 160" aria-hidden="true">
+            {testsTicks.map((tick) => (
+              <g>
+                <line
+                  class="trend-grid"
+                  x1={plot.left}
+                  x2={plot.left + plot.width}
+                  y1={tickY(tick, testsArea)}
+                  y2={tickY(tick, testsArea)}
+                />
+                <text
+                  class="trend-axis"
+                  x={plot.left - 6}
+                  y={tickY(tick, testsArea) + 4}
+                  text-anchor="end"
+                >
+                  {tick}
+                </text>
+              </g>
+            ))}
+            <g transform={`translate(${plot.left} ${plot.top})`}>
+              <polyline
+                class="trend-line"
+                points={linePoints(
+                  history.map((d) => d.tests),
+                  testsArea,
+                )}
+              />
+            </g>
+            <text class="trend-axis" x={plot.left} y="152">
+              {formatDeployDate(history[0]!.date, lang)}
+            </text>
+            <text class="trend-axis" x={plot.left + plot.width} y="152" text-anchor="end">
+              {formatDeployDate(latestDeploy.date, lang)}
+            </text>
+          </svg>
+          <figcaption>
+            {t('quality.history.testsCaption')
+              .replace('{first}', String(history[0]!.tests))
+              .replace('{last}', String(latestDeploy.tests))}
+          </figcaption>
+        </figure>
+        <figure class="trend">
+          <h3>{t('quality.history.scores')}</h3>
+          <svg viewBox="0 0 320 160" aria-hidden="true">
+            {scoresTicks.map((tick) => (
+              <g>
+                <line
+                  class="trend-grid"
+                  x1={plot.left}
+                  x2={plot.left + plot.width}
+                  y1={tickY(tick, scoresArea)}
+                  y2={tickY(tick, scoresArea)}
+                />
+                <text
+                  class="trend-axis"
+                  x={plot.left - 6}
+                  y={tickY(tick, scoresArea) + 4}
+                  text-anchor="end"
+                >
+                  {tick}
+                </text>
+              </g>
+            ))}
+            <g transform={`translate(${plot.left} ${plot.top})`}>
+              <polyline
+                class="trend-line"
+                points={linePoints(
+                  history.map((d) => d.coverage),
+                  scoresArea,
+                )}
+              />
+              <polyline
+                class="trend-line trend-line-second"
+                points={linePoints(
+                  history.map((d) => d.lighthouse),
+                  scoresArea,
+                )}
+              />
+            </g>
+            <text class="trend-axis" x={plot.left} y="152">
+              {formatDeployDate(history[0]!.date, lang)}
+            </text>
+            <text class="trend-axis" x={plot.left + plot.width} y="152" text-anchor="end">
+              {formatDeployDate(latestDeploy.date, lang)}
+            </text>
+          </svg>
+          <ul class="trend-legend">
+            <li>
+              <span class="swatch" aria-hidden="true" />
+              {t('quality.history.coverage')}
+            </li>
+            <li>
+              <span class="swatch swatch-second" aria-hidden="true" />
+              {t('quality.history.lighthouse')}
+            </li>
+          </ul>
+          <figcaption>
+            {t('quality.history.scoresCaption')
+              .replace('{coverage}', formatPercent(latestDeploy.coverage))
+              .replace('{lighthouse}', String(latestDeploy.lighthouse))}
+          </figcaption>
+        </figure>
+      </div>
+      <details class="trend-numbers">
+        <summary>{t('quality.history.table')}</summary>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{t('quality.history.date')}</th>
+              <th scope="col">{t('quality.history.commit')}</th>
+              <th scope="col" class="number">
+                {t('quality.history.colTests')}
+              </th>
+              <th scope="col" class="number">
+                {t('quality.history.colCoverage')}
+              </th>
+              <th scope="col" class="number">
+                {t('quality.history.colLighthouse')}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...history].reverse().map((deploy) => (
+              <tr>
+                <th scope="row">{formatDeployDate(deploy.date, lang)}</th>
+                <td>
+                  <a href={`${repo}/commit/${deploy.commit}`}>
+                    <code>{deploy.commit}</code>
+                  </a>
+                </td>
+                <td class="number">{deploy.tests}</td>
+                <td class="number">{formatPercent(deploy.coverage)}</td>
+                <td class="number">{deploy.lighthouse}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </details>
+    </section>
+  )}
+
   <p>
     <a href={`${repo}/actions/workflows/ci.yml`} data-testid="link-ci-history">
       {t('quality.results.history')}
@@ -441,26 +608,31 @@ const perBrowser = report.e2e[0]
   }
 
   /* Browsers: a pass-rate bar per row. */
-  .browsers {
+  .browsers,
+  .trend-numbers table {
     width: 100%;
     border-collapse: collapse;
   }
 
   .browsers th,
-  .browsers td {
+  .browsers td,
+  .trend-numbers th,
+  .trend-numbers td {
     padding: 0.5rem 0.4rem;
     border-bottom: 1px solid var(--color-muted);
     text-align: left;
     vertical-align: middle;
   }
 
-  .browsers .number {
+  .browsers .number,
+  .trend-numbers .number {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     text-align: right;
   }
 
-  .browsers thead th {
+  .browsers thead th,
+  .trend-numbers thead th {
     font-size: 0.9rem;
   }
 
@@ -486,17 +658,21 @@ const perBrowser = report.e2e[0]
       display: none;
     }
 
-    .browsers {
+    .browsers,
+    .trend-numbers table {
       font-size: 0.9rem;
     }
 
     .browsers th,
-    .browsers td {
+    .browsers td,
+    .trend-numbers th,
+    .trend-numbers td {
       padding-inline: 0.2rem;
       overflow-wrap: anywhere;
     }
 
-    .browsers thead th {
+    .browsers thead th,
+    .trend-numbers thead th {
       font-size: 0.8rem;
     }
   }
@@ -556,6 +732,101 @@ const perBrowser = report.e2e[0]
     width: 3px;
     height: 1.1rem;
     background: var(--color-accent);
+  }
+
+  /* Last deploys: two small line charts side by side, stacked on a phone. */
+  .trends {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+  }
+
+  .trend {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: var(--color-surface);
+  }
+
+  .trend h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .trend svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .trend-grid {
+    stroke: var(--color-text);
+    stroke-opacity: 0.2;
+  }
+
+  .trend-axis {
+    fill: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+
+  .trend-line {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 3;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .trend-line-second {
+    stroke: var(--color-text);
+    stroke-width: 2;
+    stroke-dasharray: 6 4;
+  }
+
+  .trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9rem;
+  }
+
+  .trend-legend li {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .swatch {
+    width: 1.25rem;
+    height: 3px;
+    background: var(--color-accent);
+  }
+
+  .swatch-second {
+    background: repeating-linear-gradient(to right, var(--color-text) 0 6px, transparent 6px 10px);
+  }
+
+  .trend figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .trend-numbers {
+    margin-top: 1rem;
+  }
+
+  .trend-numbers tbody th,
+  .trend-numbers code {
+    white-space: nowrap;
+  }
+
+  .trend-numbers summary {
+    cursor: pointer;
+    font-weight: 600;
   }
 
   /* Lighthouse: a ring per category, the score in the middle and a mark at the minimum. */

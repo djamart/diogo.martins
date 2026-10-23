@@ -23,7 +23,7 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `src/i18n/ui.ts`                 | Every user-facing string in every language, keyed by `section.name`                     |
 | `src/data/profile.ts`            | Experience, certifications and contact links. Single source for the pages and the CV    |
 | `src/cv/`                        | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                         |
-| `src/quality/`                   | Build-time readers for the /quality page: CI test reports (`report.ts`) and skills      |
+| `src/quality/`                   | Build-time readers for the /quality page: CI reports, deploy history and skills         |
 | `src/styles/tokens.ts`           | Colour palette and themes, with the contrast pairs they must meet                       |
 | `src/utils/`                     | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested    |
 | `tests/unit/`                    | Vitest unit tests, one file per module                                                  |
@@ -113,4 +113,5 @@ Procedures for recurring work, in `.claude/skills/`:
 
 - `astro preview` in Astro 7 backgrounds itself when it detects an agent; the Playwright web server passes `--ignore-lock` to keep it in the foreground. Keep that flag.
 - The /quality page reads CI results from `reports/` at build time. Locally that folder is usually absent and the page says so; the deploy build sets `REQUIRE_QUALITY_REPORT=true`, so a missing report fails the deploy instead of shipping an empty page.
+- The trend on /quality comes from `quality-history.json`, which the site publishes. The deploy job downloads the live copy into `reports/history.json` and the build adds its own run (`src/quality/history.ts`), so the history needs no commits or storage outside the site. Locally there is none and the section is left out.
 - If the installed Playwright browsers do not match the `@playwright/test` version (common in sandboxed containers), run locally with a throwaway config that sets `use.launchOptions.executablePath` to the available Chromium. Do not commit it; CI runs E2E in the official Playwright image (`mcr.microsoft.com/playwright`), tagged with the locked `@playwright/test` version, so its browsers always match.
