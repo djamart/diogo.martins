@@ -14,6 +14,10 @@ export const palette = {
   ashGrey: '#c6d8d3',
   /** Graphite lifted a step, for cards on the dark background. */
   graphiteRaised: '#4a4245',
+  /** Papaya whip a shade darker, for form fields on the light background. */
+  papayaWhipShade: '#f3e2bf',
+  /** Graphite a step down, for form fields on the dark background. */
+  graphiteSunken: '#2e282a',
 } as const;
 
 export type ThemeName = 'light' | 'dark';
@@ -23,6 +27,8 @@ export interface Theme {
   bg: string;
   /** Cards and highlighted blocks. */
   surface: string;
+  /** Inside form fields, a shade darker than the page so they read as places to type. */
+  field: string;
   /** Body text. */
   text: string;
   /** Secondary text (captions, meta). */
@@ -41,6 +47,7 @@ export const themes: Record<ThemeName, Theme> = {
   light: {
     bg: palette.papayaWhip,
     surface: palette.ashGrey,
+    field: palette.papayaWhipShade,
     text: palette.graphite,
     muted: palette.graphite,
     // Cinnabar on both themes, so the accent looks the same in light and dark (3.06:1 here).
@@ -52,6 +59,7 @@ export const themes: Record<ThemeName, Theme> = {
   dark: {
     bg: palette.graphite,
     surface: palette.graphiteRaised,
+    field: palette.graphiteSunken,
     text: palette.papayaWhip,
     muted: palette.ashGrey,
     heading: palette.cinnabar,
@@ -83,6 +91,8 @@ export const contrastRequirements: ReadonlyArray<{
   { fg: 'text', bg: 'bg', min: 4.5, reason: 'body text' },
   { fg: 'text', bg: 'surface', min: 4.5, reason: 'body text on cards' },
   { fg: 'muted', bg: 'bg', min: 4.5, reason: 'secondary text' },
+  { fg: 'text', bg: 'field', min: 4.5, reason: 'text typed in form fields' },
+  { fg: 'muted', bg: 'field', min: 3, reason: 'form field borders' },
   { fg: 'heading', bg: 'bg', min: 3, reason: 'large headings' },
   { fg: 'accent', bg: 'bg', min: 3, reason: 'link underlines and borders' },
   { fg: 'focus', bg: 'bg', min: 3, reason: 'focus indicator' },

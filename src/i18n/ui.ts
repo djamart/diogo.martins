@@ -174,7 +174,25 @@ const en = {
   'blog.inLang.pt': 'in Portuguese',
   'contact.title': 'Contact',
   'contact.intro':
-    "I'm happy to talk about QA roles, quality engineering or AI in testing. Email is the fastest way to reach me.",
+    "I'm happy to talk about QA roles, quality engineering or AI in testing. Send me a message here, or use one of the links below.",
+  'contact.form.title': 'Send a message',
+  'contact.form.name': 'Name',
+  'contact.form.email': 'Email',
+  'contact.form.message': 'Message',
+  'contact.form.submit': 'Send message',
+  'contact.form.sending': 'Sending your message…',
+  'contact.form.success': "Thanks, your message arrived. I'll reply to the email you gave.",
+  'contact.form.failure':
+    "Your message didn't go through. Try again in a moment, or email me instead:",
+  'contact.form.privacy':
+    'Messages reach my inbox through Web3Forms. I only use your email to reply.',
+  'contact.error.nameMissing': 'Add your name.',
+  'contact.error.emailMissing': 'Add your email, so I can reply.',
+  'contact.error.emailInvalid':
+    "That doesn't look like an email address. It should be like name@example.com.",
+  'contact.error.messageMissing': 'Write a message before sending.',
+  'contact.error.messageTooLong': 'Keep the message under 5000 characters.',
+  'contact.direct': 'Or reach me directly',
   'cv.profile': 'Profile',
   'cv.summary':
     'QA engineer who builds test automation, helps teams treat quality as a shared practice, and uses AI to make testing faster and smarter. Moved a team from manual to AI-assisted testing, found security vulnerabilities published as CVEs, and coaches developers to catch defects earlier.',
@@ -351,7 +369,24 @@ const pt: Record<UiKey, string> = {
   'blog.inLang.pt': 'em português',
   'contact.title': 'Contacto',
   'contact.intro':
-    'Tenho todo o gosto em falar sobre funções de QA, engenharia de qualidade ou IA nos testes. O email é a forma mais rápida de me contactar.',
+    'Tenho todo o gosto em falar sobre funções de QA, engenharia de qualidade ou IA nos testes. Pode deixar-me uma mensagem aqui, ou usar um dos contactos abaixo.',
+  'contact.form.title': 'Enviar uma mensagem',
+  'contact.form.name': 'Nome',
+  'contact.form.email': 'Email',
+  'contact.form.message': 'Mensagem',
+  'contact.form.submit': 'Enviar mensagem',
+  'contact.form.sending': 'A enviar a mensagem…',
+  'contact.form.success': 'Obrigado, a mensagem chegou. Respondo para o email que indicou.',
+  'contact.form.failure':
+    'A mensagem não foi enviada. Tente de novo daqui a pouco, ou envie-me um email:',
+  'contact.form.privacy':
+    'As mensagens chegam à minha caixa de correio através do Web3Forms. Só uso o seu email para responder.',
+  'contact.error.nameMissing': 'Falta o nome.',
+  'contact.error.emailMissing': 'Falta o email, para eu poder responder.',
+  'contact.error.emailInvalid': 'Este email não parece válido. Deve ser algo como nome@exemplo.pt.',
+  'contact.error.messageMissing': 'Escreva uma mensagem antes de enviar.',
+  'contact.error.messageTooLong': 'A mensagem tem de ter menos de 5000 caracteres.',
+  'contact.direct': 'Ou fale comigo diretamente',
   'cv.profile': 'Perfil',
   'cv.summary':
     'Engenheiro de QA que constrói automação de testes, ajuda as equipas a tratar a qualidade como uma prática partilhada e usa IA para tornar os testes mais rápidos e inteligentes. Levou uma equipa dos testes manuais para os testes assistidos por IA, encontrou vulnerabilidades de segurança publicadas como CVE e orienta programadores para detetarem defeitos mais cedo.',
