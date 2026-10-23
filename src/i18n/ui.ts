@@ -23,7 +23,6 @@ const en = {
   'nav.home': 'Home',
   'nav.about': 'About',
   'nav.experience': 'Experience',
-  'nav.projects': 'Projects',
   'nav.quality': 'Quality',
   'nav.blog': 'Blog',
   'nav.contact': 'Contact',
@@ -37,13 +36,20 @@ const en = {
   'footer.builtWith':
     'Built with Astro and shipped only when every test passes. See the source on GitHub.',
   'home.greeting': "Hi, I'm Diogo Martins.",
+  'home.headline': "I break things on purpose so your users don't by accident.",
   'home.intro':
-    'I help teams ship with confidence by building the tests, quality gates and AI tooling they rely on.',
+    "I started out in quality control and logistics, taught myself to test software, and never looked back. Now I help teams catch bugs early, automate what's worth automating, and use AI to test smarter.",
   'home.ctaContact': 'Get in touch',
   'home.ctaExperience': 'See my experience',
   'home.ctaCv': 'Download CV (PDF)',
-  'home.proof':
-    'This site is built like a product: every change passes linting, type checks, unit, end-to-end and accessibility tests before it goes live.',
+  'home.pillarsTitle': 'What I work on',
+  'home.projectTitle': 'Featured project',
+  'home.project.title': 'This website',
+  'home.project.description':
+    'Built and tested like a product. Every change goes through lint, type checks, unit tests, Playwright tests in three browsers and two phones, accessibility and Lighthouse checks before it goes live, and a smoke test runs on the live site after each deploy.',
+  'home.project.quality': "How it's tested",
+  'home.project.source': 'Source code',
+  'home.project.testPlan': 'Test plan',
   'about.title': 'About',
   'about.p1':
     "I'm a Quality Enablement Engineer. I build test automation, help teams treat quality as a shared practice, and use AI to make testing faster and smarter.",
@@ -58,14 +64,6 @@ const en = {
   'experience.for': 'for',
   'experience.earlier': 'Earlier',
   'experience.present': 'present',
-  'projects.title': 'Projects',
-  'projects.intro':
-    "Most of my work lives in private company codebases. This is what I can show in public, and it's growing.",
-  'projects.site.title': 'This website',
-  'projects.site.description':
-    'A personal site built and tested like a product: Astro and TypeScript, unit tests with an 80% coverage gate, Playwright end-to-end and accessibility tests, and deploys to GitHub Pages only from a green build, followed by a smoke test on the live site.',
-  'projects.site.source': 'Source code',
-  'projects.site.testPlan': 'Test plan',
   'quality.title': 'Quality',
   'quality.intro':
     'This site is built and tested like a product. These are the checks every change passes before it goes live, the results from the build you are looking at, and how AI agents help write and maintain the tests.',
@@ -170,7 +168,6 @@ const pt: Record<UiKey, string> = {
   'nav.home': 'Início',
   'nav.about': 'Sobre',
   'nav.experience': 'Experiência',
-  'nav.projects': 'Projectos',
   'nav.quality': 'Qualidade',
   'nav.blog': 'Blog',
   'nav.contact': 'Contacto',
@@ -184,13 +181,21 @@ const pt: Record<UiKey, string> = {
   'footer.builtWith':
     'Feito com Astro e publicado apenas quando todos os testes passam. Veja o código-fonte no GitHub.',
   'home.greeting': 'Olá, sou o Diogo Martins.',
+  'home.headline':
+    'Parto coisas de propósito para que os seus utilizadores não as partam sem querer.',
   'home.intro':
-    'Ajudo equipas a entregar software com confiança, construindo os testes, os quality gates e as ferramentas de IA de que dependem.',
+    'Comecei no controlo de qualidade e na logística, aprendi sozinho a testar software e nunca mais olhei para trás. Hoje ajudo equipas a apanhar bugs cedo, a automatizar o que vale a pena automatizar e a usar IA para testar melhor.',
   'home.ctaContact': 'Entrar em contacto',
   'home.ctaExperience': 'Ver a minha experiência',
   'home.ctaCv': 'Descarregar CV (PDF, em inglês)',
-  'home.proof':
-    'Este site é construído como um produto: cada alteração passa por linting, verificação de tipos e testes unitários, end-to-end e de acessibilidade antes de ir para produção.',
+  'home.pillarsTitle': 'Em que trabalho',
+  'home.projectTitle': 'Projecto em destaque',
+  'home.project.title': 'Este site',
+  'home.project.description':
+    'Construído e testado como um produto. Cada alteração passa por lint, verificação de tipos, testes unitários, testes Playwright em três browsers e dois telemóveis, e verificações de acessibilidade e Lighthouse antes de ir para produção, e um smoke test corre no site em produção depois de cada publicação.',
+  'home.project.quality': 'Como é testado',
+  'home.project.source': 'Código-fonte',
+  'home.project.testPlan': 'Plano de testes',
   'about.title': 'Sobre',
   'about.p1':
     'Sou Quality Enablement Engineer. Construo automação de testes, ajudo as equipas a tratar a qualidade como uma prática partilhada e uso IA para tornar os testes mais rápidos e inteligentes.',
@@ -205,14 +210,6 @@ const pt: Record<UiKey, string> = {
   'experience.for': 'para a',
   'experience.earlier': 'Percurso anterior',
   'experience.present': 'presente',
-  'projects.title': 'Projectos',
-  'projects.intro':
-    'A maior parte do meu trabalho está em código privado das empresas onde trabalhei. Isto é o que posso mostrar publicamente, e vai crescer.',
-  'projects.site.title': 'Este site',
-  'projects.site.description':
-    'Um site pessoal construído e testado como um produto: Astro e TypeScript, testes unitários com um mínimo de 80% de cobertura, testes end-to-end e de acessibilidade com Playwright, e publicação no GitHub Pages apenas a partir de um build verde, seguida de um smoke test ao site em produção.',
-  'projects.site.source': 'Código-fonte',
-  'projects.site.testPlan': 'Plano de testes',
   'quality.title': 'Qualidade',
   'quality.intro':
     'Este site é construído e testado como um produto. Estas são as verificações por que passa cada alteração antes de ir para produção, os resultados do build que está a ver e a forma como agentes de IA ajudam a escrever e a manter os testes.',

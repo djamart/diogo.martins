@@ -1,6 +1,7 @@
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { loadSkills } from '../src/quality/skills';
+import { ui } from '../src/i18n/ui';
 import { SitePage, pageLabel, sitePages } from './pages/SitePage';
 import { HomePage } from './pages/HomePage';
 
@@ -10,9 +11,12 @@ test.describe('Content', () => {
     await home.goto();
 
     await expect(home.role).toHaveText('Quality Enablement Engineer');
-    await expect(page.getByTestId('pillars')).toHaveText(
-      'Test automation · Quality engineering · AI-driven testing',
-    );
+    await expect(home.headline).toHaveText(ui.en['home.headline']);
+    await expect(home.pillars).toHaveText([
+      'Test automation',
+      'Quality engineering',
+      'AI-driven testing',
+    ]);
   });
 
   test('experience lists roles from the most recent', async ({ page }) => {
@@ -92,14 +96,38 @@ test.describe('Content', () => {
     expect((await response.body()).subarray(0, 5).toString('latin1')).toBe('%PDF-');
   });
 
-  test('projects links to the source code and the test plan', async ({ page }) => {
-    await new SitePage(page).goto('projects');
+  test('home features this website with its checks, source code and test plan', async ({
+    page,
+  }) => {
+    const home = new HomePage(page);
+    await home.goto();
 
-    await expect(page.getByTestId('link-repo')).toHaveAttribute(
+    await expect(home.project.getByRole('heading')).toHaveText('This website');
+    await home.project.getByTestId('link-quality').click();
+    await expect(new SitePage(page).heading).toHaveText('Quality');
+
+    await home.goto();
+    await expect(home.project.getByTestId('link-repo')).toHaveAttribute(
       'href',
       'https://github.com/djamart/diogo.martins',
     );
-    await expect(page.getByTestId('link-test-plan')).toHaveAttribute('href', /test-plan\.md$/);
+    await expect(home.project.getByTestId('link-test-plan')).toHaveAttribute(
+      'href',
+      /test-plan\.md$/,
+    );
+  });
+
+  test('the old projects address leads to the featured project on the home page', async ({
+    page,
+  }) => {
+    for (const [from, to] of [
+      ['./projects/', /\/diogo\.martins\/#project$/],
+      ['./pt/projects/', /\/diogo\.martins\/pt\/#project$/],
+    ] as const) {
+      await page.goto(from);
+      await expect(page).toHaveURL(to);
+      await expect(new HomePage(page).project).toBeVisible();
+    }
   });
 
   test('quality lists the gates every change passes, in the order they run', async ({ page }) => {

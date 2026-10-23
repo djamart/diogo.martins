@@ -10,6 +10,8 @@ export const palette = {
   cinnabar: '#f0544f',
   papayaWhip: '#fdf0d5',
   ashGrey: '#c6d8d3',
+  /** Graphite lifted a step, for cards on the dark background. */
+  graphiteRaised: '#4a4245',
 } as const;
 
 export type ThemeName = 'light' | 'dark';
@@ -47,7 +49,7 @@ export const themes: Record<ThemeName, Theme> = {
   },
   dark: {
     bg: palette.graphite,
-    surface: palette.graphite,
+    surface: palette.graphiteRaised,
     text: palette.papayaWhip,
     muted: palette.ashGrey,
     heading: palette.cinnabar,

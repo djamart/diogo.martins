@@ -125,9 +125,12 @@ test.describe('Language', () => {
     await site.goto('');
 
     await expect(site.heading).toHaveText(ui.pt['home.greeting']);
-    await expect(page.getByTestId('pillars')).toHaveText(
-      'Automação de testes · Engenharia de qualidade · Testes com IA',
-    );
+    await expect(page.getByTestId('headline')).toHaveText(ui.pt['home.headline']);
+    await expect(page.getByTestId('pillars').getByRole('heading', { level: 3 })).toHaveText([
+      'Automação de testes',
+      'Engenharia de qualidade',
+      'Testes com IA',
+    ]);
     await expect(site.navLink('Contacto')).toBeVisible();
   });
 

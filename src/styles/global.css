@@ -169,6 +169,17 @@ main {
   color: var(--color-muted);
 }
 
+/* A separate block of content, such as a pillar or a project, on the surface colour. */
+.card {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
 /* Calls to action. Filled with the text colour, so the label keeps body text contrast. */
 .button {
   display: inline-flex;

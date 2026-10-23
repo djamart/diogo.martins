@@ -44,12 +44,12 @@ import { expect, test } from '@playwright/test';
 import { SitePage } from './pages/SitePage';
 
 test.describe('Content', () => {
-  test('projects links to the source code and the test plan', async ({ page }) => {
-    await new SitePage(page).goto('projects');
+  test('quality links to the CI history', async ({ page }) => {
+    await new SitePage(page).goto('quality');
 
-    await expect(page.getByTestId('link-repo')).toHaveAttribute(
+    await expect(page.getByTestId('link-ci-history')).toHaveAttribute(
       'href',
-      'https://github.com/djamart/diogo.martins',
+      'https://github.com/djamart/diogo.martins/actions/workflows/ci.yml',
     );
   });
 });

@@ -63,7 +63,7 @@ export function buildCv(lang: Lang, siteUrl: string): Cv {
     lang: languageTags[lang],
     name: profile.name,
     title: profile.title,
-    pillars: profile.pillars.map((pillar) => pillar[lang]).join(' · '),
+    pillars: profile.pillars.map((pillar) => pillar.name[lang]).join(' · '),
     location: profile.location,
     links: contactLinks.map((link) => ({ text: displayLink(link.href), href: link.href })),
     website: { text: displayLink(siteUrl), href: siteUrl },
