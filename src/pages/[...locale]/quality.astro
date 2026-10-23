@@ -3,7 +3,15 @@ import { join } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { qualityGates } from '../../data/quality';
-import { formatCounts, formatPercent, loadQualityReport } from '../../quality/report';
+import { formatPercent, loadQualityReport } from '../../quality/report';
+import {
+  coverageMinimum,
+  lighthouseMinimum,
+  passRate,
+  pointOnCircle,
+  ringDash,
+  summarize,
+} from '../../quality/summary';
 import { loadSkills } from '../../quality/skills';
 
 export const getStaticPaths = localeStaticPaths;
@@ -16,45 +24,64 @@ const skills = loadSkills(join(process.cwd(), '.claude', 'skills'));
 const hasResults = Boolean(
   report.unit || report.coverage || report.e2e.length > 0 || report.lighthouse || report.links,
 );
-const countLabels = {
-  passed: t('quality.results.passed'),
-  failed: t('quality.results.failed'),
-  flaky: t('quality.results.flaky'),
-};
-const stages = [
-  { stage: 'pull-request', titleKey: 'quality.gates.pullRequest' },
-  { stage: 'deploy', titleKey: 'quality.gates.deploy' },
-] as const;
+const summary = summarize(report);
+const pullRequestGates = qualityGates.filter((gate) => gate.stage === 'pull-request');
+const deployGates = qualityGates.filter((gate) => gate.stage === 'deploy');
 const coverageMetrics = ['lines', 'branches', 'functions', 'statements'] as const;
 const lighthouseCategories = ['performance', 'accessibility', 'bestPractices', 'seo'] as const;
+// Gauge geometry, in the units of the SVG viewBox (0 0 100 100).
+const ring = { radius: 42, center: 50 };
+const minimumTick = {
+  from: pointOnCircle(lighthouseMinimum, ring.radius - 7, ring.center),
+  to: pointOnCircle(lighthouseMinimum, ring.radius + 7, ring.center),
+};
+const perBrowser = report.e2e[0]
+  ? report.e2e[0].passed + report.e2e[0].flaky + report.e2e[0].failed
+  : undefined;
 ---
 
 <BaseLayout title={t('quality.title')}>
   <h1>{t('quality.title')}</h1>
   <p>{t('quality.intro')}</p>
 
-  <h2>{t('quality.gates.title')}</h2>
-  {stages.map(({ stage, titleKey }) => (
-    <>
-      <h3>{t(titleKey)}</h3>
-      <ol class="gates" data-testid={`gates-${stage}`}>
-        {qualityGates
-          .filter((gate) => gate.stage === stage)
-          .map((gate) => (
-            <li data-testid="gate">
-              <strong>{t(gate.nameKey)}</strong>
-              <span class="meta">{gate.tools}</span>
-              <p>{t(gate.descriptionKey)}</p>
-            </li>
-          ))}
-      </ol>
-    </>
-  ))}
-
   <h2>{t('quality.results.title')}</h2>
   {hasResults ? (
     <div data-testid="results">
       <p>{t('quality.results.intro')}</p>
+      <ul class="stats" data-testid="summary">
+        {summary.unitPassed !== undefined && (
+          <li class="stat">
+            <strong>{summary.unitPassed}</strong>
+            <span>{t('quality.summary.unit')}</span>
+          </li>
+        )}
+        {summary.browserRuns && (
+          <li class="stat">
+            <strong>{summary.browserRuns.passed}</strong>
+            <span>
+              {t('quality.summary.browserRuns').replace(
+                '{browsers}',
+                String(summary.browserRuns.browsers),
+              )}
+            </span>
+          </li>
+        )}
+        {summary.lowestCoverage && (
+          <li class="stat">
+            <strong>{formatPercent(summary.lowestCoverage.value)}</strong>
+            <span>
+              {t('quality.summary.coverage').replace(
+                '{metric}',
+                t(`quality.results.${summary.lowestCoverage.metric}`),
+              )}
+            </span>
+          </li>
+        )}
+        <li class="stat">
+          <strong>{summary.failures}</strong>
+          <span>{t('quality.summary.failures')}</span>
+        </li>
+      </ul>
       {report.run && (
         <p class="meta">
           {t('quality.results.commit')} <a href={report.run.commitUrl}>{report.run.commit}</a> ·{' '}
@@ -63,68 +90,170 @@ const lighthouseCategories = ['performance', 'accessibility', 'bestPractices', '
           </a>
         </p>
       )}
-      <dl class="results">
-        {report.unit && (
-          <div>
-            <dt>{t('quality.results.unit')}</dt>
-            <dd data-testid="results-unit">{formatCounts(report.unit, countLabels)}</dd>
-          </div>
-        )}
-        {report.coverage && (
-          <div>
-            <dt>{t('quality.results.coverage')}</dt>
-            <dd data-testid="results-coverage">
-              {coverageMetrics
-                .map(
-                  (metric) =>
-                    `${formatPercent(report.coverage![metric])} ${t(`quality.results.${metric}`)}`,
-                )
-                .join(' · ')}
-            </dd>
-          </div>
-        )}
-        {report.e2e.length > 0 && (
-          <div>
-            <dt>{t('quality.results.e2e')}</dt>
-            <dd>
-              <ul data-testid="results-e2e">
-                {report.e2e.map((result) => (
-                  <li>
-                    {result.browser}: {formatCounts(result, countLabels)}
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </div>
-        )}
-        {report.lighthouse && (
-          <div>
-            <dt>{t('quality.results.lighthouse')}</dt>
-            <dd data-testid="results-lighthouse">
-              {lighthouseCategories
-                .map(
-                  (category) =>
-                    `${report.lighthouse![category]} ${t(`quality.results.${category}`)}`,
-                )
-                .join(' · ')}{' '}
-              ({t('quality.results.lowestScore')})
-            </dd>
-          </div>
-        )}
-        {report.links && (
-          <div>
-            <dt>{t('quality.results.links')}</dt>
-            <dd data-testid="results-links">
-              {report.links.checked} {t('quality.results.checked')}, {report.links.broken}{' '}
-              {t('quality.results.broken')}
-            </dd>
-          </div>
-        )}
-      </dl>
     </div>
   ) : (
     <p data-testid="results-unavailable">{t('quality.results.unavailable')}</p>
   )}
+
+  <h2>{t('quality.gates.title')}</h2>
+  <div class="pipeline">
+    <p class="step step-start">{t('quality.pipeline.start')}</p>
+    <div class="parallel">
+      <p class="parallel-label">
+        {t('quality.gates.pullRequest')} · {t('quality.pipeline.parallel')}
+      </p>
+      <ol class="gates" data-testid="gates-pull-request">
+        {pullRequestGates.map((gate) => (
+          <li class="step" data-testid="gate">
+            <strong>{t(gate.nameKey)}</strong>
+            <span class="meta">{gate.tools}</span>
+            <p>{t(gate.descriptionKey)}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+    <div class="sequence">
+      <p class="parallel-label">{t('quality.gates.deploy')}</p>
+      <ol class="gates gates-sequence" data-testid="gates-deploy">
+        {deployGates.map((gate) => (
+          <li class="step" data-testid="gate">
+            <strong>{t(gate.nameKey)}</strong>
+            <span class="meta">{gate.tools}</span>
+            <p>{t(gate.descriptionKey)}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+
+  {report.unit && perBrowser !== undefined && (
+    <section aria-labelledby="pyramid-title">
+      <h2 id="pyramid-title">{t('quality.pyramid.title')}</h2>
+      <ol class="pyramid" data-testid="pyramid">
+        <li class="tier tier-top">
+          <span>{t('quality.gate.smoke.name')}</span>
+          <span class="meta">{t('quality.pyramid.smoke')}</span>
+        </li>
+        <li class="tier tier-middle">
+          <span>{t('quality.gate.e2e.name')}</span>
+          <span class="meta">
+            {t('quality.pyramid.e2e').replace('{count}', String(perBrowser))}
+          </span>
+        </li>
+        <li class="tier tier-base">
+          <span>{t('quality.gate.unit.name')}</span>
+          <span class="meta">{report.unit.total}</span>
+        </li>
+      </ol>
+      <p>{t('quality.pyramid.caption')}</p>
+    </section>
+  )}
+
+  {report.e2e.length > 0 && (
+    <section aria-labelledby="browsers-title">
+      <h2 id="browsers-title">{t('quality.browsers.title')}</h2>
+      <table class="browsers" data-testid="browsers">
+        <thead>
+          <tr>
+            <th scope="col">{t('quality.browsers.browser')}</th>
+            <th scope="col" class="number">
+              {t('quality.browsers.passed')}
+            </th>
+            <th scope="col" class="number">
+              {t('quality.browsers.failed')}
+            </th>
+            <th scope="col" class="number">
+              {t('quality.browsers.flaky')}
+            </th>
+            <th scope="col" class="rate">
+              {t('quality.browsers.passRate')}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {report.e2e.map((result) => (
+            <tr>
+              <th scope="row">{result.browser}</th>
+              <td class="number">{result.passed}</td>
+              <td class="number">{result.failed}</td>
+              <td class="number">{result.flaky}</td>
+              <td class="rate">
+                <span class="bar" aria-hidden="true">
+                  <span style={`width: ${passRate(result)}%`} />
+                </span>
+                <span class="meta">{formatPercent(passRate(result))}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  )}
+
+  {report.coverage && (
+    <section aria-labelledby="coverage-title">
+      <h2 id="coverage-title">{t('quality.coverage.title')}</h2>
+      <ul class="coverage" data-testid="coverage">
+        {coverageMetrics.map((metric) => (
+          <li>
+            <span class="coverage-name">{t(`quality.results.${metric}`)}</span>
+            <span class="coverage-track" aria-hidden="true">
+              <span class="coverage-fill" style={`width: ${report.coverage![metric]}%`} />
+              <span class="coverage-minimum" style={`left: ${coverageMinimum}%`} />
+            </span>
+            <span class="meta">{formatPercent(report.coverage![metric])}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="coverage-legend">
+        {t('quality.coverage.minimum').replace('{minimum}', String(coverageMinimum))}
+      </p>
+    </section>
+  )}
+
+  {report.lighthouse && (
+    <section aria-labelledby="lighthouse-title">
+      <h2 id="lighthouse-title">{t('quality.lighthouse.title')}</h2>
+      <ul class="gauges" data-testid="lighthouse">
+        {lighthouseCategories.map((category) => (
+          <li class="gauge">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <circle class="gauge-track" cx={ring.center} cy={ring.center} r={ring.radius} />
+              <circle
+                class="gauge-fill"
+                cx={ring.center}
+                cy={ring.center}
+                r={ring.radius}
+                stroke-dasharray={ringDash(report.lighthouse![category], ring.radius)}
+              />
+              <line
+                class="gauge-minimum"
+                x1={minimumTick.from.x}
+                y1={minimumTick.from.y}
+                x2={minimumTick.to.x}
+                y2={minimumTick.to.y}
+              />
+            </svg>
+            <strong class="gauge-score">{report.lighthouse![category]}</strong>
+            <span class="gauge-name">{t(`quality.results.${category}`)}</span>
+          </li>
+        ))}
+      </ul>
+      <p>
+        {t('quality.lighthouse.caption')
+          .replace('{pages}', String(report.lighthouse.pages))
+          .replace('{minimum}', String(lighthouseMinimum))}
+      </p>
+      {report.links && (
+        <p data-testid="results-links">
+          {t('quality.links.summary')
+            .replace('{checked}', String(report.links.checked))
+            .replace('{broken}', String(report.links.broken))}
+        </p>
+      )}
+    </section>
+  )}
+
   <p>
     <a href={`${repo}/actions/workflows/ci.yml`} data-testid="link-ci-history">
       {t('quality.results.history')}
@@ -159,37 +288,330 @@ const lighthouseCategories = ['performance', 'accessibility', 'bestPractices', '
 </BaseLayout>
 
 <style>
-  .gates {
-    padding-left: 1.25rem;
+  section {
+    margin-top: 1rem;
   }
 
-  .gates li + li {
-    margin-top: 0.75rem;
+  /* Latest build: one large number per tile. */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .gates .meta {
-    display: block;
-    font-size: 0.9rem;
+  .stat {
+    display: grid;
+    align-content: start;
+    gap: 0.25rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: var(--color-surface);
   }
 
-  .gates p {
-    margin: 0.25rem 0 0;
+  .stat strong {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
   }
 
-  .results div + div {
-    margin-top: 0.75rem;
+  .stat span {
+    font-size: 0.95rem;
+    line-height: 1.35;
   }
 
-  .results dt {
+  /* The pipeline, top to bottom: the pull request, the checks that run side by side, then the
+     deploy steps one after another. Arrows are drawn between the steps. */
+  .pipeline {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .pipeline > * {
+    position: relative;
+    margin: 0;
+  }
+
+  .pipeline > * + *::before,
+  .gates-sequence > li + li::before {
+    content: '';
+    position: absolute;
+    top: -1.5rem;
+    left: 1.5rem;
+    width: 2px;
+    height: 1.25rem;
+    background: var(--color-accent);
+  }
+
+  .step {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-text);
+    border-radius: 0.6rem;
+  }
+
+  .step-start {
+    width: fit-content;
     font-weight: 600;
   }
 
-  .results dd {
-    margin-left: 0;
+  .step .meta {
+    display: block;
   }
 
-  .results ul {
+  .step p {
+    margin: 0.25rem 0 0;
+    font-size: 0.95rem;
+  }
+
+  .parallel {
+    padding: 1rem;
+    border: 2px dashed var(--color-muted);
+    border-radius: 0.9rem;
+  }
+
+  .parallel-label {
+    margin: 0 0 0.75rem;
+    font-weight: 600;
+  }
+
+  .gates {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.75rem;
     margin: 0;
-    padding-left: 1.25rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gates-sequence {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .gates-sequence > li {
+    position: relative;
+  }
+
+  .gates-sequence > li:last-child {
+    border-color: var(--color-accent);
+  }
+
+  /* Test pyramid: three bands, widest at the base. */
+  .pyramid {
+    display: grid;
+    justify-items: center;
+    gap: 0.4rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tier {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    max-width: 100%;
+    padding: 0.6rem 1rem;
+    border-radius: 0.4rem;
+    font-weight: 600;
+  }
+
+  .tier-top {
+    width: 50%;
+    border: 2px solid var(--color-accent);
+  }
+
+  .tier-middle {
+    width: 75%;
+    background: var(--color-surface);
+  }
+
+  .tier-base {
+    width: 100%;
+    color: var(--color-bg);
+    background: var(--color-text);
+  }
+
+  .tier-base .meta {
+    color: inherit;
+  }
+
+  /* Browsers: a pass-rate bar per row. */
+  .browsers {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .browsers th,
+  .browsers td {
+    padding: 0.5rem 0.4rem;
+    border-bottom: 1px solid var(--color-muted);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  .browsers .number {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .browsers thead th {
+    font-size: 0.9rem;
+  }
+
+  .bar {
+    display: block;
+    height: 0.6rem;
+    min-width: 4rem;
+    margin-bottom: 0.2rem;
+    border-radius: 999px;
+    background: var(--color-surface);
+    overflow: hidden;
+  }
+
+  .bar span {
+    display: block;
+    height: 100%;
+    background: var(--color-text);
+  }
+
+  /* On a phone the pass rate makes the table too wide; the counts beside it say the same. */
+  @media (max-width: 36rem) {
+    .browsers .rate {
+      display: none;
+    }
+
+    .browsers {
+      font-size: 0.9rem;
+    }
+
+    .browsers th,
+    .browsers td {
+      padding-inline: 0.2rem;
+      overflow-wrap: anywhere;
+    }
+
+    .browsers thead th {
+      font-size: 0.8rem;
+    }
+  }
+
+  /* Coverage: a bar per metric, with the minimum as a line in the accent. */
+  .coverage {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .coverage li {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr 4rem;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .coverage-track {
+    position: relative;
+    height: 0.9rem;
+    border-radius: 999px;
+    background: var(--color-surface);
+  }
+
+  .coverage-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 999px;
+    background: var(--color-text);
+  }
+
+  .coverage-minimum {
+    position: absolute;
+    top: -0.35rem;
+    bottom: -0.35rem;
+    width: 3px;
+    background: var(--color-accent);
+  }
+
+  .coverage li .meta {
+    margin: 0;
+    text-align: right;
+  }
+
+  .coverage-legend {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.95rem;
+  }
+
+  .coverage-legend::before {
+    content: '';
+    width: 3px;
+    height: 1.1rem;
+    background: var(--color-accent);
+  }
+
+  /* Lighthouse: a ring per category, the score in the middle and a mark at the minimum. */
+  .gauges {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: 1rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+  }
+
+  .gauge {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+  }
+
+  .gauge svg {
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  .gauge-track,
+  .gauge-fill {
+    fill: none;
+    stroke-width: 9;
+  }
+
+  .gauge-track {
+    stroke: var(--color-surface);
+  }
+
+  .gauge-fill {
+    stroke: var(--color-accent);
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+
+  .gauge-minimum {
+    stroke: var(--color-text);
+    stroke-width: 2.5;
+  }
+
+  .gauge-score {
+    position: absolute;
+    top: 3.25rem;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+  }
+
+  .gauge-name::first-letter {
+    text-transform: uppercase;
   }
 </style>

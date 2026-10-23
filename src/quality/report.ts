@@ -248,18 +248,3 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
 export function formatPercent(value: number): string {
   return `${Number(value.toFixed(1))}%`;
 }
-
-export interface CountLabels {
-  passed: string;
-  failed: string;
-  flaky: string;
-}
-
-/** Describes test counts, e.g. "41 passed, 0 failed (1 passed on retry)". Retries are only mentioned when they happened. */
-export function formatCounts(
-  result: { passed: number; failed: number; flaky?: number },
-  labels: CountLabels,
-): string {
-  const counts = `${result.passed} ${labels.passed}, ${result.failed} ${labels.failed}`;
-  return result.flaky ? `${counts} (${result.flaky} ${labels.flaky})` : counts;
-}

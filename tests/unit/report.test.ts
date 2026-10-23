@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   ciRunFromEnv,
-  formatCounts,
   formatPercent,
   loadQualityReport,
   parseCoverageSummary,
@@ -51,8 +50,6 @@ const githubEnv = {
   GITHUB_RUN_ID: '123456',
   GITHUB_SHA: 'dde877c1c35bf3fc2754b453a8eb041ca81da272',
 };
-const labels = { passed: 'passed', failed: 'failed', flaky: 'passed on retry' };
-
 describe('parseUnitReport', () => {
   it('reads the totals from a Vitest JSON report', () => {
     expect(parseUnitReport(unitJson)).toEqual({ total: 42, passed: 41, failed: 1 });
@@ -169,19 +166,6 @@ describe('formatPercent', () => {
     expect(formatPercent(97.31)).toBe('97.3%');
     expect(formatPercent(100)).toBe('100%');
     expect(formatPercent(90.04)).toBe('90%');
-  });
-});
-
-describe('formatCounts', () => {
-  it('shows passed and failed tests', () => {
-    expect(formatCounts({ passed: 41, failed: 1 }, labels)).toBe('41 passed, 1 failed');
-  });
-
-  it('mentions retries only when a test needed one', () => {
-    expect(formatCounts({ passed: 40, failed: 0, flaky: 0 }, labels)).toBe('40 passed, 0 failed');
-    expect(formatCounts({ passed: 40, failed: 0, flaky: 2 }, labels)).toBe(
-      '40 passed, 0 failed (2 passed on retry)',
-    );
   });
 });
 
