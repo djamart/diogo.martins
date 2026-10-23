@@ -31,6 +31,7 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages` (every menu page, both languages)         |
 |                            | and `BlogPage.ts` holds `postPages`, read from `src/content/blog`                       |
 | `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                               |
+| `scripts/lighthouse.mjs`   | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                 |
 | `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                   |
 | `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                               |
 | `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                           |
@@ -109,4 +110,4 @@ Procedures for recurring work, in `.claude/skills/`:
 
 - `astro preview` in Astro 7 backgrounds itself when it detects an agent; the Playwright web server passes `--ignore-lock` to keep it in the foreground. Keep that flag.
 - The /quality page reads CI results from `reports/` at build time. Locally that folder is usually absent and the page says so; the deploy build sets `REQUIRE_QUALITY_REPORT=true`, so a missing report fails the deploy instead of shipping an empty page.
-- If the installed Playwright browsers do not match the `@playwright/test` version (common in sandboxed containers), run locally with a throwaway config that sets `use.launchOptions.executablePath` to the available Chromium. Do not commit it; CI installs the right browsers.
+- If the installed Playwright browsers do not match the `@playwright/test` version (common in sandboxed containers), run locally with a throwaway config that sets `use.launchOptions.executablePath` to the available Chromium. Do not commit it; CI runs E2E in the official Playwright image (`mcr.microsoft.com/playwright`), tagged with the locked `@playwright/test` version, so its browsers always match.
