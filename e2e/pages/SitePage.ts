@@ -80,6 +80,34 @@ export class SitePage {
     });
   }
 
+  /** Where the main navigation starts from the left of the window, in pixels. */
+  async navLeftEdge(): Promise<number | undefined> {
+    return (await this.header.nav.boundingBox())?.x;
+  }
+
+  /**
+   * Records, on every page opened from now on, whether the browser can animate between pages and
+   * whether it did when the page appeared. Call it before the first `goto()`.
+   */
+  async watchPageTransitions() {
+    await this.page.addInitScript(() => {
+      const state = { supported: 'CSSViewTransitionRule' in window, animated: false };
+      Object.assign(window, { pageTransition: state });
+      window.addEventListener('pagereveal', (event) => {
+        state.animated = Boolean((event as Event & { viewTransition?: unknown }).viewTransition);
+      });
+    });
+  }
+
+  /** What `watchPageTransitions()` recorded for the page being shown. */
+  async pageTransition(): Promise<{ supported: boolean; animated: boolean }> {
+    return this.page.evaluate(
+      () =>
+        (window as unknown as { pageTransition: { supported: boolean; animated: boolean } })
+          .pageTransition,
+    );
+  }
+
   /** Waits for the web fonts, since text set in a fallback font would shift every line. */
   async fontsLoaded() {
     await this.page.evaluate(() => document.fonts.ready);

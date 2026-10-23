@@ -61,4 +61,31 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/\/about\/#experience$/);
     await expect(about.experienceHeading).toBeInViewport();
   });
+
+  test('moving to another page fades between the two where the browser can', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.watchPageTransitions();
+    await site.goto('');
+
+    await site.header.navLink('Blog').click();
+    await expect(site.heading).toHaveText('Blog');
+
+    const { supported, animated } = await site.pageTransition();
+    expect(animated).toBe(supported);
+  });
+
+  test.describe('with reduced motion', () => {
+    test.use({ reducedMotion: 'reduce' });
+
+    test('moving to another page shows it at once', async ({ page }) => {
+      const site = new SitePage(page);
+      await site.watchPageTransitions();
+      await site.goto('');
+
+      await site.header.navLink('Blog').click();
+      await expect(site.heading).toHaveText('Blog');
+
+      expect((await site.pageTransition()).animated).toBe(false);
+    });
+  });
 });
