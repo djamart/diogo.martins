@@ -44,6 +44,33 @@ test.describe('Content', () => {
     await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
   });
 
+  test('home and contact link to the CV as a PDF download', async ({ page }) => {
+    for (const [path, testId] of [
+      ['', 'cta-cv'],
+      ['contact', 'contact-cv'],
+    ] as const) {
+      await new SitePage(page).goto(path);
+      const link = page.getByTestId(testId);
+
+      await expect(link).toHaveAttribute('href', /\/diogo-martins-cv\.pdf$/);
+      await expect(link).toHaveAttribute('download');
+    }
+  });
+
+  test('the CV downloads as a PDF', async ({ page }) => {
+    await new SitePage(page).goto('contact');
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByTestId('contact-cv').click(),
+    ]);
+
+    expect(download.suggestedFilename()).toBe('diogo-martins-cv.pdf');
+    const response = await page.request.get(download.url());
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain('application/pdf');
+    expect((await response.body()).subarray(0, 5).toString('latin1')).toBe('%PDF-');
+  });
+
   test('projects links to the source code and the test plan', async ({ page }) => {
     await new SitePage(page).goto('projects');
 
