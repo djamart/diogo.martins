@@ -22,32 +22,54 @@ Check the existing specs first; extend a test rather than adding a near-duplicat
 | `theme.spec.ts`         | Theme menu: system default, light/dark/system, keyboard         |
 | `mobile.spec.ts`        | Phones only: reflow at 320 px, tap target size, touch           |
 | `language.spec.ts`      | Language switch, `lang` and `hreflang`, Portuguese content      |
+| `blog.spec.ts`          | Blog index, RSS feed, and every post in `postPages`             |
+| `visual.spec.ts`        | Screenshots of every English page, light and dark               |
 
 Only add to `smoke.spec.ts` if a failure would mean the live site is broken for everyone. A new concern that does not fit these gets its own `<concern>.spec.ts`.
 
-## 2. Locate elements like a user
+## 2. Find or extend the page object
 
-In order of preference:
+The suite follows the Page Object Model: specs say what the visitor does and what they should see; page objects in `e2e/pages/` know where things are on the page.
 
-1. `page.getByRole('link', { name: 'Contact', exact: true })` and other role + accessible name locators.
-2. `page.getByTestId('contact-email')` when the role and name would be ambiguous or are content that is expected to change.
-3. Never CSS classes, element structure or XPath.
+| Page object               | Covers                                                                 |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `SitePage`                | Any page: `root` (`<html>`), `heading`, `header`, `footer`, `head`     |
+| `HomePage`, `AboutPage`,  | One page each, extending `SitePage` with that page's content, and a    |
+| `ContactPage`,            | `path` so `goto()` needs no argument                                   |
+| `QualityPage`             |                                                                        |
+| `BlogPage`, `PostPage`    | The blog index of one language, and one post from `postPages`          |
+| `NotFoundPage`            | The 404 page                                                           |
+| `components/Header`       | Skip link, `navLink(name)`, and the `themeMenu` and `languageMenu`     |
+| `components/ThemeMenu`    | `button`, `menu`, `option('Dark')`, `choose('Dark')`, `rememberChoice` |
+| `components/LanguageMenu` | `button`, `menu`, `option('pt')`, `choose('pt')`                       |
+| `components/Footer`       | Contact region, email, LinkedIn, CV and source code links              |
+| `components/PageHead`     | `<link>` elements in the head: icon, feed, `alternate(hreflang)`       |
+
+Rules:
+
+- A spec never calls `page.getByRole`, `page.getByTestId` or `page.locator`. If the element you need has no locator yet, add it to the page object of the page it is on, or to a component if every page has it. `page` in a spec is only for the browser itself: `page.keyboard`, `page.emulateMedia`, `page.setViewportSize`, `expect(page).toHaveURL(...)` and `toHaveScreenshot`.
+- Page objects expose locators (as `readonly` fields, or a method when they take an argument) and actions (`goto`, `choose`, `downloadCv`). They never assert; the spec decides what is right.
+- A new page gets its own class that extends `SitePage` and overrides `path`. Build it with the page's language (`new AboutPage(page, 'pt')`): its locators use that language's accessible names from `src/i18n/ui.ts`.
+- A spec builds page objects, never components: reach them through the page (`const { themeMenu } = site.header`).
+- Inside a page object, locate elements like a user, in this order of preference:
+  1. `page.getByRole('link', { name: 'Contact', exact: true })` and other role + accessible name locators.
+  2. `page.getByTestId('contact-email')` when the role and name would be ambiguous or are content that is expected to change.
+  3. A CSS selector only for elements with no role that machines read (`<link>` in the head, `<time>`), with a comment saying why. Never CSS classes for layout, element structure or XPath.
 
 If you need a test id, add `data-testid="kebab-case-name"` to the markup in `src/pages/` or `src/layouts/`, named after what the element is.
-
-Put locators used by more than one test in a page object in `e2e/pages/`. `SitePage` covers the shared header, navigation and heading; `HomePage` covers the home page. Page objects expose locators and navigation, never assertions.
 
 ## 3. Write the test
 
 ```ts
 import { expect, test } from '@playwright/test';
-import { SitePage } from './pages/SitePage';
+import { QualityPage } from './pages/QualityPage';
 
 test.describe('Content', () => {
   test('quality links to the CI history', async ({ page }) => {
-    await new SitePage(page).goto('quality');
+    const quality = new QualityPage(page);
+    await quality.goto();
 
-    await expect(page.getByTestId('link-ci-history')).toHaveAttribute(
+    await expect(quality.ciHistoryLink).toHaveAttribute(
       'href',
       'https://github.com/djamart/diogo.martins/actions/workflows/ci.yml',
     );
@@ -55,11 +77,11 @@ test.describe('Content', () => {
 });
 ```
 
-- Navigate with `SitePage.goto(path)` or a relative URL (`'./about/'`). Never an absolute URL or a hardcoded host: the same test must pass with `BASE_URL` pointing at the live site.
+- Navigate with a page object's `goto()`. It uses relative URLs, never an absolute URL or a hardcoded host: the same test must pass with `BASE_URL` pointing at the live site.
 - Use web-first assertions that retry: `await expect(locator).toHaveText(...)`, `toHaveAttribute`, `toBeVisible`, `toHaveCount`. Avoid `expect(await locator.textContent())`.
-- No `page.waitForTimeout`. Wait for an event (`page.waitForEvent('download')`) or an assertion instead.
+- No `page.waitForTimeout`. Wait for an event or an assertion instead; an action that waits for one (like `ContactPage.downloadCv`) belongs in the page object.
 - For downloads, check the file name, status, content type and the first bytes (see the CV test in `content.spec.ts`).
-- Loop over `sitePages` when a rule applies to every page, so new pages are covered automatically in both languages. Build the page object for the page's language (`new SitePage(page, 'pt')`): its locators use that language's accessible names.
+- Loop over `sitePages` when a rule applies to every page, so new pages are covered automatically in both languages: `new SitePage(page, info.lang).goto(info.path)`. Loop over `postPages` for every blog post: `new PostPage(page, post).goto()`.
 - One behaviour per test, Arrange / Act / Assert separated by a blank line.
 
 ## 4. Run it

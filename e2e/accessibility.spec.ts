@@ -1,8 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { BlogPage, postLabel, postPages } from './pages/BlogPage';
+import { PostPage, postLabel, postPages } from './pages/PostPage';
 import { pageLabel, SitePage, sitePages } from './pages/SitePage';
-import { themeStorageKey } from '../src/utils/theme';
 
 // Phase 1 exit criterion: zero serious or critical axe violations on every page, in both themes.
 for (const colorScheme of ['light', 'dark'] as const) {
@@ -21,7 +20,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     for (const post of postPages) {
       test(`${postLabel(post)} has no serious accessibility violations`, async ({ page }) => {
-        await new BlogPage(page, post.lang).gotoPost(post.slug);
+        await new PostPage(page, post).goto();
 
         await expectNoSeriousViolations(page);
       });
@@ -34,11 +33,11 @@ for (const sitePage of sitePages) {
   test(`${pageLabel(sitePage)} page puts tabindex only on interactive elements`, async ({
     page,
   }) => {
-    await new SitePage(page, sitePage.lang).goto(sitePage.path);
+    const site = new SitePage(page, sitePage.lang);
 
-    const nonInteractive = page.locator('[tabindex]:not(a, button, input, select, textarea)');
+    await site.goto(sitePage.path);
 
-    await expect(nonInteractive).toHaveCount(0);
+    await expect(site.focusableNonControls).toHaveCount(0);
   });
 }
 
@@ -51,16 +50,14 @@ for (const [chosen, system] of [
     page,
   }) => {
     await page.emulateMedia({ colorScheme: system });
-    await page.addInitScript(
-      ([key, theme]) => localStorage.setItem(key, theme),
-      [themeStorageKey, chosen],
-    );
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
+    await themeMenu.rememberChoice(chosen);
 
     await site.goto('');
     // With the menu open, so the scan covers it too.
-    await site.themeButton.click();
-    await expect(site.themeOption(chosen === 'dark' ? 'Dark' : 'Light')).toHaveAttribute(
+    await themeMenu.button.click();
+    await expect(themeMenu.option(chosen === 'dark' ? 'Dark' : 'Light')).toHaveAttribute(
       'aria-checked',
       'true',
     );
@@ -75,9 +72,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
   }) => {
     await page.emulateMedia({ colorScheme });
     const site = new SitePage(page, 'pt');
+    const { languageMenu } = site.header;
     await site.goto('');
-    await site.languageButton.click();
-    await expect(site.languageMenu).toBeVisible();
+    await languageMenu.button.click();
+    await expect(languageMenu.menu).toBeVisible();
 
     await expectNoSeriousViolations(page);
   });

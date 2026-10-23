@@ -1,0 +1,19 @@
+import type { Locator, Page } from '@playwright/test';
+import { ui, type Lang } from '../../../src/i18n/ui';
+
+/** The footer on every page: ways to get in touch and a link to the source code. */
+export class Footer {
+  readonly contact: Locator;
+  readonly email: Locator;
+  readonly linkedin: Locator;
+  readonly cv: Locator;
+  readonly sourceLink: Locator;
+
+  constructor(page: Page, lang: Lang) {
+    this.contact = page.getByRole('region', { name: ui[lang]['footer.contactTitle'] });
+    this.email = page.getByTestId('footer-email');
+    this.linkedin = page.getByTestId('footer-linkedin');
+    this.cv = page.getByTestId('footer-cv');
+    this.sourceLink = page.getByTestId('link-source');
+  }
+}

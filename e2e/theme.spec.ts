@@ -18,27 +18,29 @@ test.describe('Theme menu', () => {
     test(`follows the system by default, here ${colorScheme}`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       const site = new SitePage(page);
+      const { themeMenu } = site.header;
 
       await site.goto('');
-      await site.themeButton.click();
+      await themeMenu.button.click();
 
-      await expect(site.themeOption('System')).toHaveAttribute('aria-checked', 'true');
+      await expect(themeMenu.option('System')).toHaveAttribute('aria-checked', 'true');
       await expect(site.body).toHaveCSS('background-color', background[colorScheme]);
     });
   }
 
   test('opens from one button and closes after a choice', async ({ page }) => {
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
-    await expect(site.themeMenu).toBeHidden();
+    await expect(themeMenu.menu).toBeHidden();
 
-    await site.themeButton.click();
-    await expect(site.themeButton).toHaveAttribute('aria-expanded', 'true');
-    await expect(site.themeMenu).toBeVisible();
-    await site.themeOption('Dark').click();
+    await themeMenu.button.click();
+    await expect(themeMenu.button).toHaveAttribute('aria-expanded', 'true');
+    await expect(themeMenu.menu).toBeVisible();
+    await themeMenu.option('Dark').click();
 
-    await expect(site.themeMenu).toBeHidden();
-    await expect(site.themeButton).toHaveAttribute('aria-expanded', 'false');
+    await expect(themeMenu.menu).toBeHidden();
+    await expect(themeMenu.button).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('on a wide screen, the menu opens to the right of the button, clear of the text', async ({
@@ -46,13 +48,14 @@ test.describe('Theme menu', () => {
   }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
 
-    await site.themeButton.click();
-    await expect(site.themeMenu).toBeVisible();
+    await themeMenu.button.click();
+    await expect(themeMenu.menu).toBeVisible();
 
-    const button = await site.themeButton.boundingBox();
-    const menu = await site.themeMenu.boundingBox();
+    const button = await themeMenu.button.boundingBox();
+    const menu = await themeMenu.menu.boundingBox();
     expect(menu!.x).toBeGreaterThanOrEqual(button!.x + button!.width);
     expect(menu!.x + menu!.width).toBeLessThanOrEqual(1280);
   });
@@ -60,87 +63,93 @@ test.describe('Theme menu', () => {
   test('light and dark override the system preference', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
 
-    await site.chooseTheme('Light');
+    await themeMenu.choose('Light');
     await expect(site.body).toHaveCSS('background-color', background.light);
 
     await page.emulateMedia({ colorScheme: 'light' });
-    await site.chooseTheme('Dark');
+    await themeMenu.choose('Dark');
     await expect(site.body).toHaveCSS('background-color', background.dark);
   });
 
   test('system goes back to following the system preference, live', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
-    await site.chooseTheme('Dark');
+    await themeMenu.choose('Dark');
 
-    await site.chooseTheme('System');
+    await themeMenu.choose('System');
     await expect(site.body).toHaveCSS('background-color', background.light);
     await page.emulateMedia({ colorScheme: 'dark' });
     await expect(site.body).toHaveCSS('background-color', background.dark);
 
     await page.reload();
-    await site.themeButton.click();
-    await expect(site.themeOption('System')).toHaveAttribute('aria-checked', 'true');
+    await themeMenu.button.click();
+    await expect(themeMenu.option('System')).toHaveAttribute('aria-checked', 'true');
   });
 
   test('remembers the choice on other pages and after a reload', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
 
-    await site.chooseTheme('Dark');
-    await site.navLink('About').click();
+    await themeMenu.choose('Dark');
+    await site.header.navLink('About').click();
     await expect(site.heading).toHaveText('About');
 
     await expect(site.body).toHaveCSS('background-color', background.dark);
     await page.reload();
     await expect(site.body).toHaveCSS('background-color', background.dark);
-    await site.themeButton.click();
-    await expect(site.themeOption('Dark')).toHaveAttribute('aria-checked', 'true');
+    await themeMenu.button.click();
+    await expect(themeMenu.option('Dark')).toHaveAttribute('aria-checked', 'true');
   });
 
   test('can be used with the keyboard', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
 
-    await site.themeButton.focus();
+    await themeMenu.button.focus();
     await page.keyboard.press('Enter');
-    await expect(site.themeOption('System')).toBeFocused();
+    await expect(themeMenu.option('System')).toBeFocused();
     await page.keyboard.press('ArrowUp');
-    await expect(site.themeOption('Dark')).toBeFocused();
+    await expect(themeMenu.option('Dark')).toBeFocused();
     await page.keyboard.press('Enter');
 
     await expect(site.body).toHaveCSS('background-color', background.dark);
-    await expect(site.themeMenu).toBeHidden();
-    await expect(site.themeButton).toBeFocused();
+    await expect(themeMenu.menu).toBeHidden();
+    await expect(themeMenu.button).toBeFocused();
   });
 
   test('Escape closes the menu and returns focus to the button', async ({ page }) => {
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
-    await site.themeButton.focus();
+    await themeMenu.button.focus();
     await page.keyboard.press('ArrowDown');
-    await expect(site.themeOption('Light')).toBeFocused();
+    await expect(themeMenu.option('Light')).toBeFocused();
 
     await page.keyboard.press('Escape');
 
-    await expect(site.themeMenu).toBeHidden();
-    await expect(site.themeButton).toBeFocused();
+    await expect(themeMenu.menu).toBeHidden();
+    await expect(themeMenu.button).toBeFocused();
   });
 
   test('clicking elsewhere closes the menu without changing the theme', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
-    await site.themeButton.click();
+    await themeMenu.button.click();
 
     await site.heading.click();
 
-    await expect(site.themeMenu).toBeHidden();
+    await expect(themeMenu.menu).toBeHidden();
     await expect(site.body).toHaveCSS('background-color', background.light);
   });
 });
