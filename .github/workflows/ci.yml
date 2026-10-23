@@ -197,6 +197,16 @@ jobs:
           pattern: quality-report-*
           path: reports/
           merge-multiple: true
+      # The trend on /quality: the live site publishes its deploy history and this build adds
+      # itself to it. A 404 means no history yet (the first deploy); any other error stops the
+      # deploy rather than start the history over. The query skips the Pages cache.
+      - name: Download the deploy history
+        env:
+          HISTORY_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/quality-history.json?run=${{ github.run_id }}
+        run: |
+          status=$(curl -sS -o reports/history.json -w '%{http_code}' "$HISTORY_URL")
+          echo "History download: HTTP $status"
+          if [ "$status" = 404 ]; then rm reports/history.json; elif [ "$status" != 200 ]; then exit 1; fi
       - run: npm run build
         env:
           REQUIRE_QUALITY_REPORT: 'true'

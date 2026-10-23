@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { HomePage } from './pages/HomePage';
 import { SitePage } from './pages/SitePage';
+import { parseHistory } from '../src/quality/history';
 
 test.describe('Smoke', () => {
   test('home page loads with the main heading', async ({ page }) => {
@@ -40,6 +41,15 @@ test.describe('Smoke', () => {
       'href',
       'https://github.com/djamart/diogo.martins',
     );
+  });
+
+  // The next deploy downloads this file to add itself to the trend on /quality.
+  test('publishes the deploy history in a form the next deploy can read', async ({ request }) => {
+    const response = await request.get('./quality-history.json');
+
+    expect(response.status()).toBe(200);
+    const json: unknown = await response.json();
+    expect(() => parseHistory(json)).not.toThrow();
   });
 
   test('unknown page shows the 404 page with a way back home', async ({ page }) => {
