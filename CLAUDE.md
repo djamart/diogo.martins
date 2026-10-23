@@ -88,6 +88,8 @@ These are deliberate decisions; tests enforce several of them.
 - Title is "Quality Enablement Engineer"; the three pillars are test automation, quality engineering and AI-driven testing.
 - No phone number anywhere, including the CV. Contact is email (mailto), LinkedIn, GitHub and the CV PDF.
 - CVEs can be mentioned, but never their identifiers.
+- No team sizes ("a team of 9 developers"), in any language or the CV.
+- Plain, first-person copy. No corporate or AI-sounding stock phrases (ship, teams trust, smarter, at a glance...); `tests/unit/helpers/stockPhrases.ts` lists the ones Diogo flagged, and the unit tests reject them.
 - No Education section; certifications take its place.
 - A blog post may exist in one language only. The other language's blog index lists it with a note on its language, and the language menu leads to that blog index instead.
 - The accent colour is cinnabar in both themes, the CV and the favicon, used only on large text, underlines and focus rings to keep contrast at WCAG AA.

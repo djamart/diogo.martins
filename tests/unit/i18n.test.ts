@@ -7,6 +7,7 @@ import {
   useTranslations,
 } from '../../src/i18n/utils';
 import { defaultLang, languages, languageTags, ui, type Lang } from '../../src/i18n/ui';
+import { stockPhrases } from './helpers/stockPhrases';
 
 describe('getLangFromUrl', () => {
   it('returns the default language for the site root', () => {
@@ -51,6 +52,14 @@ describe('useTranslations', () => {
       expect(Object.keys(ui[lang]).sort(), lang).toEqual(Object.keys(ui[defaultLang]).sort());
       for (const [key, value] of Object.entries(ui[lang])) {
         expect(value, `${lang} ${key}`).not.toBe('');
+      }
+    }
+  });
+
+  it('keeps stock corporate phrases out of every string', () => {
+    for (const lang of Object.keys(languages) as Lang[]) {
+      for (const [key, value] of Object.entries(ui[lang])) {
+        for (const phrase of stockPhrases) expect(value, `${lang} ${key}`).not.toMatch(phrase);
       }
     }
   });
