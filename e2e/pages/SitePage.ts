@@ -45,6 +45,7 @@ export class SitePage {
   readonly themeMenu: Locator;
   readonly languageButton: Locator;
   readonly languageMenu: Locator;
+  readonly footerContact: Locator;
 
   constructor(
     private readonly page: Page,
@@ -61,6 +62,7 @@ export class SitePage {
       name: `${t['language.label']}: ${lang.toUpperCase()}`,
     });
     this.languageMenu = page.getByTestId('language-menu').getByRole('list');
+    this.footerContact = page.getByRole('region', { name: t['footer.contactTitle'] });
   }
 
   async goto(path: SitePath) {

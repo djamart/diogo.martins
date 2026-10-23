@@ -22,13 +22,23 @@ const t = useTranslations(lang);
   </p>
   <p class="intro">{t('home.intro')}</p>
   <p class="actions">
-    <a href={pageHref(base, 'contact', lang)} data-testid="cta-contact">
+    <a class="button" href={pageHref(base, 'contact', lang)} data-testid="cta-contact">
       {t('home.ctaContact')}
     </a>
-    <a href={pageHref(base, 'experience', lang)} data-testid="cta-experience">
+    <a
+      class="button button-secondary"
+      href={pageHref(base, 'experience', lang)}
+      data-testid="cta-experience"
+    >
       {t('home.ctaExperience')}
     </a>
-    <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="cta-cv">
+    <a
+      class="button button-secondary"
+      href={fileHref(base, cvFileName)}
+      download
+      hreflang="en"
+      data-testid="cta-cv"
+    >
       {t('home.ctaCv')}
     </a>
   </p>
@@ -54,8 +64,7 @@ const t = useTranslations(lang);
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.5rem;
-    font-weight: 600;
+    gap: 0.75rem;
   }
 
   .proof {

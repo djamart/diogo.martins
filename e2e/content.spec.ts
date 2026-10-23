@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { loadSkills } from '../src/quality/skills';
-import { SitePage } from './pages/SitePage';
+import { SitePage, pageLabel, sitePages } from './pages/SitePage';
 import { HomePage } from './pages/HomePage';
 
 test.describe('Content', () => {
@@ -44,6 +44,25 @@ test.describe('Content', () => {
       'https://github.com/djamart',
     );
     await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
+  });
+
+  test('every page ends with a way to get in touch', async ({ page }) => {
+    for (const info of sitePages) {
+      const site = new SitePage(page, info.lang);
+      await site.goto(info.path);
+
+      await expect(site.footerContact, pageLabel(info)).toBeVisible();
+      await expect(page.getByTestId('footer-email')).toHaveAttribute('href', /^mailto:/);
+      await expect(page.getByTestId('footer-linkedin')).toHaveAttribute(
+        'href',
+        'https://www.linkedin.com/in/diogojamartins/',
+      );
+      await expect(page.getByTestId('footer-cv')).toHaveAttribute(
+        'href',
+        /\/diogo-martins-cv\.pdf$/,
+      );
+      await expect(page.getByTestId('footer-cv')).toHaveAttribute('download');
+    }
   });
 
   test('home and contact link to the CV as a PDF download', async ({ page }) => {

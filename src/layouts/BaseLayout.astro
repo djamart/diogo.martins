@@ -1,5 +1,11 @@
 ---
+import '@fontsource-variable/fraunces/wght.css';
+import '@fontsource-variable/source-sans-3/wght.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
 import '../styles/global.css';
+// The Latin files of the heading and body fonts, preloaded so the first paint uses them.
+import displayFont from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
+import bodyFont from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url';
 import ThemeIcon from '../components/ThemeIcon.astro';
 import { themeCss } from '../styles/tokens';
 import { languages, languageTags, type Lang } from '../i18n/ui';
@@ -14,6 +20,8 @@ import {
   pagePath,
 } from '../utils/nav';
 import { themeChoices, themeStorageKey } from '../utils/theme';
+import { contactLinks } from '../data/profile';
+import { cvFileName } from '../cv/model';
 
 interface Props {
   title?: string;
@@ -41,6 +49,8 @@ const {
 const path = translated ? pagePath(Astro.url.pathname, base) : '';
 const alternates =
   translated && Astro.site ? alternateLinks(Astro.site, base, path, availableIn) : [];
+// The footer offers the two fastest ways to reach Diogo, plus the CV.
+const footerLinks = contactLinks.filter((link) => link.id === 'email' || link.id === 'linkedin');
 const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
 ---
 
@@ -52,6 +62,8 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     <meta name="description" content={description ?? t('site.description')} />
     <link rel="icon" type="image/svg+xml" href={fileHref(base, 'favicon.svg')} />
     <title>{pageTitle}</title>
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
     {alternates.map((alternate) => (
       <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
     ))}
@@ -172,6 +184,25 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
       <slot />
     </main>
     <footer class="site-footer">
+      <section class="footer-contact" aria-labelledby="footer-contact-title">
+        <p id="footer-contact-title" class="footer-contact-title">
+          {t('footer.contactTitle')}
+        </p>
+        <ul>
+          {footerLinks.map((link) => (
+            <li>
+              <a href={link.href} data-testid={`footer-${link.id}`}>
+                {link.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="footer-cv">
+              {t('footer.cv')}
+            </a>
+          </li>
+        </ul>
+      </section>
       <p>
         <a href="https://github.com/djamart/diogo.martins" data-testid="link-source">
           {t('footer.builtWith')}
