@@ -24,7 +24,8 @@ Out of scope:
 | Pages unusable with a keyboard or screen reader           | High   | axe accessibility checks on every page         |
 | Pages broken or hard to tap on a phone                    | High   | E2E and axe on Pixel 7 and iPhone 15, 320 px   |
 | The chosen theme is lost or flashes the other one on load | Medium | E2E theme tests, axe in both chosen themes     |
-| A translation is missing and the page shows an empty text | Medium | Unit tests on translation keys                 |
+| A translation is missing and the page shows an empty text | Medium | Typed translation keys, unit tests             |
+| A Portuguese page drifts from its English twin            | Medium | Every suite loops over both languages          |
 | Unintended visual changes                                 | Medium | Visual regression snapshots (phase 2)          |
 | Slow pages hurt first impressions and SEO                 | Medium | Lighthouse CI, 95 minimum on every page        |
 | Vulnerable dependencies                                   | Low    | Dependabot, `npm audit`                        |

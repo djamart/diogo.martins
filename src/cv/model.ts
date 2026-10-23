@@ -6,9 +6,8 @@ import {
   formatPeriod,
   profile,
 } from '../data/profile';
-import type { useTranslations } from '../i18n/utils';
-
-type Translate = ReturnType<typeof useTranslations>;
+import { languageTags, type Lang } from '../i18n/ui';
+import { useTranslations } from '../i18n/utils';
 
 /** File name of the CV, published at the site root, e.g. /diogo.martins/diogo-martins-cv.pdf. */
 export const cvFileName = 'diogo-martins-cv.pdf';
@@ -28,6 +27,8 @@ export interface CvRole {
 
 /** Everything the CV shows, built from the same data as the site so the two never drift apart. */
 export interface Cv {
+  /** BCP 47 tag of the language the CV is written in. */
+  lang: string;
   name: string;
   title: string;
   pillars: string;
@@ -56,11 +57,13 @@ export function displayLink(href: string): string {
   return `${url.hostname.replace(/^www\./, '')}${path}`;
 }
 
-export function buildCv(t: Translate, siteUrl: string): Cv {
+export function buildCv(lang: Lang, siteUrl: string): Cv {
+  const t = useTranslations(lang);
   return {
+    lang: languageTags[lang],
     name: profile.name,
     title: profile.title,
-    pillars: profile.pillars.join(' · '),
+    pillars: profile.pillars.map((pillar) => pillar[lang]).join(' · '),
     location: profile.location,
     links: contactLinks.map((link) => ({ text: displayLink(link.href), href: link.href })),
     website: { text: displayLink(siteUrl), href: siteUrl },
@@ -75,11 +78,11 @@ export function buildCv(t: Translate, siteUrl: string): Cv {
     roles: experience.map((role) => ({
       heading: `${role.title} · ${role.company}`,
       client: role.client && `${t('experience.for')} ${role.client}`,
-      period: formatPeriod(role),
-      summary: role.summary,
-      highlights: role.highlights,
+      period: formatPeriod(role, lang),
+      summary: role.summary[lang],
+      highlights: role.highlights.map((highlight) => highlight[lang]),
     })),
-    earlier: earlierCareer,
+    earlier: earlierCareer[lang],
     certifications: certifications.map((certification) => certification.name),
     languages: t('about.languagesList'),
   };

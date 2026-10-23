@@ -5,7 +5,7 @@ import { getLangFromUrl, useTranslations } from '../i18n/utils';
 const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
 ---
 
-<BaseLayout title={t('notFound.title')}>
+<BaseLayout title={t('notFound.title')} translated={false}>
   <h1>{t('notFound.title')}</h1>
   <p>{t('notFound.message')}</p>
   <p>

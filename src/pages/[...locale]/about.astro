@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
+import { certifications } from '../../data/profile';
+
+export const getStaticPaths = localeStaticPaths;
+
+const lang = getLangFromUrl(Astro.url, import.meta.env.BASE_URL);
+const t = useTranslations(lang);
+---
+
+<BaseLayout title={t('about.title')}>
+  <h1>{t('about.title')}</h1>
+  <p>{t('about.p1')}</p>
+  <p>{t('about.p2')}</p>
+  <p>{t('about.p3')}</p>
+
+  <h2>{t('about.certifications')}</h2>
+  <ul data-testid="certifications">
+    {certifications.map((certification) => (
+      <li lang="en">{certification.name}</li>
+    ))}
+  </ul>
+
+  <h2>{t('about.languages')}</h2>
+  <p>{t('about.languagesList')}</p>
+</BaseLayout>

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { HomePage } from './pages/HomePage';
+import { SitePage } from './pages/SitePage';
 
 test.describe('Smoke', () => {
   test('home page loads with the main heading', async ({ page }) => {
@@ -14,6 +15,14 @@ test.describe('Smoke', () => {
   test('home page declares English as its language', async ({ page }) => {
     await new HomePage(page).goto();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  });
+
+  test('Portuguese home page loads and declares European Portuguese', async ({ page }) => {
+    const response = await new SitePage(page, 'pt').goto('');
+
+    expect(response?.status()).toBe(200);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
+    await expect(new HomePage(page).heading).toContainText('Diogo Martins');
   });
 
   test('home page icon loads', async ({ page }) => {

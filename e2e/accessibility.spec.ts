@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { SitePage, sitePages } from './pages/SitePage';
+import { pageLabel, SitePage, sitePages } from './pages/SitePage';
 import { themeStorageKey } from '../src/utils/theme';
 
 // Phase 1 exit criterion: zero serious or critical axe violations on every page, in both themes.
@@ -8,9 +8,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
   test.describe(`Accessibility (${colorScheme} theme)`, () => {
     test.use({ colorScheme });
 
-    for (const { path, name } of sitePages) {
-      test(`${name} page has no serious accessibility violations`, async ({ page }) => {
-        await new SitePage(page).goto(path);
+    for (const sitePage of sitePages) {
+      test(`${pageLabel(sitePage)} page has no serious accessibility violations`, async ({
+        page,
+      }) => {
+        await new SitePage(page, sitePage.lang).goto(sitePage.path);
 
         await expectNoSeriousViolations(page);
       });
@@ -19,9 +21,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
 }
 
 // Only controls take keyboard focus; tabindex on a heading or landmark confuses screen readers.
-for (const { path, name } of sitePages) {
-  test(`${name} page puts tabindex only on interactive elements`, async ({ page }) => {
-    await new SitePage(page).goto(path);
+for (const sitePage of sitePages) {
+  test(`${pageLabel(sitePage)} page puts tabindex only on interactive elements`, async ({
+    page,
+  }) => {
+    await new SitePage(page, sitePage.lang).goto(sitePage.path);
 
     const nonInteractive = page.locator('[tabindex]:not(a, button, input, select, textarea)');
 

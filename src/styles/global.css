@@ -124,6 +124,19 @@ main {
   gap: 1rem;
 }
 
+/* The language switcher and the theme menu, side by side at the end of the header. */
+.header-tools {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Padded to a comfortable tap target, like the theme button next to it. */
+.language-link {
+  padding: 0.4rem 0;
+}
+
 /* One icon button showing the current choice; it opens a menu with light, dark and system. */
 .theme-menu {
   position: relative;

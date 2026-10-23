@@ -1,12 +1,15 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { profile } from '../data/profile';
-import { fileHref, pageHref } from '../utils/nav';
-import { cvFileName } from '../cv/model';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
+import { profile } from '../../data/profile';
+import { fileHref, pageHref } from '../../utils/nav';
+import { cvFileName } from '../../cv/model';
+
+export const getStaticPaths = localeStaticPaths;
 
 const base = import.meta.env.BASE_URL;
-const t = useTranslations(getLangFromUrl(Astro.url, base));
+const lang = getLangFromUrl(Astro.url, base);
+const t = useTranslations(lang);
 ---
 
 <BaseLayout>
@@ -15,17 +18,17 @@ const t = useTranslations(getLangFromUrl(Astro.url, base));
     {profile.title}
   </p>
   <p class="pillars" data-testid="pillars">
-    {profile.pillars.join(' · ')}
+    {profile.pillars.map((pillar) => pillar[lang]).join(' · ')}
   </p>
   <p class="intro">{t('home.intro')}</p>
   <p class="actions">
-    <a href={pageHref(base, 'contact')} data-testid="cta-contact">
+    <a href={pageHref(base, 'contact', lang)} data-testid="cta-contact">
       {t('home.ctaContact')}
     </a>
-    <a href={pageHref(base, 'experience')} data-testid="cta-experience">
+    <a href={pageHref(base, 'experience', lang)} data-testid="cta-experience">
       {t('home.ctaExperience')}
     </a>
-    <a href={fileHref(base, cvFileName)} download data-testid="cta-cv">
+    <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="cta-cv">
       {t('home.ctaCv')}
     </a>
   </p>

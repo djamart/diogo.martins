@@ -57,10 +57,10 @@ The CV at `/diogo-martins-cv.pdf` is generated at build time from the same data 
 
 ## Translations
 
-The site is in English and ready for more languages. To add Portuguese:
+The site is in English at the root and in European Portuguese under `/pt/`, with a language switcher in the header and `hreflang` alternates on every page. The CV is in English only.
 
-1. Add `'pt'` to `locales` in `astro.config.mjs`.
-2. Add a `pt` entry to `languages` and `ui` in `src/i18n/ui.ts`.
-3. Add the translated pages under `src/pages/pt/`.
+- Pages live in `src/pages/[...locale]/`, and `localeStaticPaths` builds each one per language. Links go through `pageHref(base, path, lang)`.
+- Interface strings are in `src/i18n/ui.ts`. The Portuguese table is typed against the English keys, so a missing translation fails `astro check`.
+- Profile texts (experience, pillars) are in `src/data/profile.ts`, with each language side by side.
 
-Missing strings fall back to English.
+To add another language, add it to `locales` in `astro.config.mjs`, to `languages`, `languageTags` and `ui` in `src/i18n/ui.ts`, and to every text in `src/data/profile.ts`; then add its pages to `sitePages` and `lighthouserc.json`.

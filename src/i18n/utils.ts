@@ -24,3 +24,18 @@ export function useTranslations(lang: Lang) {
     return strings[key] ?? ui[defaultLang][key];
   };
 }
+
+/** The other languages of the site, for the language switcher. */
+export function otherLanguages(lang: Lang): Lang[] {
+  return (Object.keys(languages) as Lang[]).filter((other) => other !== lang);
+}
+
+/**
+ * Static paths for a page under `[...locale]`: the default language at the root, every other
+ * language under its prefix, e.g. /about/ and /pt/about/.
+ */
+export function localeStaticPaths() {
+  return (Object.keys(languages) as Lang[]).map((lang) => ({
+    params: { locale: lang === defaultLang ? undefined : lang },
+  }));
+}

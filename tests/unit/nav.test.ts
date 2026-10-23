@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { fileHref, isCurrentPage, navItems, pageHref } from '../../src/utils/nav';
-import { ui } from '../../src/i18n/ui';
+import {
+  alternateLinks,
+  fileHref,
+  isCurrentPage,
+  navItems,
+  pageHref,
+  pagePath,
+} from '../../src/utils/nav';
+import { languages, ui, type Lang } from '../../src/i18n/ui';
 
 describe('pageHref', () => {
   it('links the home page to the base path', () => {
@@ -9,6 +16,45 @@ describe('pageHref', () => {
 
   it('adds a trailing slash to the base path when missing', () => {
     expect(pageHref('/diogo.martins', 'about')).toBe('/diogo.martins/about/');
+  });
+
+  it('puts Portuguese pages under /pt/', () => {
+    expect(pageHref('/diogo.martins/', '', 'pt')).toBe('/diogo.martins/pt/');
+    expect(pageHref('/diogo.martins', 'about', 'pt')).toBe('/diogo.martins/pt/about/');
+  });
+
+  it('gives English, the default language, no prefix', () => {
+    expect(pageHref('/diogo.martins/', 'about', 'en')).toBe('/diogo.martins/about/');
+  });
+});
+
+describe('pagePath', () => {
+  it('returns the same path for a page in every language', () => {
+    expect(pagePath('/diogo.martins/about/', '/diogo.martins/')).toBe('about');
+    expect(pagePath('/diogo.martins/pt/about/', '/diogo.martins/')).toBe('about');
+    expect(pagePath('/diogo.martins/pt/about.html', '/diogo.martins')).toBe('about');
+  });
+
+  it('returns an empty path for the home page in every language', () => {
+    expect(pagePath('/diogo.martins/', '/diogo.martins/')).toBe('');
+    expect(pagePath('/diogo.martins/pt/', '/diogo.martins/')).toBe('');
+    expect(pagePath('/diogo.martins', '/diogo.martins/')).toBe('');
+  });
+
+  it('keeps a first segment that is not a language', () => {
+    expect(pagePath('/projects/', '/')).toBe('projects');
+  });
+});
+
+describe('alternateLinks', () => {
+  const site = 'https://djamart.github.io';
+
+  it('lists the page in every language as an absolute URL, with English as the default', () => {
+    expect(alternateLinks(site, '/diogo.martins/', 'about')).toEqual([
+      { hreflang: 'en', href: 'https://djamart.github.io/diogo.martins/about/' },
+      { hreflang: 'pt-PT', href: 'https://djamart.github.io/diogo.martins/pt/about/' },
+      { hreflang: 'x-default', href: 'https://djamart.github.io/diogo.martins/about/' },
+    ]);
   });
 });
 
@@ -36,12 +82,20 @@ describe('isCurrentPage', () => {
   it('marks home as current on the site root', () => {
     expect(isCurrentPage('/diogo.martins', '/diogo.martins/', '')).toBe(true);
   });
+
+  it('matches a page only in its own language', () => {
+    expect(isCurrentPage('/diogo.martins/pt/about/', '/diogo.martins/', 'about', 'pt')).toBe(true);
+    expect(isCurrentPage('/diogo.martins/pt/about/', '/diogo.martins/', 'about')).toBe(false);
+    expect(isCurrentPage('/diogo.martins/pt/', '/diogo.martins/', '', 'pt')).toBe(true);
+  });
 });
 
 describe('navItems', () => {
-  it('has a label for every item', () => {
-    for (const item of navItems) {
-      expect(ui.en[item.labelKey], item.path).toBeTruthy();
+  it('has a label for every item in every language', () => {
+    for (const lang of Object.keys(languages) as Lang[]) {
+      for (const item of navItems) {
+        expect(ui[lang][item.labelKey], `${lang} ${item.path}`).toBeTruthy();
+      }
     }
   });
 });

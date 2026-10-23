@@ -10,6 +10,7 @@ import { check } from 'linkinator';
 
 const port = 4323;
 const siteUrl = `http://localhost:${port}/diogo.martins/`;
+const liveSiteUrl = 'https://djamart.github.io/diogo.martins/';
 const repoFiles = 'https://github.com/djamart/diogo.martins/blob/main/';
 const gitRef = process.env.LINKS_GIT_REF;
 
@@ -40,15 +41,20 @@ try {
     retryErrors: true,
     retryErrorsCount: 3,
     timeout: 15_000,
-    // A pull request that adds a skill links to a file that is not on main yet.
-    urlRewriteExpressions: gitRef
-      ? [
-          {
-            pattern: new RegExp(`^${repoFiles}`),
-            replacement: repoFiles.replace('/main/', `/${gitRef}/`),
-          },
-        ]
-      : [],
+    urlRewriteExpressions: [
+      // The hreflang alternates are absolute URLs of the live site; check them on this build,
+      // where a page added by a pull request already exists.
+      { pattern: new RegExp(`^${liveSiteUrl}`), replacement: siteUrl },
+      // A pull request that adds a skill links to a file that is not on main yet.
+      ...(gitRef
+        ? [
+            {
+              pattern: new RegExp(`^${repoFiles}`),
+              replacement: repoFiles.replace('/main/', `/${gitRef}/`),
+            },
+          ]
+        : []),
+    ],
     linksToSkip: [
       // LinkedIn answers every automated request with status 999; E2E tests check the URL instead.
       '^https://(www\\.)?linkedin\\.com/',

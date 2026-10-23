@@ -1,20 +1,39 @@
 import type { Locator, Page } from '@playwright/test';
+import { ui, type Lang } from '../../src/i18n/ui';
 
-/** The pages in the main navigation, by their path relative to the site base. */
+/** The pages in the main navigation in every language, by their path relative to the site base. */
 export const sitePages = [
-  { path: '', name: 'Home', heading: /Diogo Martins/ },
-  { path: 'about', name: 'About', heading: 'About' },
-  { path: 'experience', name: 'Experience', heading: 'Experience' },
-  { path: 'projects', name: 'Projects', heading: 'Projects' },
-  { path: 'quality', name: 'Quality', heading: 'Quality' },
-  { path: 'contact', name: 'Contact', heading: 'Contact' },
-] as const;
+  { lang: 'en', path: '', name: 'Home', heading: /Diogo Martins/ },
+  { lang: 'en', path: 'about', name: 'About', heading: 'About' },
+  { lang: 'en', path: 'experience', name: 'Experience', heading: 'Experience' },
+  { lang: 'en', path: 'projects', name: 'Projects', heading: 'Projects' },
+  { lang: 'en', path: 'quality', name: 'Quality', heading: 'Quality' },
+  { lang: 'en', path: 'contact', name: 'Contact', heading: 'Contact' },
+  { lang: 'pt', path: '', name: 'Início', heading: /Diogo Martins/ },
+  { lang: 'pt', path: 'about', name: 'Sobre', heading: 'Sobre' },
+  { lang: 'pt', path: 'experience', name: 'Experiência', heading: 'Experiência' },
+  { lang: 'pt', path: 'projects', name: 'Projetos', heading: 'Projetos' },
+  { lang: 'pt', path: 'quality', name: 'Qualidade', heading: 'Qualidade' },
+  { lang: 'pt', path: 'contact', name: 'Contacto', heading: 'Contacto' },
+] as const satisfies { lang: Lang; path: string; name: string; heading: string | RegExp }[];
+
+export type SitePageInfo = (typeof sitePages)[number];
+
+export type SitePath = SitePageInfo['path'];
+
+/** The pages of one language, in menu order. */
+export function pagesIn(lang: Lang): SitePageInfo[] {
+  return sitePages.filter((page) => page.lang === lang);
+}
+
+/** How a page reads in a test name: "About", or "Sobre (pt)" for a translation. */
+export function pageLabel({ lang, name }: SitePageInfo): string {
+  return lang === 'en' ? name : `${name} (${lang})`;
+}
 
 export type ThemeOptionName = 'Light' | 'Dark' | 'System';
 
-export type SitePath = (typeof sitePages)[number]['path'];
-
-/** Any page of the site: the shared header, navigation and main heading. */
+/** Any page of the site in one language: the shared header, navigation and main heading. */
 export class SitePage {
   readonly body: Locator;
   readonly heading: Locator;
@@ -23,17 +42,22 @@ export class SitePage {
   readonly themeButton: Locator;
   readonly themeMenu: Locator;
 
-  constructor(private readonly page: Page) {
+  constructor(
+    private readonly page: Page,
+    readonly lang: Lang = 'en',
+  ) {
+    const t = ui[lang];
     this.body = page.locator('body');
     this.heading = page.getByRole('heading', { level: 1 });
-    this.nav = page.getByRole('navigation', { name: 'Main' });
-    this.skipLink = page.getByRole('link', { name: 'Skip to content' });
-    this.themeButton = page.getByRole('button', { name: 'Theme' });
-    this.themeMenu = page.getByRole('menu', { name: 'Theme' });
+    this.nav = page.getByRole('navigation', { name: t['nav.label'] });
+    this.skipLink = page.getByRole('link', { name: t['nav.skip'] });
+    this.themeButton = page.getByRole('button', { name: t['theme.label'] });
+    this.themeMenu = page.getByRole('menu', { name: t['theme.label'] });
   }
 
   async goto(path: SitePath) {
-    return this.page.goto(path === '' ? './' : `./${path}/`);
+    const prefix = this.lang === 'en' ? './' : `./${this.lang}/`;
+    return this.page.goto(path === '' ? prefix : `${prefix}${path}/`);
   }
 
   /** An option in the header theme menu. Visible only while the menu is open. */
@@ -49,5 +73,10 @@ export class SitePage {
 
   navLink(name: string): Locator {
     return this.nav.getByRole('link', { name, exact: true });
+  }
+
+  /** The header link to this page in another language, named in that language. */
+  languageLink(name: string): Locator {
+    return this.page.getByRole('banner').getByRole('link', { name, exact: true });
   }
 }
