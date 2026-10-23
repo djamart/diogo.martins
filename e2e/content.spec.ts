@@ -1,7 +1,9 @@
 import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { loadSkills } from '../src/quality/skills';
+import { contactLinks } from '../src/data/profile';
 import { ui } from '../src/i18n/ui';
+import { allLanguages } from '../src/i18n/utils';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
@@ -76,8 +78,22 @@ test.describe('Content', () => {
         'href',
         'https://www.linkedin.com/in/diogojamartins/',
       );
+      await expect(footer.github).toHaveAttribute('href', 'https://github.com/djamart');
       await expect(footer.cv).toHaveAttribute('href', /\/diogo-martins-cv\.pdf$/);
       await expect(footer.cv).toHaveAttribute('download');
+    }
+  });
+
+  test('footer links are named by their text, not by their icons', async ({ page }) => {
+    for (const lang of allLanguages) {
+      const site = new SitePage(page, lang);
+      const names = [...contactLinks.map((link) => link.label), ui[lang]['footer.cv']];
+      await site.goto();
+
+      await expect(site.footer.contactLinks).toHaveCount(names.length);
+      for (const [index, name] of names.entries()) {
+        await expect(site.footer.contactLinks.nth(index), lang).toHaveAccessibleName(name);
+      }
     }
   });
 

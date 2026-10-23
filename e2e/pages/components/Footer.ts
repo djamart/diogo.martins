@@ -6,14 +6,19 @@ export class Footer {
   readonly contact: Locator;
   readonly email: Locator;
   readonly linkedin: Locator;
+  readonly github: Locator;
   readonly cv: Locator;
+  /** Every way to get in touch in the footer, in order. */
+  readonly contactLinks: Locator;
   readonly sourceLink: Locator;
 
   constructor(page: Page, lang: Lang) {
     this.contact = page.getByRole('region', { name: ui[lang]['footer.contactTitle'] });
     this.email = page.getByTestId('footer-email');
     this.linkedin = page.getByTestId('footer-linkedin');
+    this.github = page.getByTestId('footer-github');
     this.cv = page.getByTestId('footer-cv');
+    this.contactLinks = this.contact.getByRole('link');
     this.sourceLink = page.getByTestId('link-source');
   }
 }
