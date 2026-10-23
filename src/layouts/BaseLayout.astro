@@ -86,6 +86,10 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     </script>
     <noscript>
       <style>
+        /* Without the script the header never learns the page scrolled, so it is always opaque. */
+        .site-header {
+          background-color: var(--color-bg);
+        }
         .language-button {
           display: none;
         }
@@ -212,6 +216,14 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     <script>
       import { menuFocusIndex, parseThemeChoice, themeStorageKey } from '../utils/theme';
       import type { ThemeChoice } from '../utils/theme';
+
+      // Sticky header: flat at the top of the page, lifted once the page scrolls under it.
+      const header = document.querySelector<HTMLElement>('.site-header');
+      if (header) {
+        const markScrolled = () => header.toggleAttribute('data-scrolled', window.scrollY > 0);
+        window.addEventListener('scroll', markScrolled, { passive: true });
+        markScrolled();
+      }
 
       // Language menu: a button with the current language that shows the list of languages below.
       const languageMenu = document.querySelector<HTMLElement>('[data-testid="language-menu"]');

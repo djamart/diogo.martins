@@ -5,6 +5,8 @@ import { ThemeMenu } from './ThemeMenu';
 
 /** The header on every page: skip link, main navigation, language and theme menus. */
 export class Header {
+  /** The header itself, which stays at the top of the window while the page scrolls. */
+  readonly bar: Locator;
   readonly skipLink: Locator;
   readonly nav: Locator;
   /** The menu links marked as the page being shown; there should be exactly one. */
@@ -14,6 +16,7 @@ export class Header {
 
   constructor(page: Page, lang: Lang) {
     const t = ui[lang];
+    this.bar = page.getByRole('banner');
     this.skipLink = page.getByRole('link', { name: t['nav.skip'] });
     this.nav = page.getByRole('navigation', { name: t['nav.label'] });
     this.currentLinks = this.nav.locator('[aria-current="page"]');

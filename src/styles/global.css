@@ -13,9 +13,11 @@
   box-sizing: border-box;
 }
 
-/* Keeps room for the scrollbar on every page, so a short page does not shift sideways. */
+/* Keeps room for the scrollbar on every page, so a short page does not shift sideways. The scroll
+   padding keeps a link target or a focused element from landing under the sticky header. */
 html {
   scrollbar-gutter: stable;
+  scroll-padding-top: 6rem;
 }
 
 /* Moving to another page of the site fades between the two instead of flashing, and the header
@@ -27,6 +29,9 @@ html {
 
   .site-header {
     view-transition-name: site-header;
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 }
 
@@ -94,6 +99,8 @@ h3 {
 
 .skip-link {
   position: absolute;
+  /* Above the sticky header. */
+  z-index: 30;
   left: 1rem;
   top: -3rem;
   padding: 0.5rem 1rem;
@@ -104,7 +111,24 @@ h3 {
   top: 1rem;
 }
 
-.site-header,
+/* The header stays at the top of the window. It spans the full width so its background covers
+   the page scrolling under it, and its padding lines the menu up with the 40rem column below. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 1rem max(1rem, (100% - 40rem) / 2);
+}
+
+/* Flat on the page at the top; once the page scrolls under it, a shadow and the page background,
+   slightly see-through and blurred (the script in BaseLayout.astro sets the attribute). */
+.site-header[data-scrolled] {
+  background-color: var(--color-header-bg);
+  box-shadow: var(--header-shadow);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
 .site-footer {
   max-width: 42rem;
   margin: 0 auto;
@@ -134,7 +158,7 @@ h3 {
 }
 
 main {
-  padding-top: 2.5rem;
+  padding-top: 1.5rem;
 }
 
 .site-footer {

@@ -80,6 +80,16 @@ export class SitePage {
     });
   }
 
+  /** Scrolls the page down, as a visitor reading on would. */
+  async scrollDown(pixels = 600) {
+    await this.page.evaluate((y) => window.scrollBy(0, y), pixels);
+  }
+
+  /** Scrolls back to the top of the page. */
+  async scrollToTop() {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
+  }
+
   /** Where the main navigation starts from the left of the window, in pixels. */
   async navLeftEdge(): Promise<number | undefined> {
     return (await this.header.nav.boundingBox())?.x;

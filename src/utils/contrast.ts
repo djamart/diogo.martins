@@ -21,3 +21,18 @@ export function contrastRatio(a: string, b: string): number {
   const [lighter, darker] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
   return (lighter + 0.05) / (darker + 0.05);
 }
+
+/** The colour seen where `top` lies over `bottom` with the given opacity, as browsers mix them. */
+export function blend(top: string, bottom: string, alpha: number): string {
+  const over = parseHex(top);
+  const under = parseHex(bottom);
+  return `#${over
+    .map((channel, i) => Math.round(channel * alpha + under[i] * (1 - alpha)))
+    .map((channel) => channel.toString(16).padStart(2, '0'))
+    .join('')}`;
+}
+
+/** A hex colour as a CSS colour with the given opacity, e.g. `rgb(253 240 213 / 0.85)`. */
+export function translucent(hex: string, alpha: number): string {
+  return `rgb(${parseHex(hex).join(' ')} / ${alpha})`;
+}
