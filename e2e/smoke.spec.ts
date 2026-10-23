@@ -16,6 +16,15 @@ test.describe('Smoke', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 
+  test('home page icon loads', async ({ page }) => {
+    await new HomePage(page).goto();
+    // A <link> in the head has no role; its href is all a browser uses.
+    const href = await page.locator('link[rel="icon"]').getAttribute('href');
+
+    const response = await page.request.get(new URL(href ?? '', page.url()).href);
+    expect(response.status()).toBe(200);
+  });
+
   test('footer links to the source code', async ({ page }) => {
     await new HomePage(page).goto();
     await expect(page.getByTestId('link-source')).toHaveAttribute(
