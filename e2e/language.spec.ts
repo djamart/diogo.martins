@@ -134,10 +134,10 @@ test.describe('Language', () => {
     await expect(site.navLink('Contacto')).toBeVisible();
   });
 
-  test('the Portuguese experience page lists roles from the most recent, in Portuguese', async ({
+  test('the Portuguese about page lists roles from the most recent, in Portuguese', async ({
     page,
   }) => {
-    await new SitePage(page, 'pt').goto('experience');
+    await new SitePage(page, 'pt').goto('about');
     const roles = page.getByTestId('role');
 
     await expect(roles).toHaveCount(experience.length);

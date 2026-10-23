@@ -5,13 +5,11 @@ import { ui, type Lang } from '../../src/i18n/ui';
 export const sitePages = [
   { lang: 'en', path: '', name: 'Home', heading: /Diogo Martins/ },
   { lang: 'en', path: 'about', name: 'About', heading: 'About' },
-  { lang: 'en', path: 'experience', name: 'Experience', heading: 'Experience' },
   { lang: 'en', path: 'quality', name: 'Quality', heading: 'Quality' },
   { lang: 'en', path: 'blog', name: 'Blog', heading: 'Blog' },
   { lang: 'en', path: 'contact', name: 'Contact', heading: 'Contact' },
   { lang: 'pt', path: '', name: 'Início', heading: /Diogo Martins/ },
   { lang: 'pt', path: 'about', name: 'Sobre', heading: 'Sobre' },
-  { lang: 'pt', path: 'experience', name: 'Experiência', heading: 'Experiência' },
   { lang: 'pt', path: 'quality', name: 'Qualidade', heading: 'Qualidade' },
   { lang: 'pt', path: 'blog', name: 'Blog', heading: 'Blog' },
   { lang: 'pt', path: 'contact', name: 'Contacto', heading: 'Contacto' },

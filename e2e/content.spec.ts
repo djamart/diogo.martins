@@ -19,8 +19,8 @@ test.describe('Content', () => {
     ]);
   });
 
-  test('experience lists roles from the most recent', async ({ page }) => {
-    await new SitePage(page).goto('experience');
+  test('about lists roles from the most recent', async ({ page }) => {
+    await new SitePage(page).goto('about');
     const roles = page.getByTestId('role');
 
     await expect(roles).toHaveCount(3);
@@ -94,6 +94,17 @@ test.describe('Content', () => {
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('application/pdf');
     expect((await response.body()).subarray(0, 5).toString('latin1')).toBe('%PDF-');
+  });
+
+  test('the old experience address leads to the experience on the about page', async ({ page }) => {
+    for (const [from, to] of [
+      ['./experience/', /\/diogo\.martins\/about\/#experience$/],
+      ['./pt/experience/', /\/diogo\.martins\/pt\/about\/#experience$/],
+    ] as const) {
+      await page.goto(from);
+      await expect(page).toHaveURL(to);
+      await expect(page.getByTestId('role').first()).toBeVisible();
+    }
   });
 
   test('home features this website with its checks, source code and test plan', async ({

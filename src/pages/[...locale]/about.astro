@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
-import { certifications } from '../../data/profile';
+import { certifications, earlierCareer, experience, formatPeriod } from '../../data/profile';
 
 export const getStaticPaths = localeStaticPaths;
 
@@ -15,13 +15,114 @@ const t = useTranslations(lang);
   <p>{t('about.p2')}</p>
   <p>{t('about.p3')}</p>
 
-  <h2>{t('about.certifications')}</h2>
-  <ul data-testid="certifications">
-    {certifications.map((certification) => (
-      <li lang="en">{certification.name}</li>
+  <h2 id="experience">{t('experience.title')}</h2>
+  <ol class="timeline">
+    {experience.map((role) => (
+      <li data-testid="role">
+        <h3>{role.company}</h3>
+        <p class="role-line">
+          {role.title}
+          {role.client && ` · ${t('experience.for')} ${role.client}`}
+          <span class="meta"> · {formatPeriod(role, lang)}</span>
+        </p>
+        <p>{role.summary[lang]}</p>
+        {role.highlights.length > 0 && (
+          <ul>
+            {role.highlights.map((highlight) => (
+              <li>{highlight[lang]}</li>
+            ))}
+          </ul>
+        )}
+      </li>
     ))}
-  </ul>
+    <li class="earlier">
+      <p>{earlierCareer[lang]}</p>
+    </li>
+  </ol>
 
-  <h2>{t('about.languages')}</h2>
-  <p>{t('about.languagesList')}</p>
+  <div class="facts">
+    <section aria-labelledby="certifications-title">
+      <h2 id="certifications-title">{t('about.certifications')}</h2>
+      <ul data-testid="certifications">
+        {certifications.map((certification) => (
+          <li lang="en">{certification.name}</li>
+        ))}
+      </ul>
+    </section>
+    <section aria-labelledby="languages-title">
+      <h2 id="languages-title">{t('about.languages')}</h2>
+      <p>{t('about.languagesList')}</p>
+    </section>
+  </div>
 </BaseLayout>
+
+<style>
+  /* A vertical line in the accent, with a ring for each role and a muted dot for earlier work. */
+  .timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 2px solid var(--color-accent);
+  }
+
+  .timeline > li {
+    position: relative;
+    padding: 0 0 2rem 1.5rem;
+  }
+
+  .timeline > li::before {
+    content: '';
+    position: absolute;
+    top: 0.4rem;
+    left: calc(-0.5rem - 1px);
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--color-accent);
+    border-radius: 50%;
+    background: var(--color-bg);
+  }
+
+  .timeline > .earlier {
+    padding-bottom: 0.25rem;
+  }
+
+  .timeline > .earlier::before {
+    border-color: var(--color-muted);
+    background: var(--color-muted);
+    transform: scale(0.6);
+  }
+
+  .timeline h3 {
+    margin: 0;
+    font-size: 1.35rem;
+  }
+
+  .role-line {
+    margin: 0.25rem 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .role-line .meta {
+    font-weight: 400;
+  }
+
+  .timeline p {
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .timeline ul li + li {
+    margin-top: 0.3rem;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0 2rem;
+    margin-top: 1rem;
+  }
+</style>

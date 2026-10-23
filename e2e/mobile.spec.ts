@@ -98,7 +98,7 @@ test.describe('Mobile', () => {
     page,
   }) => {
     const site = new SitePage(page);
-    await site.goto('experience');
+    await site.goto('about');
 
     await site.languageButton.tap();
     await expect(site.languageMenu).toBeInViewport({ ratio: 1 });
@@ -107,7 +107,7 @@ test.describe('Mobile', () => {
     expect(menu!.y).toBeGreaterThanOrEqual(button!.y + button!.height);
 
     await site.languageOption('Português').tap();
-    await expect(site.heading).toHaveText('Experiência');
+    await expect(site.heading).toHaveText('Sobre');
   });
 
   test('tapping outside the language menu closes it', async ({ page }) => {
