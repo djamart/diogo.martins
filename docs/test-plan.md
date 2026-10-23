@@ -22,6 +22,7 @@ Out of scope:
 | A broken deploy takes the site down                       | High   | Deploy only from green `main`, live smoke test |
 | Broken links or a missing CV download                     | High   | E2E tests, link checker (phase 2)              |
 | Pages unusable with a keyboard or screen reader           | High   | axe accessibility checks on every page         |
+| The chosen theme is lost or flashes the other one on load | Medium | E2E theme tests, axe in both chosen themes     |
 | A translation is missing and the page shows an empty text | Medium | Unit tests on translation keys                 |
 | Unintended visual changes                                 | Medium | Visual regression snapshots (phase 2)          |
 | Slow pages hurt first impressions and SEO                 | Medium | Lighthouse CI budgets (phase 2)                |

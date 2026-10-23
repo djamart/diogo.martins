@@ -23,9 +23,9 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `src/cv/`                  | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                          |
 | `src/quality/`             | Build-time readers for the /quality page: CI test reports (`report.ts`) and skills       |
 | `src/styles/tokens.ts`     | Colour palette and themes, with the contrast pairs they must meet                        |
-| `src/utils/`               | Small pure helpers (navigation, contrast). Logic goes here so it can be unit tested      |
+| `src/utils/`               | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested     |
 | `tests/unit/`              | Vitest unit tests, one file per module                                                   |
-| `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility)         |
+| `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme)  |
 | `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages`, the list every page-level suite loops on  |
 | `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                                |
 | `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                            |
@@ -73,7 +73,7 @@ These are deliberate decisions; tests enforce several of them.
 - No phone number anywhere, including the CV. Contact is email (mailto), LinkedIn, GitHub and the CV PDF.
 - CVEs can be mentioned, but never their identifiers.
 - No Education section; certifications take its place.
-- Accent colours (raspberry red, cinnabar) only on large text, underlines and focus rings, to keep contrast at WCAG AA.
+- The accent colour is cinnabar in both themes, used only on large text, underlines and focus rings to keep contrast at WCAG AA. Raspberry red stays in the CV and the favicon.
 
 ## Working agreements
 

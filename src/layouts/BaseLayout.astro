@@ -1,8 +1,10 @@
 ---
 import '../styles/global.css';
+import ThemeIcon from '../components/ThemeIcon.astro';
 import { themeCss } from '../styles/tokens';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import { isCurrentPage, navItems, pageHref } from '../utils/nav';
+import { themeChoices, themeStorageKey } from '../utils/theme';
 
 interface Props {
   title?: string;
@@ -24,6 +26,16 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <title>{pageTitle}</title>
     <style is:inline set:html={themeCss()}></style>
+    <!-- Applies a stored theme before the first paint, so the page never flashes the other one. -->
+    <script is:inline define:vars={{ themeStorageKey }}>
+      try {
+        const stored = localStorage.getItem(themeStorageKey);
+        if (stored === 'light' || stored === 'dark')
+          document.documentElement.dataset.theme = stored;
+      } catch {
+        // Storage blocked: follow the OS colour scheme.
+      }
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#content">
@@ -47,8 +59,39 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
           ))}
         </ul>
       </nav>
+      <!-- Hidden until the script below runs: without JavaScript the OS colour scheme applies. -->
+      <div class="theme-menu" data-testid="theme-menu" data-current="system" hidden>
+        <button
+          type="button"
+          class="theme-button"
+          aria-label={t('theme.label')}
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="theme-options"
+        >
+          {themeChoices.map((choice) => (
+            <ThemeIcon choice={choice} />
+          ))}
+        </button>
+        <ul id="theme-options" role="menu" aria-label={t('theme.label')} hidden>
+          {themeChoices.map((choice) => (
+            <li role="none">
+              <button
+                type="button"
+                role="menuitemradio"
+                aria-checked={choice === 'system' ? 'true' : 'false'}
+                tabindex="-1"
+                data-choice={choice}
+              >
+                <ThemeIcon choice={choice} />
+                {t(`theme.${choice}` as const)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </header>
-    <main id="content" tabindex="-1">
+    <main id="content">
       <slot />
     </main>
     <footer class="site-footer">
@@ -58,5 +101,95 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
         </a>
       </p>
     </footer>
+    <script>
+      import { menuFocusIndex, parseThemeChoice, themeStorageKey } from '../utils/theme';
+      import type { ThemeChoice } from '../utils/theme';
+
+      const root = document.documentElement;
+      const container = document.querySelector<HTMLElement>('[data-testid="theme-menu"]');
+      const button = container?.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]');
+      const menu = container?.querySelector<HTMLElement>('[role="menu"]');
+
+      if (container && button && menu) {
+        const items = [...menu.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]')];
+        // The inline script in <head> already applied the stored choice; reflect it in the menu.
+        let current = parseThemeChoice(root.dataset.theme);
+
+        const render = () => {
+          container.dataset.current = current;
+          for (const item of items) {
+            item.setAttribute('aria-checked', String(item.dataset.choice === current));
+          }
+        };
+
+        const choose = (choice: ThemeChoice) => {
+          current = choice;
+          try {
+            if (choice === 'system') localStorage.removeItem(themeStorageKey);
+            else localStorage.setItem(themeStorageKey, choice);
+          } catch {
+            // Storage blocked: the choice lasts until the next page.
+          }
+          if (choice === 'system') delete root.dataset.theme;
+          else root.dataset.theme = choice;
+          render();
+        };
+
+        const open = (focusIndex: number) => {
+          menu.hidden = false;
+          button.setAttribute('aria-expanded', 'true');
+          items[focusIndex]?.focus();
+        };
+
+        const close = (returnFocus: boolean) => {
+          if (menu.hidden) return;
+          menu.hidden = true;
+          button.setAttribute('aria-expanded', 'false');
+          if (returnFocus) button.focus();
+        };
+
+        const currentIndex = () => items.findIndex((item) => item.dataset.choice === current);
+
+        button.addEventListener('click', () => (menu.hidden ? open(currentIndex()) : close(false)));
+        button.addEventListener('keydown', (event) => {
+          if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+          event.preventDefault();
+          open(event.key === 'ArrowDown' ? 0 : items.length - 1);
+        });
+
+        menu.addEventListener('click', (event) => {
+          const item = (event.target as Element).closest<HTMLButtonElement>(
+            '[role="menuitemradio"]',
+          );
+          if (!item) return;
+          choose(parseThemeChoice(item.dataset.choice));
+          close(true);
+        });
+        menu.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') {
+            close(true);
+            return;
+          }
+          if (event.key === 'Tab') {
+            close(false);
+            return;
+          }
+          const index = menuFocusIndex(
+            event.key,
+            items.indexOf(document.activeElement as HTMLButtonElement),
+            items.length,
+          );
+          if (index === null) return;
+          event.preventDefault();
+          items[index].focus();
+        });
+        document.addEventListener('click', (event) => {
+          if (!container.contains(event.target as Node)) close(false);
+        });
+
+        render();
+        container.hidden = false;
+      }
+    </script>
   </body>
 </html>

@@ -33,8 +33,15 @@ describe('themeCss', () => {
     const css = themeCss();
     expect(css).toContain('--color-papaya-whip: #fdf0d5;');
     expect(css).toContain('--color-text: #3a3335;');
-    expect(css).toMatch(
-      /@media \(prefers-color-scheme: dark\) \{ :root \{[^}]*--color-text: #fdf0d5;/,
+  });
+
+  it('follows the OS colour scheme unless the visitor picked light', () => {
+    expect(themeCss()).toMatch(
+      /@media \(prefers-color-scheme: dark\) \{ :root:not\(\[data-theme='light'\]\) \{[^}]*--color-text: #fdf0d5;/,
     );
+  });
+
+  it('applies the dark theme when the visitor picked it, whatever the OS says', () => {
+    expect(themeCss()).toMatch(/^:root\[data-theme='dark'\] \{[^}]*--color-text: #fdf0d5;/m);
   });
 });

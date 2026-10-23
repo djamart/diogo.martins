@@ -1,6 +1,5 @@
 /* Colour tokens are generated from src/styles/tokens.ts in BaseLayout.astro. */
 :root {
-  color-scheme: light dark;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -107,10 +106,6 @@ main {
   padding-top: 2.5rem;
 }
 
-main:focus {
-  outline: none;
-}
-
 .site-footer {
   padding-bottom: 2rem;
   font-size: 0.9rem;
@@ -120,4 +115,100 @@ main:focus {
 .meta {
   margin-top: 0;
   color: var(--color-muted);
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* One icon button showing the current choice; it opens a menu with light, dark and system. */
+.theme-menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.theme-menu[hidden],
+.theme-menu [role='menu'][hidden] {
+  display: none;
+}
+
+.theme-button {
+  display: inline-flex;
+  padding: 0.4rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.theme-menu[data-current='light'] .theme-button .theme-icon:not([data-choice='light']),
+.theme-menu[data-current='dark'] .theme-button .theme-icon:not([data-choice='dark']),
+.theme-menu[data-current='system'] .theme-button .theme-icon:not([data-choice='system']) {
+  display: none;
+}
+
+.theme-menu [role='menu'] {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 10;
+  display: grid;
+  gap: 0.4rem;
+  min-width: 9rem;
+  margin: 0;
+  /* Room for the focus ring of the first and last options. */
+  padding: 0.4rem;
+  list-style: none;
+  border: 2px solid var(--color-accent);
+  border-radius: 0.75rem;
+  background: var(--color-bg);
+}
+
+/* Where there is room beside the content column, the menu opens to the right of the button. */
+@media (min-width: 64rem) {
+  .theme-menu [role='menu'] {
+    top: 0;
+    right: auto;
+    left: calc(100% + 0.5rem);
+  }
+}
+
+.theme-menu [role='menuitemradio'] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  border-radius: 0.5rem;
+  font: inherit;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.theme-menu [role='menuitemradio']:hover {
+  text-decoration: underline var(--color-accent) 2px;
+  text-underline-offset: 3px;
+}
+
+/* The chosen option is filled with the text colour. */
+.theme-menu [role='menuitemradio'][aria-checked='true'] {
+  font-weight: 600;
+  color: var(--color-bg);
+  background: var(--color-text);
+}
+
+.theme-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

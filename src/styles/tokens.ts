@@ -39,9 +39,10 @@ export const themes: Record<ThemeName, Theme> = {
     surface: palette.ashGrey,
     text: palette.graphite,
     muted: palette.graphite,
-    heading: palette.raspberryRed,
-    accent: palette.raspberryRed,
-    focus: palette.raspberryRed,
+    // Cinnabar on both themes, so the accent looks the same in light and dark (3.06:1 here).
+    heading: palette.cinnabar,
+    accent: palette.cinnabar,
+    focus: palette.cinnabar,
     decor: palette.cinnabar,
   },
   dark: {
@@ -79,10 +80,15 @@ function declarations(entries: Record<string, string>): string {
     .join(' ');
 }
 
-/** CSS custom properties for the palette and both themes, following the OS colour scheme. */
+/**
+ * CSS custom properties for the palette and both themes. The OS colour scheme decides,
+ * unless the visitor picked a theme with the toggle (`data-theme` on the root element).
+ */
 export function themeCss(): string {
+  const dark = `${declarations({ ...themes.dark })} color-scheme: dark;`;
   return [
-    `:root { ${declarations(palette)} ${declarations({ ...themes.light })} }`,
-    `@media (prefers-color-scheme: dark) { :root { ${declarations({ ...themes.dark })} } }`,
+    `:root { ${declarations(palette)} ${declarations({ ...themes.light })} color-scheme: light; }`,
+    `@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { ${dark} } }`,
+    `:root[data-theme='dark'] { ${dark} }`,
   ].join('\n');
 }
