@@ -150,6 +150,7 @@ test.describe('Content', () => {
       'End-to-end tests',
       'Accessibility',
       'Phone screens',
+      'Visual changes',
       'Performance and SEO',
       'Broken links',
     ]);

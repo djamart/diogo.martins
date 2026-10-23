@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { loadPostFiles, parsePostId, postPath, published } from '../../src/blog/posts';
 import { qualityGates } from '../../src/data/quality';
 import { languages, ui, type Lang } from '../../src/i18n/ui';
@@ -56,6 +56,22 @@ describe('qualityGates', () => {
         expect(ui[lang]['quality.gate.mobile.description'], lang).toContain(device);
       }
     }
+  });
+
+  it('compares screenshots on the desktop and the phone it promises', async () => {
+    // Vite sets BASE_URL for its own use, which the config would read as a live site to test.
+    vi.stubEnv('BASE_URL', '');
+    vi.resetModules();
+    const { default: localConfig } = await import('../../playwright.config');
+    vi.unstubAllEnvs();
+    const ignores = (project: { testIgnore?: unknown }) =>
+      [project.testIgnore ?? []]
+        .flat()
+        .some((pattern) => pattern instanceof RegExp && pattern.test('e2e/visual.spec.ts'));
+    const visual = (localConfig.projects ?? []).filter((project) => !ignores(project));
+    expect(visual.map((project) => project.name)).toEqual(['chromium', 'mobile-chrome']);
+    expect(ui.en['quality.gate.visual.description']).toContain('on a desktop and on a phone');
+    expect(ui.pt['quality.gate.visual.description']).toContain('num computador e num telemóvel');
   });
 });
 

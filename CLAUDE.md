@@ -14,27 +14,29 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 
 ## Project map
 
-| Path                       | What lives there                                                                        |
-| -------------------------- | --------------------------------------------------------------------------------------- |
-| `src/pages/`               | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint     |
-| `src/content/blog/`        | Blog posts in Markdown, `<lang>/<slug>.md`; schema in `src/content.config.ts`           |
-| `src/blog/`                | Blog logic: post order, languages, dates (`posts.ts`) and the RSS feed (`rss.ts`)       |
-| `src/layouts/`             | `BaseLayout.astro`: header, navigation, skip link, footer                               |
-| `src/i18n/ui.ts`           | Every user-facing string in every language, keyed by `section.name`                     |
-| `src/data/profile.ts`      | Experience, certifications and contact links. Single source for the pages and the CV    |
-| `src/cv/`                  | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                         |
-| `src/quality/`             | Build-time readers for the /quality page: CI test reports (`report.ts`) and skills      |
-| `src/styles/tokens.ts`     | Colour palette and themes, with the contrast pairs they must meet                       |
-| `src/utils/`               | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested    |
-| `tests/unit/`              | Vitest unit tests, one file per module                                                  |
-| `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme) |
-| `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages` (every menu page, both languages)         |
-|                            | and `BlogPage.ts` holds `postPages`, read from `src/content/blog`                       |
-| `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                               |
-| `scripts/lighthouse.mjs`   | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                 |
-| `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                   |
-| `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                               |
-| `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                           |
+| Path                             | What lives there                                                                        |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| `src/pages/`                     | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint     |
+| `src/content/blog/`              | Blog posts in Markdown, `<lang>/<slug>.md`; schema in `src/content.config.ts`           |
+| `src/blog/`                      | Blog logic: post order, languages, dates (`posts.ts`) and the RSS feed (`rss.ts`)       |
+| `src/layouts/`                   | `BaseLayout.astro`: header, navigation, skip link, footer                               |
+| `src/i18n/ui.ts`                 | Every user-facing string in every language, keyed by `section.name`                     |
+| `src/data/profile.ts`            | Experience, certifications and contact links. Single source for the pages and the CV    |
+| `src/cv/`                        | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                         |
+| `src/quality/`                   | Build-time readers for the /quality page: CI test reports (`report.ts`) and skills      |
+| `src/styles/tokens.ts`           | Colour palette and themes, with the contrast pairs they must meet                       |
+| `src/utils/`                     | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested    |
+| `tests/unit/`                    | Vitest unit tests, one file per module                                                  |
+| `e2e/`                           | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme) |
+| `e2e/__screenshots__/`           | Approved screenshots for `e2e/visual.spec.ts`, one folder per Playwright project        |
+| `e2e/pages/`                     | Page objects. `SitePage.ts` holds `sitePages` (every menu page, both languages)         |
+|                                  | and `BlogPage.ts` holds `postPages`, read from `src/content/blog`                       |
+| `lighthouserc.json`              | Lighthouse CI: the pages it audits and the minimum scores                               |
+| `scripts/lighthouse.mjs`         | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                 |
+| `scripts/check-links.mjs`        | Link check on the build (linkinator), with the links it skips and why                   |
+| `scripts/update-screenshots.mjs` | Renders the visual baselines in the Playwright Docker image CI uses                     |
+| `docs/test-plan.md`              | Scope, risks, test levels and phase gates                                               |
+| `.github/workflows/ci.yml`       | The quality gates, deploy and live smoke test                                           |
 
 ## Quality gates
 
@@ -50,7 +52,7 @@ npm run test:lighthouse # Lighthouse CI on every page, 95 minimum in all four ca
 npm run test:links      # linkinator: every link on the build resolves (after a build)
 ```
 
-E2E runs in Chromium, Firefox and WebKit (one CI job per browser), and on phones: `mobile-chrome` (Pixel 7) in the Chromium job and `mobile-safari` (iPhone 15) in the WebKit job. `e2e/mobile.spec.ts` (reflow at 320 px, tap targets, touch) runs only in the phone projects. Locally, pick one with `-- --project=chromium`.
+E2E runs in Chromium, Firefox and WebKit (one CI job per browser), and on phones: `mobile-chrome` (Pixel 7) in the Chromium job and `mobile-safari` (iPhone 15) in the WebKit job. `e2e/mobile.spec.ts` (reflow at 320 px, tap targets, touch) runs only in the phone projects. `e2e/visual.spec.ts` compares every English page, in light and dark, with its approved screenshot, in `chromium` and `mobile-chrome` only; the smoke test on the live site leaves it out. Locally, pick one with `-- --project=chromium`.
 
 A new page must also be added to `lighthouserc.json`, in both languages, and so must every published blog post; a unit test fails until it is.
 
@@ -62,6 +64,7 @@ Pick the lowest test level that can catch the regression (see the test plan):
 
 - **Unit (Vitest)** for anything with logic: data rules, formatting, URL building, contrast, the CV model and PDF. Pure functions in `src/` with a matching `tests/unit/<module>.test.ts`.
 - **E2E (Playwright)** for what a visitor sees and does: pages load, navigation, links, downloads, keyboard access.
+- **Visual regression (Playwright screenshots)** catches a change in the look that no other test asserts: spacing, colours, fonts, overlaps. A new menu page gets it once it is in `sitePages`. When a pull request changes the look on purpose, run `npm run test:visual:update` (needs Docker) and commit the new PNGs; reviewing them in the diff is the approval. Never regenerate them outside that script, because fonts render differently on every machine, and never raise the comparison threshold to get green.
 - **Accessibility (axe)** runs automatically on every page in `sitePages`, in light and dark themes. A new page gets it for free once it is listed there. Blog posts need no listing: `postPages` is read from `src/content/blog`, so a new post gets the blog, axe and phone tests on its own.
 
 Rules that keep the suites readable and stable:

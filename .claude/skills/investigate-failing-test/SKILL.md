@@ -31,6 +31,7 @@ For a suspected flake, repeat it: `npx playwright test <file> --project=<browser
 | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | The product is wrong                                                                               | It is a bug: follow `fix-bug-with-test`. The failing test is already your reproduction.                 |
 | The behaviour changed on purpose (new content, new layout)                                         | Update the test to the new intended behaviour, and say in the pull request why the expectation changed. |
+| A screenshot differs (`visual.spec.ts`)                                                            | Open the diff image in the HTML report. Intended: `npm run test:visual:update` and commit the PNGs.     |
 | The test is brittle (CSS selector, fixed wait, order dependence, exact text that is not a promise) | Rewrite it with a role locator, a web-first assertion, or an independent setup.                         |
 | One browser only                                                                                   | Check for a real browser difference (focus handling, downloads, fonts) before assuming flakiness.       |
 | The environment (browser install, network, CI outage)                                              | Fix or report the environment. Do not change the test.                                                  |
