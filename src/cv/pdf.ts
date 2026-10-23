@@ -8,7 +8,10 @@ export interface RenderOptions {
 }
 
 const fonts = { regular: 'Helvetica', bold: 'Helvetica-Bold' } as const;
-const colors = { text: palette.graphite, accent: palette.raspberryRed } as const;
+/** Same accent as the site. Only on large text (14pt+ bold) and rules, so 3:1 on white is enough. */
+export const cvColors = { text: palette.graphite, accent: palette.cinnabar } as const;
+/** Section headings: 14pt bold is the smallest size WCAG counts as large text. */
+export const cvHeadingSize = 14;
 const margin = 50;
 
 /** Renders the CV as an A4 PDF, using the built-in PDF fonts so no font files are needed. */
@@ -37,15 +40,19 @@ export function renderCvPdf(cv: Cv, options: RenderOptions = {}): Promise<Uint8A
 
   const section = (heading: string) => {
     doc.moveDown(0.8);
-    doc.font(fonts.bold).fontSize(13).fillColor(colors.accent).text(heading.toUpperCase());
+    doc
+      .font(fonts.bold)
+      .fontSize(cvHeadingSize)
+      .fillColor(cvColors.accent)
+      .text(heading.toUpperCase());
     const y = doc.y + 2;
     doc
       .moveTo(margin, y)
       .lineTo(margin + width, y)
       .lineWidth(0.75)
-      .strokeColor(colors.accent)
+      .strokeColor(cvColors.accent)
       .stroke();
-    doc.moveDown(0.5).fillColor(colors.text);
+    doc.moveDown(0.5).fillColor(cvColors.text);
   };
 
   const body = (text: string) => doc.font(fonts.regular).fontSize(10).text(text, { lineGap: 2 });
@@ -60,8 +67,8 @@ export function renderCvPdf(cv: Cv, options: RenderOptions = {}): Promise<Uint8A
     });
 
   // Header
-  doc.font(fonts.bold).fontSize(24).fillColor(colors.accent).text(cv.name);
-  doc.font(fonts.bold).fontSize(13).fillColor(colors.text).text(cv.title);
+  doc.font(fonts.bold).fontSize(24).fillColor(cvColors.accent).text(cv.name);
+  doc.font(fonts.bold).fontSize(13).fillColor(cvColors.text).text(cv.title);
   doc.font(fonts.regular).fontSize(10).text(`${cv.pillars}  |  ${cv.location}`);
   doc.moveDown(0.3);
   cv.links.forEach((link, index) => {
