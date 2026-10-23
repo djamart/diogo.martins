@@ -35,6 +35,13 @@ jobs:
           name: coverage-report
           path: coverage/
           retention-days: 14
+      # Results for the /quality page, picked up by the deploy job.
+      - run: cp coverage/coverage-summary.json reports/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quality-report-unit
+          path: reports/
+          retention-days: 14
 
   e2e:
     name: End-to-end tests (${{ matrix.browser }})
@@ -53,6 +60,13 @@ jobs:
       - run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: npm run build
       - run: npm run test:e2e -- --project=${{ matrix.browser }}
+        env:
+          E2E_REPORT_FILE: reports/e2e-${{ matrix.browser }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quality-report-e2e-${{ matrix.browser }}
+          path: reports/
+          retention-days: 14
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
@@ -86,7 +100,15 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # The /quality page shows the results of this run; the build fails if any are missing.
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: quality-report-*
+          path: reports/
+          merge-multiple: true
       - run: npm run build
+        env:
+          REQUIRE_QUALITY_REPORT: 'true'
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

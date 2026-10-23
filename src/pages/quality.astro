@@ -1,0 +1,166 @@
+---
+import { join } from 'node:path';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { qualityGates } from '../data/quality';
+import { formatCounts, formatPercent, loadQualityReport } from '../quality/report';
+import { loadSkills } from '../quality/skills';
+
+const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+const repo = 'https://github.com/djamart/diogo.martins';
+const report = loadQualityReport(join(process.cwd(), 'reports'), process.env);
+const skills = loadSkills(join(process.cwd(), '.claude', 'skills'));
+const hasResults = Boolean(report.unit || report.coverage || report.e2e.length > 0);
+const countLabels = {
+  passed: t('quality.results.passed'),
+  failed: t('quality.results.failed'),
+  flaky: t('quality.results.flaky'),
+};
+const stages = [
+  { stage: 'pull-request', titleKey: 'quality.gates.pullRequest' },
+  { stage: 'deploy', titleKey: 'quality.gates.deploy' },
+] as const;
+const coverageMetrics = ['lines', 'branches', 'functions', 'statements'] as const;
+---
+
+<BaseLayout title={t('quality.title')}>
+  <h1>{t('quality.title')}</h1>
+  <p>{t('quality.intro')}</p>
+
+  <h2>{t('quality.gates.title')}</h2>
+  {stages.map(({ stage, titleKey }) => (
+    <>
+      <h3>{t(titleKey)}</h3>
+      <ol class="gates" data-testid={`gates-${stage}`}>
+        {qualityGates
+          .filter((gate) => gate.stage === stage)
+          .map((gate) => (
+            <li data-testid="gate">
+              <strong>{t(gate.nameKey)}</strong>
+              <span class="meta">{gate.tools}</span>
+              <p>{t(gate.descriptionKey)}</p>
+            </li>
+          ))}
+      </ol>
+    </>
+  ))}
+
+  <h2>{t('quality.results.title')}</h2>
+  {hasResults ? (
+    <div data-testid="results">
+      <p>{t('quality.results.intro')}</p>
+      {report.run && (
+        <p class="meta">
+          {t('quality.results.commit')} <a href={report.run.commitUrl}>{report.run.commit}</a> ·{' '}
+          <a href={report.run.url} data-testid="link-ci-run">
+            {t('quality.results.run')}
+          </a>
+        </p>
+      )}
+      <dl class="results">
+        {report.unit && (
+          <div>
+            <dt>{t('quality.results.unit')}</dt>
+            <dd data-testid="results-unit">{formatCounts(report.unit, countLabels)}</dd>
+          </div>
+        )}
+        {report.coverage && (
+          <div>
+            <dt>{t('quality.results.coverage')}</dt>
+            <dd data-testid="results-coverage">
+              {coverageMetrics
+                .map(
+                  (metric) =>
+                    `${formatPercent(report.coverage![metric])} ${t(`quality.results.${metric}`)}`,
+                )
+                .join(' · ')}
+            </dd>
+          </div>
+        )}
+        {report.e2e.length > 0 && (
+          <div>
+            <dt>{t('quality.results.e2e')}</dt>
+            <dd>
+              <ul data-testid="results-e2e">
+                {report.e2e.map((result) => (
+                  <li>
+                    {result.browser}: {formatCounts(result, countLabels)}
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
+      </dl>
+    </div>
+  ) : (
+    <p data-testid="results-unavailable">{t('quality.results.unavailable')}</p>
+  )}
+  <p>
+    <a href={`${repo}/actions/workflows/ci.yml`} data-testid="link-ci-history">
+      {t('quality.results.history')}
+    </a>
+  </p>
+
+  <h2>{t('quality.ai.title')}</h2>
+  <p>{t('quality.ai.p1')}</p>
+  <p>{t('quality.ai.p2')}</p>
+  <p>
+    <a href={`${repo}/blob/main/CLAUDE.md`} data-testid="link-claude-md">
+      {t('quality.ai.claudeMd')}
+    </a>
+  </p>
+  <h3>{t('quality.ai.skills')}</h3>
+  <ul data-testid="skills">
+    {skills.map((skill) => (
+      <li>
+        <a href={`${repo}/blob/main/${skill.path}`}>
+          <code>{skill.name}</code>
+        </a>
+        : {skill.summary}
+      </li>
+    ))}
+  </ul>
+
+  <p>
+    <a href={`${repo}/blob/main/docs/test-plan.md`} data-testid="link-quality-test-plan">
+      {t('quality.testPlan')}
+    </a>
+  </p>
+</BaseLayout>
+
+<style>
+  .gates {
+    padding-left: 1.25rem;
+  }
+
+  .gates li + li {
+    margin-top: 0.75rem;
+  }
+
+  .gates .meta {
+    display: block;
+    font-size: 0.9rem;
+  }
+
+  .gates p {
+    margin: 0.25rem 0 0;
+  }
+
+  .results div + div {
+    margin-top: 0.75rem;
+  }
+
+  .results dt {
+    font-weight: 600;
+  }
+
+  .results dd {
+    margin-left: 0;
+  }
+
+  .results ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+</style>

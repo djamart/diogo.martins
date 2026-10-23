@@ -1,4 +1,6 @@
+import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { loadSkills } from '../src/quality/skills';
 import { SitePage } from './pages/SitePage';
 import { HomePage } from './pages/HomePage';
 
@@ -79,5 +81,51 @@ test.describe('Content', () => {
       'https://github.com/djamart/diogo.martins',
     );
     await expect(page.getByTestId('link-test-plan')).toHaveAttribute('href', /test-plan\.md$/);
+  });
+
+  test('quality lists the gates every change passes, in the order they run', async ({ page }) => {
+    await new SitePage(page).goto('quality');
+
+    await expect(page.getByTestId('gates-pull-request').getByTestId('gate')).toContainText([
+      'Static analysis',
+      'Unit tests',
+      'End-to-end tests',
+      'Accessibility',
+    ]);
+    await expect(page.getByTestId('gates-deploy').getByTestId('gate')).toContainText([
+      'Deploy from a green build only',
+      'Live smoke test',
+    ]);
+  });
+
+  test('quality shows the results of the build, or says why there are none', async ({ page }) => {
+    await new SitePage(page).goto('quality');
+
+    await expect(
+      page.getByTestId('results').or(page.getByTestId('results-unavailable')),
+    ).toBeVisible();
+    await expect(page.getByTestId('link-ci-history')).toHaveAttribute(
+      'href',
+      'https://github.com/djamart/diogo.martins/actions/workflows/ci.yml',
+    );
+  });
+
+  test('quality links to CLAUDE.md and every AI skill in the repository', async ({ page }) => {
+    await new SitePage(page).goto('quality');
+
+    await expect(page.getByTestId('link-claude-md')).toHaveAttribute(
+      'href',
+      'https://github.com/djamart/diogo.martins/blob/main/CLAUDE.md',
+    );
+    const skills = page.getByTestId('skills').getByRole('link');
+    await expect(skills).toHaveCount(loadSkills(join(process.cwd(), '.claude', 'skills')).length);
+    await expect(skills.first()).toHaveAttribute(
+      'href',
+      /\/\.claude\/skills\/add-page\/SKILL\.md$/,
+    );
+    await expect(page.getByTestId('link-quality-test-plan')).toHaveAttribute(
+      'href',
+      /test-plan\.md$/,
+    );
   });
 });
