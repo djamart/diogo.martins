@@ -12,9 +12,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
       test(`${pageLabel(sitePage)} page looks the same as its approved screenshot`, async ({
         page,
       }) => {
-        await new SitePage(page).goto(sitePage.path);
-        // Text set in a fallback font would shift every line, so wait for the web fonts.
-        await page.evaluate(() => document.fonts.ready);
+        const site = new SitePage(page);
+        await site.goto(sitePage.path);
+        await site.fontsLoaded();
 
         await expect(page).toHaveScreenshot(`${sitePage.path || 'home'}-${colorScheme}.png`, {
           fullPage: true,

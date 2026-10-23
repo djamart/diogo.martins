@@ -1,26 +1,20 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
-import { BlogPage, postLabel, postPages } from './pages/BlogPage';
+import { expect, test } from '@playwright/test';
+import { AboutPage } from './pages/AboutPage';
+import { PostPage, postLabel, postPages } from './pages/PostPage';
 import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
 
 // Runs only in the phone projects (see playwright.config.ts), with their touch screen and viewport.
-
-/** How far the page can be scrolled sideways; anything above zero means content is cut off. */
-async function horizontalOverflow(page: Page): Promise<number> {
-  return page.evaluate(() => {
-    const root = document.documentElement;
-    return root.scrollWidth - root.clientWidth;
-  });
-}
 
 test.describe('Mobile', () => {
   for (const sitePage of sitePages) {
     test(`${pageLabel(sitePage)} page fits the phone screen without scrolling sideways`, async ({
       page,
     }) => {
-      await new SitePage(page, sitePage.lang).goto(sitePage.path);
+      const site = new SitePage(page, sitePage.lang);
+      await site.goto(sitePage.path);
 
-      expect(await horizontalOverflow(page)).toBe(0);
+      expect(await site.horizontalOverflow()).toBe(0);
     });
   }
 
@@ -30,17 +24,19 @@ test.describe('Mobile', () => {
 
     for (const sitePage of sitePages) {
       test(`${pageLabel(sitePage)} page reflows without scrolling sideways`, async ({ page }) => {
-        await new SitePage(page, sitePage.lang).goto(sitePage.path);
+        const site = new SitePage(page, sitePage.lang);
+        await site.goto(sitePage.path);
 
-        expect(await horizontalOverflow(page)).toBe(0);
+        expect(await site.horizontalOverflow()).toBe(0);
       });
     }
 
     for (const post of postPages) {
       test(`${postLabel(post)} reflows without scrolling sideways`, async ({ page }) => {
-        await new BlogPage(page, post.lang).gotoPost(post.slug);
+        const postPage = new PostPage(page, post);
+        await postPage.goto();
 
-        expect(await horizontalOverflow(page)).toBe(0);
+        expect(await postPage.horizontalOverflow()).toBe(0);
       });
     }
   });
@@ -62,8 +58,8 @@ test.describe('Mobile', () => {
       await site.goto('');
 
       for (const { name, heading } of pagesIn(lang)) {
-        await expect(site.navLink(name)).toBeInViewport();
-        await site.navLink(name).tap();
+        await expect(site.header.navLink(name)).toBeInViewport();
+        await site.header.navLink(name).tap();
         await expect(site.heading).toHaveText(heading);
       }
     });
@@ -71,13 +67,14 @@ test.describe('Mobile', () => {
 
   test('the theme menu opens below the button, inside the screen', async ({ page }) => {
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
 
-    await site.themeButton.tap();
-    await expect(site.themeMenu).toBeInViewport({ ratio: 1 });
+    await themeMenu.button.tap();
+    await expect(themeMenu.menu).toBeInViewport({ ratio: 1 });
 
-    const button = await site.themeButton.boundingBox();
-    const menu = await site.themeMenu.boundingBox();
+    const button = await themeMenu.button.boundingBox();
+    const menu = await themeMenu.menu.boundingBox();
     expect(menu!.y).toBeGreaterThanOrEqual(button!.y + button!.height);
     expect(menu!.x).toBeGreaterThanOrEqual(0);
   });
@@ -85,48 +82,52 @@ test.describe('Mobile', () => {
   test('a theme can be chosen by tapping, and the menu closes', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'light' });
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
 
-    await site.themeButton.tap();
-    await site.themeOption('Dark').tap();
+    await themeMenu.button.tap();
+    await themeMenu.option('Dark').tap();
 
-    await expect(site.themeMenu).toBeHidden();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expect(themeMenu.menu).toBeHidden();
+    await expect(site.root).toHaveAttribute('data-theme', 'dark');
   });
 
   test('the language menu opens below the button, inside the screen, and a tap switches language', async ({
     page,
   }) => {
-    const site = new SitePage(page);
-    await site.goto('about');
+    const about = new AboutPage(page);
+    const { languageMenu } = about.header;
+    await about.goto();
 
-    await site.languageButton.tap();
-    await expect(site.languageMenu).toBeInViewport({ ratio: 1 });
-    const button = await site.languageButton.boundingBox();
-    const menu = await site.languageMenu.boundingBox();
+    await languageMenu.button.tap();
+    await expect(languageMenu.menu).toBeInViewport({ ratio: 1 });
+    const button = await languageMenu.button.boundingBox();
+    const menu = await languageMenu.menu.boundingBox();
     expect(menu!.y).toBeGreaterThanOrEqual(button!.y + button!.height);
 
-    await site.languageOption('Português').tap();
-    await expect(site.heading).toHaveText('Sobre');
+    await languageMenu.option('pt').tap();
+    await expect(about.heading).toHaveText('Sobre');
   });
 
   test('tapping outside the language menu closes it', async ({ page }) => {
     const site = new SitePage(page);
+    const { languageMenu } = site.header;
     await site.goto('');
-    await site.languageButton.tap();
+    await languageMenu.button.tap();
 
     await site.heading.tap();
 
-    await expect(site.languageMenu).toBeHidden();
+    await expect(languageMenu.menu).toBeHidden();
   });
 
   test('tapping outside the theme menu closes it', async ({ page }) => {
     const site = new SitePage(page);
+    const { themeMenu } = site.header;
     await site.goto('');
-    await site.themeButton.tap();
+    await themeMenu.button.tap();
 
     await site.heading.tap();
 
-    await expect(site.themeMenu).toBeHidden();
+    await expect(themeMenu.menu).toBeHidden();
   });
 });

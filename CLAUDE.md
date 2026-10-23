@@ -29,8 +29,9 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `tests/unit/`                    | Vitest unit tests, one file per module                                                  |
 | `e2e/`                           | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme) |
 | `e2e/__screenshots__/`           | Approved screenshots for `e2e/visual.spec.ts`, one folder per Playwright project        |
-| `e2e/pages/`                     | Page objects. `SitePage.ts` holds `sitePages` (every menu page, both languages)         |
-|                                  | and `BlogPage.ts` holds `postPages`, read from `src/content/blog`                       |
+| `e2e/pages/`                     | Page objects, one per page, all extending `SitePage`. `SitePage.ts` holds `sitePages`   |
+|                                  | (every menu page, both languages); `PostPage.ts` holds `postPages`, read from the blog  |
+| `e2e/pages/components/`          | Parts shared by every page: header, theme and language menus, footer, `<head>` links    |
 | `lighthouserc.json`              | Lighthouse CI: the pages it audits and the minimum scores                               |
 | `scripts/lighthouse.mjs`         | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                 |
 | `scripts/check-links.mjs`        | Link check on the build (linkinator), with the links it skips and why                   |
@@ -74,7 +75,8 @@ Rules that keep the suites readable and stable:
 - Add a `data-testid` to the markup only when a role-based locator would be ambiguous. Use kebab-case, named after what the element is (`contact-email`, `cta-cv`).
 - Use web-first assertions (`await expect(locator).toHaveText(...)`). No `waitForTimeout`, no manual retries.
 - Navigate with relative URLs (`'./'`, `'./about/'`) so the same tests run against the local build and the live site (`BASE_URL`).
-- Shared locators and navigation belong in a page object under `e2e/pages/`; specs hold the assertions.
+- Follow the Page Object Model. Specs never locate elements on `page` directly: every locator and every action a visitor takes (open a page, choose a theme, download the CV) lives in a page object under `e2e/pages/`, and specs hold the assertions. Page objects never assert.
+- One page object per page, extending `SitePage` and setting the `path` its `goto()` opens. Parts every page shares are components in `e2e/pages/components/`, reached through the page (`site.header.themeMenu`, `site.footer`, `site.head`), never built by a spec.
 - Assert on content from `src/data/profile.ts` or `src/i18n/ui.ts` where it matters, so a content change that breaks a promise (e.g. no phone number) fails a test.
 - Every bug fix comes with a test that fails before the fix and passes after it.
 

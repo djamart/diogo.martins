@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
+import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
 
 test.describe('Navigation', () => {
   for (const sitePage of sitePages) {
@@ -13,8 +15,8 @@ test.describe('Navigation', () => {
 
       expect(response?.status()).toBe(200);
       await expect(site.heading).toHaveText(heading);
-      await expect(site.navLink(name)).toHaveAttribute('aria-current', 'page');
-      await expect(site.nav.locator('[aria-current="page"]')).toHaveCount(1);
+      await expect(site.header.navLink(name)).toHaveAttribute('aria-current', 'page');
+      await expect(site.header.currentLinks).toHaveCount(1);
     });
   }
 
@@ -24,19 +26,18 @@ test.describe('Navigation', () => {
       await site.goto('');
 
       for (const { name, heading } of pagesIn(lang)) {
-        await site.navLink(name).click();
+        await site.header.navLink(name).click();
         await expect(site.heading).toHaveText(heading);
       }
     });
   }
 
   test('skip link jumps past the menu to the main content', async ({ page }) => {
-    const site = new SitePage(page);
     const home = new HomePage(page);
     await home.goto();
 
     await page.keyboard.press('Tab');
-    await expect(site.skipLink).toBeFocused();
+    await expect(home.header.skipLink).toBeFocused();
     await page.keyboard.press('Enter');
     await page.keyboard.press('Tab');
 
@@ -47,16 +48,17 @@ test.describe('Navigation', () => {
     page,
   }) => {
     const home = new HomePage(page);
-    const site = new SitePage(page);
+    const contact = new ContactPage(page);
+    const about = new AboutPage(page);
 
     await home.goto();
     await home.contactCta.click();
-    await expect(site.heading).toHaveText('Contact');
+    await expect(contact.heading).toHaveText('Contact');
 
     await home.goto();
     await home.experienceCta.click();
-    await expect(site.heading).toHaveText('About');
+    await expect(about.heading).toHaveText('About');
     await expect(page).toHaveURL(/\/about\/#experience$/);
-    await expect(page.getByRole('heading', { name: 'Experience', level: 2 })).toBeInViewport();
+    await expect(about.experienceHeading).toBeInViewport();
   });
 });

@@ -2,8 +2,11 @@ import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { loadSkills } from '../src/quality/skills';
 import { ui } from '../src/i18n/ui';
-import { SitePage, pageLabel, sitePages } from './pages/SitePage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
+import { QualityPage } from './pages/QualityPage';
+import { SitePage, pageLabel, sitePages } from './pages/SitePage';
 
 test.describe('Content', () => {
   test('home page shows the role and the three focus areas', async ({ page }) => {
@@ -20,62 +23,61 @@ test.describe('Content', () => {
   });
 
   test('about lists roles from the most recent', async ({ page }) => {
-    await new SitePage(page).goto('about');
-    const roles = page.getByTestId('role');
+    const about = new AboutPage(page);
+    await about.goto();
 
-    await expect(roles).toHaveCount(3);
-    await expect(roles.first()).toContainText('Capital on Tap');
-    await expect(roles.first()).toContainText('present');
+    await expect(about.roles).toHaveCount(3);
+    await expect(about.roles.first()).toContainText('Capital on Tap');
+    await expect(about.roles.first()).toContainText('present');
   });
 
   test('about lists certifications and has no education section', async ({ page }) => {
-    await new SitePage(page).goto('about');
+    const about = new AboutPage(page);
+    await about.goto();
 
-    await expect(page.getByTestId('certifications').getByRole('listitem')).not.toHaveCount(0);
-    await expect(page.getByRole('heading', { name: 'Education' })).toHaveCount(0);
+    await expect(about.certifications).not.toHaveCount(0);
+    await expect(about.sectionHeading('Education')).toHaveCount(0);
   });
 
   test('contact offers email, LinkedIn and GitHub, and no phone number', async ({ page }) => {
-    await new SitePage(page).goto('contact');
+    const contact = new ContactPage(page);
+    await contact.goto();
 
-    await expect(page.getByTestId('contact-email')).toHaveAttribute('href', /^mailto:/);
-    await expect(page.getByTestId('contact-linkedin')).toHaveAttribute(
+    await expect(contact.email).toHaveAttribute('href', /^mailto:/);
+    await expect(contact.linkedin).toHaveAttribute(
       'href',
       'https://www.linkedin.com/in/diogojamartins/',
     );
-    await expect(page.getByTestId('contact-github')).toHaveAttribute(
-      'href',
-      'https://github.com/djamart',
-    );
-    await expect(page.locator('a[href^="tel:"]')).toHaveCount(0);
+    await expect(contact.github).toHaveAttribute('href', 'https://github.com/djamart');
+    await expect(contact.phoneLinks).toHaveCount(0);
   });
 
   test('every page ends with a way to get in touch', async ({ page }) => {
     for (const info of sitePages) {
       const site = new SitePage(page, info.lang);
+      const { footer } = site;
       await site.goto(info.path);
 
-      await expect(site.footerContact, pageLabel(info)).toBeVisible();
-      await expect(page.getByTestId('footer-email')).toHaveAttribute('href', /^mailto:/);
-      await expect(page.getByTestId('footer-linkedin')).toHaveAttribute(
+      await expect(footer.contact, pageLabel(info)).toBeVisible();
+      await expect(footer.email).toHaveAttribute('href', /^mailto:/);
+      await expect(footer.linkedin).toHaveAttribute(
         'href',
         'https://www.linkedin.com/in/diogojamartins/',
       );
-      await expect(page.getByTestId('footer-cv')).toHaveAttribute(
-        'href',
-        /\/diogo-martins-cv\.pdf$/,
-      );
-      await expect(page.getByTestId('footer-cv')).toHaveAttribute('download');
+      await expect(footer.cv).toHaveAttribute('href', /\/diogo-martins-cv\.pdf$/);
+      await expect(footer.cv).toHaveAttribute('download');
     }
   });
 
   test('home and contact link to the CV as a PDF download', async ({ page }) => {
-    for (const [path, testId] of [
-      ['', 'cta-cv'],
-      ['contact', 'contact-cv'],
+    const home = new HomePage(page);
+    const contact = new ContactPage(page);
+
+    for (const [pageObject, link] of [
+      [home, home.cvCta],
+      [contact, contact.cv],
     ] as const) {
-      await new SitePage(page).goto(path);
-      const link = page.getByTestId(testId);
+      await pageObject.goto();
 
       await expect(link).toHaveAttribute('href', /\/diogo-martins-cv\.pdf$/);
       await expect(link).toHaveAttribute('download');
@@ -83,11 +85,10 @@ test.describe('Content', () => {
   });
 
   test('the CV downloads as a PDF', async ({ page }) => {
-    await new SitePage(page).goto('contact');
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      page.getByTestId('contact-cv').click(),
-    ]);
+    const contact = new ContactPage(page);
+    await contact.goto();
+
+    const download = await contact.downloadCv();
 
     expect(download.suggestedFilename()).toBe('diogo-martins-cv.pdf');
     const response = await page.request.get(download.url());
@@ -97,13 +98,14 @@ test.describe('Content', () => {
   });
 
   test('the old experience address leads to the experience on the about page', async ({ page }) => {
-    for (const [from, to] of [
-      ['./experience/', /\/diogo\.martins\/about\/#experience$/],
-      ['./pt/experience/', /\/diogo\.martins\/pt\/about\/#experience$/],
+    for (const [lang, to] of [
+      ['en', /\/diogo\.martins\/about\/#experience$/],
+      ['pt', /\/diogo\.martins\/pt\/about\/#experience$/],
     ] as const) {
-      await page.goto(from);
+      const about = new AboutPage(page, lang);
+      await about.gotoOldExperienceAddress();
       await expect(page).toHaveURL(to);
-      await expect(page.getByTestId('role').first()).toBeVisible();
+      await expect(about.roles.first()).toBeVisible();
     }
   });
 
@@ -113,38 +115,37 @@ test.describe('Content', () => {
     const home = new HomePage(page);
     await home.goto();
 
-    await expect(home.project.getByRole('heading')).toHaveText('This website');
-    await home.project.getByTestId('link-quality').click();
-    await expect(new SitePage(page).heading).toHaveText('Quality');
+    await expect(home.projectHeading).toHaveText('This website');
+    await home.projectQualityLink.click();
+    await expect(new QualityPage(page).heading).toHaveText('Quality');
 
     await home.goto();
-    await expect(home.project.getByTestId('link-repo')).toHaveAttribute(
+    await expect(home.projectRepoLink).toHaveAttribute(
       'href',
       'https://github.com/djamart/diogo.martins',
     );
-    await expect(home.project.getByTestId('link-test-plan')).toHaveAttribute(
-      'href',
-      /test-plan\.md$/,
-    );
+    await expect(home.projectTestPlanLink).toHaveAttribute('href', /test-plan\.md$/);
   });
 
   test('the old projects address leads to the featured project on the home page', async ({
     page,
   }) => {
-    for (const [from, to] of [
-      ['./projects/', /\/diogo\.martins\/#project$/],
-      ['./pt/projects/', /\/diogo\.martins\/pt\/#project$/],
+    for (const [lang, to] of [
+      ['en', /\/diogo\.martins\/#project$/],
+      ['pt', /\/diogo\.martins\/pt\/#project$/],
     ] as const) {
-      await page.goto(from);
+      const home = new HomePage(page, lang);
+      await home.gotoOldProjectsAddress();
       await expect(page).toHaveURL(to);
-      await expect(new HomePage(page).project).toBeVisible();
+      await expect(home.project).toBeVisible();
     }
   });
 
   test('quality lists the gates every change passes, in the order they run', async ({ page }) => {
-    await new SitePage(page).goto('quality');
+    const quality = new QualityPage(page);
+    await quality.goto();
 
-    await expect(page.getByTestId('gates-pull-request').getByTestId('gate')).toContainText([
+    await expect(quality.pullRequestGates).toContainText([
       'Static analysis',
       'Unit tests',
       'End-to-end tests',
@@ -154,40 +155,38 @@ test.describe('Content', () => {
       'Performance and SEO',
       'Broken links',
     ]);
-    await expect(page.getByTestId('gates-deploy').getByTestId('gate')).toContainText([
+    await expect(quality.deployGates).toContainText([
       'Deploy from a green build only',
       'Live smoke test',
     ]);
   });
 
   test('quality shows the results of the build, or says why there are none', async ({ page }) => {
-    await new SitePage(page).goto('quality');
+    const quality = new QualityPage(page);
+    await quality.goto();
 
-    await expect(
-      page.getByTestId('results').or(page.getByTestId('results-unavailable')),
-    ).toBeVisible();
-    await expect(page.getByTestId('link-ci-history')).toHaveAttribute(
+    await expect(quality.results).toBeVisible();
+    await expect(quality.ciHistoryLink).toHaveAttribute(
       'href',
       'https://github.com/djamart/diogo.martins/actions/workflows/ci.yml',
     );
   });
 
   test('quality links to CLAUDE.md and every AI skill in the repository', async ({ page }) => {
-    await new SitePage(page).goto('quality');
+    const quality = new QualityPage(page);
+    await quality.goto();
 
-    await expect(page.getByTestId('link-claude-md')).toHaveAttribute(
+    await expect(quality.claudeMdLink).toHaveAttribute(
       'href',
       'https://github.com/djamart/diogo.martins/blob/main/CLAUDE.md',
     );
-    const skills = page.getByTestId('skills').getByRole('link');
-    await expect(skills).toHaveCount(loadSkills(join(process.cwd(), '.claude', 'skills')).length);
-    await expect(skills.first()).toHaveAttribute(
+    await expect(quality.skillLinks).toHaveCount(
+      loadSkills(join(process.cwd(), '.claude', 'skills')).length,
+    );
+    await expect(quality.skillLinks.first()).toHaveAttribute(
       'href',
       /\/\.claude\/skills\/add-page\/SKILL\.md$/,
     );
-    await expect(page.getByTestId('link-quality-test-plan')).toHaveAttribute(
-      'href',
-      /test-plan\.md$/,
-    );
+    await expect(quality.testPlanLink).toHaveAttribute('href', /test-plan\.md$/);
   });
 });
