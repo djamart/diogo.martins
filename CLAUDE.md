@@ -17,6 +17,8 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | Path                       | What lives there                                                                        |
 | -------------------------- | --------------------------------------------------------------------------------------- |
 | `src/pages/`               | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint     |
+| `src/content/blog/`        | Blog posts in Markdown, `<lang>/<slug>.md`; schema in `src/content.config.ts`           |
+| `src/blog/`                | Blog logic: post order, languages, dates (`posts.ts`) and the RSS feed (`rss.ts`)       |
 | `src/layouts/`             | `BaseLayout.astro`: header, navigation, skip link, footer                               |
 | `src/i18n/ui.ts`           | Every user-facing string in every language, keyed by `section.name`                     |
 | `src/data/profile.ts`      | Experience, certifications and contact links. Single source for the pages and the CV    |
@@ -26,7 +28,8 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `src/utils/`               | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested    |
 | `tests/unit/`              | Vitest unit tests, one file per module                                                  |
 | `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme) |
-| `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages` (every page, both languages)              |
+| `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages` (every menu page, both languages)         |
+|                            | and `BlogPage.ts` holds `postPages`, read from `src/content/blog`                       |
 | `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                               |
 | `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                   |
 | `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                               |
@@ -48,7 +51,7 @@ npm run test:links      # linkinator: every link on the build resolves (after a 
 
 E2E runs in Chromium, Firefox and WebKit (one CI job per browser), and on phones: `mobile-chrome` (Pixel 7) in the Chromium job and `mobile-safari` (iPhone 15) in the WebKit job. `e2e/mobile.spec.ts` (reflow at 320 px, tap targets, touch) runs only in the phone projects. Locally, pick one with `-- --project=chromium`.
 
-A new page must also be added to `lighthouserc.json`, in both languages; a unit test fails until it is.
+A new page must also be added to `lighthouserc.json`, in both languages, and so must every published blog post; a unit test fails until it is.
 
 Never weaken a gate to get green: do not lower the coverage threshold or a Lighthouse score, skip or `.only` a test, loosen an assertion until it passes, or filter out an axe violation, or skip a link that is really broken. If a gate is wrong, say so and fix it in its own change.
 
@@ -58,7 +61,7 @@ Pick the lowest test level that can catch the regression (see the test plan):
 
 - **Unit (Vitest)** for anything with logic: data rules, formatting, URL building, contrast, the CV model and PDF. Pure functions in `src/` with a matching `tests/unit/<module>.test.ts`.
 - **E2E (Playwright)** for what a visitor sees and does: pages load, navigation, links, downloads, keyboard access.
-- **Accessibility (axe)** runs automatically on every page in `sitePages`, in light and dark themes. A new page gets it for free once it is listed there.
+- **Accessibility (axe)** runs automatically on every page in `sitePages`, in light and dark themes. A new page gets it for free once it is listed there. Blog posts need no listing: `postPages` is read from `src/content/blog`, so a new post gets the blog, axe and phone tests on its own.
 
 Rules that keep the suites readable and stable:
 
@@ -79,6 +82,7 @@ These are deliberate decisions; tests enforce several of them.
 - No phone number anywhere, including the CV. Contact is email (mailto), LinkedIn, GitHub and the CV PDF.
 - CVEs can be mentioned, but never their identifiers.
 - No Education section; certifications take its place.
+- A blog post may exist in one language only. The other language's blog index lists it with a note on its language, and the language menu leads to that blog index instead.
 - The accent colour is cinnabar in both themes, the CV and the favicon, used only on large text, underlines and focus rings to keep contrast at WCAG AA.
 
 ## Working agreements
@@ -99,6 +103,7 @@ Procedures for recurring work, in `.claude/skills/`:
 | `add-page`                 | Add a new page with navigation, strings and full test coverage               |
 | `fix-bug-with-test`        | Reproduce a bug as a failing test, fix it, and keep the test as a regression |
 | `investigate-failing-test` | Diagnose a red or flaky test in CI or locally without weakening it           |
+| `write-blog-post`          | Add a blog post in one or both languages, with the checks it needs           |
 
 ## Environment notes
 

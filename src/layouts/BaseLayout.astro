@@ -2,12 +2,13 @@
 import '../styles/global.css';
 import ThemeIcon from '../components/ThemeIcon.astro';
 import { themeCss } from '../styles/tokens';
-import { languages, languageTags } from '../i18n/ui';
+import { languages, languageTags, type Lang } from '../i18n/ui';
 import { allLanguages, getLangFromUrl, languageCode, useTranslations } from '../i18n/utils';
 import {
   alternateLinks,
   fileHref,
   isCurrentPage,
+  languageMenuHref,
   navItems,
   pageHref,
   pagePath,
@@ -16,17 +17,30 @@ import { themeChoices, themeStorageKey } from '../utils/theme';
 
 interface Props {
   title?: string;
-  /** False for a page that exists in one language only (404): it gets no alternates. */
+  /** The page's own summary for search results; the site description if absent. */
+  description?: string;
+  /** False for a page outside the language structure (404): it gets no alternates. */
   translated?: boolean;
+  /** The languages the page exists in, for a page that is not in all of them (a blog post). */
+  availableIn?: Lang[];
+  /** Where the language menu leads in a language the page is not in. */
+  fallbackPath?: string;
 }
 
 const base = import.meta.env.BASE_URL;
 const lang = getLangFromUrl(Astro.url, base);
 const t = useTranslations(lang);
-const { title, translated = true } = Astro.props;
+const {
+  title,
+  description,
+  translated = true,
+  availableIn = allLanguages,
+  fallbackPath,
+} = Astro.props;
 // The language menu leads to the same page in each language, or home if the page has none.
 const path = translated ? pagePath(Astro.url.pathname, base) : '';
-const alternates = translated && Astro.site ? alternateLinks(Astro.site, base, path) : [];
+const alternates =
+  translated && Astro.site ? alternateLinks(Astro.site, base, path, availableIn) : [];
 const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
 ---
 
@@ -35,12 +49,18 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={t('site.description')} />
+    <meta name="description" content={description ?? t('site.description')} />
     <link rel="icon" type="image/svg+xml" href={fileHref(base, 'favicon.svg')} />
     <title>{pageTitle}</title>
     {alternates.map((alternate) => (
       <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
     ))}
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={t('blog.feedTitle')}
+      href={`${pageHref(base, 'blog', lang)}rss.xml`}
+    />
     <style is:inline set:html={themeCss()}></style>
     <!-- Applies a stored theme before the first paint, so the page never flashes the other one. -->
     <script is:inline define:vars={{ themeStorageKey }}>
@@ -104,7 +124,7 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
             {allLanguages.map((option) => (
               <li>
                 <a
-                  href={pageHref(base, path, option)}
+                  href={languageMenuHref(base, path, option, availableIn, fallbackPath)}
                   lang={languageTags[option]}
                   hreflang={languageTags[option]}
                   aria-current={option === lang ? 'true' : undefined}

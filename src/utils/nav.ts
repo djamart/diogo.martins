@@ -12,6 +12,7 @@ export const navItems: NavItem[] = [
   { path: 'experience', labelKey: 'nav.experience' },
   { path: 'projects', labelKey: 'nav.projects' },
   { path: 'quality', labelKey: 'nav.quality' },
+  { path: 'blog', labelKey: 'nav.blog' },
   { path: 'contact', labelKey: 'nav.contact' },
 ];
 
@@ -59,16 +60,42 @@ export interface AlternateLink {
   href: string;
 }
 
-/** The page at `path` in every language, as absolute URLs, for `<link rel="alternate">`. */
-export function alternateLinks(site: URL | string, base: string, path: string): AlternateLink[] {
+const allLangs = Object.keys(languages) as Lang[];
+
+/**
+ * The page at `path` in each language it exists in, as absolute URLs, for `<link rel="alternate">`.
+ * The default is the page in the default language, or in its first language if it has no such page.
+ */
+export function alternateLinks(
+  site: URL | string,
+  base: string,
+  path: string,
+  langs: readonly Lang[] = allLangs,
+): AlternateLink[] {
   const href = (lang: Lang) => new URL(pageHref(base, path, lang), site).href;
+  const available = allLangs.filter((lang) => langs.includes(lang));
+  if (available.length === 0) return [];
   return [
-    ...(Object.keys(languages) as Lang[]).map((lang) => ({
-      hreflang: languageTags[lang],
-      href: href(lang),
-    })),
-    { hreflang: 'x-default', href: href(defaultLang) },
+    ...available.map((lang) => ({ hreflang: languageTags[lang], href: href(lang) })),
+    {
+      hreflang: 'x-default',
+      href: href(available.includes(defaultLang) ? defaultLang : available[0]),
+    },
   ];
+}
+
+/**
+ * Where the language menu leads in `lang`: the same page when it exists in that language,
+ * otherwise `fallbackPath`, e.g. the blog index for a post that has no translation.
+ */
+export function languageMenuHref(
+  base: string,
+  path: string,
+  lang: Lang,
+  langs: readonly Lang[] = allLangs,
+  fallbackPath = '',
+): string {
+  return pageHref(base, langs.includes(lang) ? path : fallbackPath, lang);
 }
 
 /** Builds the href of a file at the site root, e.g. ("/diogo.martins", "cv.pdf") → "/diogo.martins/cv.pdf". */

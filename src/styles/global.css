@@ -277,3 +277,66 @@ main {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* Blog: the index lists posts as plain articles, without list markers. */
+.post-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-list h2 {
+  margin-bottom: 0.25rem;
+  font-size: 1.5rem;
+}
+
+.post-list .post-language {
+  font-size: 1rem;
+  font-weight: normal;
+  color: var(--color-text);
+}
+
+.post h2,
+.post h3 {
+  margin-top: 2rem;
+}
+
+.post img {
+  max-width: 100%;
+  height: auto;
+}
+
+.post blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--color-accent);
+}
+
+/* Code wraps instead of scrolling sideways: a scrolling block would need keyboard focus. */
+.post pre,
+.post code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.post pre {
+  padding: 1rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 0.5rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.post table {
+  display: block;
+  max-width: 100%;
+  border-collapse: collapse;
+  overflow-wrap: anywhere;
+}
+
+.post th,
+.post td {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-muted);
+  text-align: left;
+}

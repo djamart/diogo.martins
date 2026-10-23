@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { BlogPage, postLabel, postPages } from './pages/BlogPage';
 import { pageLabel, SitePage, sitePages } from './pages/SitePage';
 import { themeStorageKey } from '../src/utils/theme';
 
@@ -13,6 +14,14 @@ for (const colorScheme of ['light', 'dark'] as const) {
         page,
       }) => {
         await new SitePage(page, sitePage.lang).goto(sitePage.path);
+
+        await expectNoSeriousViolations(page);
+      });
+    }
+
+    for (const post of postPages) {
+      test(`${postLabel(post)} has no serious accessibility violations`, async ({ page }) => {
+        await new BlogPage(page, post.lang).gotoPost(post.slug);
 
         await expectNoSeriousViolations(page);
       });

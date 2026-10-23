@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { languageTags } from '../../../i18n/ui';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../../i18n/utils';
+import { blogIndex, formatPostDate, isoDate, postPath } from '../../../blog/posts';
+import { pageHref } from '../../../utils/nav';
+
+export const getStaticPaths = localeStaticPaths;
+
+const base = import.meta.env.BASE_URL;
+const lang = getLangFromUrl(Astro.url, base);
+const t = useTranslations(lang);
+const entries = blogIndex(await getCollection('blog'), lang);
+---
+
+<BaseLayout title={t('blog.title')} description={t('blog.intro')}>
+  <h1>{t('blog.title')}</h1>
+  <p>{t('blog.intro')}</p>
+
+  {entries.length === 0 ? (
+    <p data-testid="blog-empty">{t('blog.empty')}</p>
+  ) : (
+    <ol class="post-list" data-testid="post-list">
+      {entries.map(({ post, lang: postLang, slug }) => (
+        <li>
+          <article data-testid="post-summary">
+            <h2>
+              <a
+                href={pageHref(base, postPath(slug), postLang)}
+                hreflang={postLang === lang ? undefined : languageTags[postLang]}
+              >
+                <span lang={postLang === lang ? undefined : languageTags[postLang]}>
+                  {post.data.title}
+                </span>
+                {postLang !== lang && (
+                  <span class="post-language"> ({t(`blog.inLang.${postLang}`)})</span>
+                )}
+              </a>
+            </h2>
+            <p class="meta">
+              <time datetime={isoDate(post.data.pubDate)}>
+                {formatPostDate(post.data.pubDate, lang)}
+              </time>
+            </p>
+            <p lang={postLang === lang ? undefined : languageTags[postLang]}>
+              {post.data.description}
+            </p>
+          </article>
+        </li>
+      ))}
+    </ol>
+  )}
+
+  <p>
+    <a href={`${pageHref(base, 'blog', lang)}rss.xml`} data-testid="link-rss">
+      {t('blog.feed')}
+    </a>
+  </p>
+</BaseLayout>

@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { BlogPage, postLabel, postPages } from './pages/BlogPage';
 import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
 
 // Runs only in the phone projects (see playwright.config.ts), with their touch screen and viewport.
@@ -30,6 +31,14 @@ test.describe('Mobile', () => {
     for (const sitePage of sitePages) {
       test(`${pageLabel(sitePage)} page reflows without scrolling sideways`, async ({ page }) => {
         await new SitePage(page, sitePage.lang).goto(sitePage.path);
+
+        expect(await horizontalOverflow(page)).toBe(0);
+      });
+    }
+
+    for (const post of postPages) {
+      test(`${postLabel(post)} reflows without scrolling sideways`, async ({ page }) => {
+        await new BlogPage(page, post.lang).gotoPost(post.slug);
 
         expect(await horizontalOverflow(page)).toBe(0);
       });
