@@ -81,6 +81,8 @@ const menuLinks = navItems.map((item) => ({
       title={t('blog.feedTitle')}
       href={`${pageHref(base, 'blog', lang)}rss.xml`}
     />
+    <!-- Anything a page needs before the first paint, such as the 404 page's language redirect. -->
+    <slot name="head" />
     <style is:inline set:html={themeCss()}></style>
     <style is:inline set:html={navFoldCss()}></style>
     <!-- Applies a stored theme before the first paint, so the page never flashes the other one. -->

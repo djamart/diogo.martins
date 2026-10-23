@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { ui } from '../src/i18n/ui';
 import { parseHistory } from '../src/quality/history';
 
 test.describe('Smoke', () => {
@@ -57,8 +58,10 @@ test.describe('Smoke', () => {
 
   test('unknown page shows the 404 page with a way back home', async ({ page }) => {
     const notFound = new NotFoundPage(page);
-    await notFound.goto();
-    await expect(notFound.heading).toHaveText('Page not found');
+    const response = await notFound.goto();
+
+    expect(response?.status()).toBe(404);
+    await expect(notFound.heading).toHaveText(ui.en['notFound.heading']);
     await notFound.homeLink.click();
     await expect(new HomePage(page).heading).toContainText('Diogo Martins');
   });

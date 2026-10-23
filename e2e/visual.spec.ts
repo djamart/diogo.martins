@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { pageLabel, pagesIn, SitePage } from './pages/SitePage';
 
 // Runs only in the chromium and mobile-chrome projects, against the build (see playwright.config.ts).
@@ -21,5 +22,13 @@ for (const colorScheme of ['light', 'dark'] as const) {
         });
       });
     }
+
+    test('Page not found looks the same as its approved screenshot', async ({ page }) => {
+      const notFound = new NotFoundPage(page);
+      await notFound.goto();
+      await notFound.fontsLoaded();
+
+      await expect(page).toHaveScreenshot(`404-${colorScheme}.png`, { fullPage: true });
+    });
   });
 }

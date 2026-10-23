@@ -212,6 +212,16 @@ test.describe('Language', () => {
     await expect(site.root).toHaveAttribute('data-theme', 'dark');
   });
 
+  test('a missing Portuguese address shows the page not found in Portuguese', async ({ page }) => {
+    const notFound = new NotFoundPage(page, 'pt');
+    await notFound.goto('projectos/antigo');
+
+    await expect(notFound.root).toHaveAttribute('lang', 'pt-PT');
+    await expect(notFound.heading).toHaveText(ui.pt['notFound.heading']);
+    await expect(notFound.missingPath).toHaveText(/\/pt\/projectos\/antigo$/);
+    await expect(notFound.homeLink).toHaveText(ui.pt['notFound.back']);
+  });
+
   test('the page not found offers the Portuguese home page', async ({ page }) => {
     const notFound = new NotFoundPage(page);
     await notFound.goto();
