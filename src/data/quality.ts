@@ -41,6 +41,20 @@ export const qualityGates: QualityGate[] = [
     stage: 'pull-request',
   },
   {
+    id: 'lighthouse',
+    tools: 'Lighthouse CI',
+    nameKey: 'quality.gate.lighthouse.name',
+    descriptionKey: 'quality.gate.lighthouse.description',
+    stage: 'pull-request',
+  },
+  {
+    id: 'links',
+    tools: 'linkinator',
+    nameKey: 'quality.gate.links.name',
+    descriptionKey: 'quality.gate.links.description',
+    stage: 'pull-request',
+  },
+  {
     id: 'deploy',
     tools: 'GitHub Actions, GitHub Pages',
     nameKey: 'quality.gate.deploy.name',

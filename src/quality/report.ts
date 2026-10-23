@@ -4,7 +4,8 @@ import { join } from 'node:path';
 /**
  * Test results from the CI run that built the site, shown on the /quality page.
  * CI writes them to `reports/` before the deploy build (see .github/workflows/ci.yml):
- * `unit.json` (Vitest), `coverage-summary.json` (V8 coverage) and `e2e-<browser>.json` (Playwright).
+ * `unit.json` (Vitest), `coverage-summary.json` (V8 coverage), `e2e-<browser>.json` (Playwright),
+ * `lighthouse.json` (the Lighthouse CI manifest) and `links.json` (linkinator).
  */
 
 export interface UnitResult {
@@ -28,6 +29,20 @@ export interface E2eResult {
   skipped: number;
 }
 
+/** The lowest Lighthouse score of each category across the audited pages, from 0 to 100. */
+export interface LighthouseResult {
+  pages: number;
+  performance: number;
+  accessibility: number;
+  bestPractices: number;
+  seo: number;
+}
+
+export interface LinksResult {
+  checked: number;
+  broken: number;
+}
+
 export interface CiRun {
   url: string;
   commit: string;
@@ -38,6 +53,8 @@ export interface QualityReport {
   unit?: UnitResult;
   coverage?: CoverageResult;
   e2e: E2eResult[];
+  lighthouse?: LighthouseResult;
+  links?: LinksResult;
   run?: CiRun;
 }
 
@@ -98,6 +115,48 @@ export function parseE2eReport(browser: string, json: unknown): E2eResult {
   };
 }
 
+/**
+ * Reads a Lighthouse CI manifest (one entry per run). Only the representative (median) run of each
+ * page counts, and each category keeps its lowest score, so one slow page cannot hide behind the rest.
+ */
+export function parseLighthouseManifest(json: unknown): LighthouseResult {
+  if (!Array.isArray(json)) throw new Error('lighthouse.json: expected a list of runs');
+  const runs = json
+    .map((run) => object(run, 'lighthouse.json run'))
+    .filter((run) => run.isRepresentativeRun === true);
+  if (runs.length === 0)
+    throw new Error('lighthouse.json: expected at least one representative run');
+
+  const lowest = (category: string) =>
+    Math.min(
+      ...runs.map((run) => {
+        const score = count(
+          object(run.summary, 'lighthouse.json summary'),
+          category,
+          'lighthouse.json',
+        );
+        if (score > 1) throw new Error(`lighthouse.json: expected "${category}" between 0 and 1`);
+        return Math.round(score * 100);
+      }),
+    );
+  return {
+    pages: runs.length,
+    performance: lowest('performance'),
+    accessibility: lowest('accessibility'),
+    bestPractices: lowest('best-practices'),
+    seo: lowest('seo'),
+  };
+}
+
+/** Counts the checked and broken links in a linkinator JSON result. Skipped links are left out. */
+export function parseLinksReport(json: unknown): LinksResult {
+  const links = object(json, 'links.json').links;
+  if (!Array.isArray(links)) throw new Error('links.json: expected a list of links');
+  const states = links.map((link) => object(link, 'links.json link').state);
+  const broken = states.filter((state) => state === 'BROKEN').length;
+  return { checked: states.filter((state) => state === 'OK').length + broken, broken };
+}
+
 /** Describes the GitHub Actions run that built the site, or undefined outside CI. */
 export function ciRunFromEnv(env: Env): CiRun | undefined {
   const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, GITHUB_RUN_ID, GITHUB_SHA } = env;
@@ -126,6 +185,8 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
   };
   const unit = read('unit.json');
   const coverage = read('coverage-summary.json');
+  const lighthouse = read('lighthouse.json');
+  const links = read('links.json');
   const e2eFiles = existsSync(dir)
     ? readdirSync(dir)
         .filter((name) => /^e2e-[\w-]+\.json$/.test(name))
@@ -138,6 +199,8 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
     e2e: e2eFiles.map((name) =>
       parseE2eReport(name.replace(/^e2e-|\.json$/g, ''), readJson(join(dir, name))),
     ),
+    lighthouse: lighthouse === undefined ? undefined : parseLighthouseManifest(lighthouse),
+    links: links === undefined ? undefined : parseLinksReport(links),
     run: ciRunFromEnv(env),
   };
 
@@ -146,6 +209,8 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
       !report.unit && 'unit.json',
       !report.coverage && 'coverage-summary.json',
       report.e2e.length === 0 && 'e2e-<browser>.json',
+      !report.lighthouse && 'lighthouse.json',
+      !report.links && 'links.json',
       !report.run && 'GitHub Actions run details',
     ].filter(Boolean);
     if (missing.length > 0) {

@@ -40,9 +40,10 @@ If the page belongs in the menu, add it to `navItems` in `src/utils/nav.ts` in t
 ## 4. Tests
 
 1. Add the page to `sitePages` in `e2e/pages/SitePage.ts` with its path, menu name and expected heading. This alone gives it the navigation tests (loads with 200, marked as current, reachable from the menu) and axe checks in light and dark themes.
-2. Add tests in `e2e/content.spec.ts` for what the page promises a visitor (follow `write-e2e-test`).
-3. Add unit tests for any new logic or data in `src/` (follow `write-unit-test`).
-4. If the page must work on the live site after every deploy, add a check to `smoke.spec.ts`.
+2. Add the page's URL to `collect.url` in `lighthouserc.json`, in menu order, so Lighthouse audits it. `quality.test.ts` fails until every menu page is there. The link check finds the page on its own by following the menu.
+3. Add tests in `e2e/content.spec.ts` for what the page promises a visitor (follow `write-e2e-test`).
+4. Add unit tests for any new logic or data in `src/` (follow `write-unit-test`).
+5. If the page must work on the live site after every deploy, add a check to `smoke.spec.ts`.
 
 ## 5. Verify
 
@@ -50,6 +51,7 @@ If the page belongs in the menu, add it to `navItems` in `src/utils/nav.ts` in t
 npm run lint && npm run format:check && npm run check
 npm run test:coverage
 npm run build && npm run test:e2e -- --project=chromium
+npm run test:lighthouse && npm run test:links
 ```
 
 Open the page in `npm run dev` at desktop and mobile widths, with the keyboard only, and in both themes. Note this in the "How it was tested" section of the pull request.

@@ -11,6 +11,8 @@ playwright-report/
 test-results/
 reports/
 blob-report/
+lighthouse-report/
+.lighthouseci/
 
 # environment
 .env

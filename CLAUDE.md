@@ -27,6 +27,8 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `tests/unit/`              | Vitest unit tests, one file per module                                                   |
 | `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme)  |
 | `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages`, the list every page-level suite loops on  |
+| `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                                |
+| `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                    |
 | `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                                |
 | `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                            |
 
@@ -40,11 +42,15 @@ npm run format:check    # Prettier (run `npm run format` to fix)
 npm run check           # astro check: TypeScript and .astro templates
 npm run test:coverage   # Vitest, 80% minimum for lines, branches, functions and statements
 npm run build && npm run test:e2e   # Playwright E2E + axe, against the production build
+npm run test:lighthouse # Lighthouse CI on every page, 95 minimum in all four categories (after a build)
+npm run test:links      # linkinator: every link on the build resolves (after a build)
 ```
 
 E2E runs in Chromium, Firefox and WebKit (one CI job per browser). Locally, pick one with `-- --project=chromium`.
 
-Never weaken a gate to get green: do not lower the coverage threshold, skip or `.only` a test, loosen an assertion until it passes, or filter out an axe violation. If a gate is wrong, say so and fix it in its own change.
+A new page must also be added to `lighthouserc.json`; a unit test fails until it is.
+
+Never weaken a gate to get green: do not lower the coverage threshold or a Lighthouse score, skip or `.only` a test, loosen an assertion until it passes, or filter out an axe violation, or skip a link that is really broken. If a gate is wrong, say so and fix it in its own change.
 
 ## Testing conventions
 

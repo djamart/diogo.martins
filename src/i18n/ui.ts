@@ -72,6 +72,12 @@ export const ui = {
     'quality.gate.a11y.name': 'Accessibility',
     'quality.gate.a11y.description':
       'Scans every page against WCAG 2.1 AA in light and dark themes, and fails on any serious or critical violation.',
+    'quality.gate.lighthouse.name': 'Performance and SEO',
+    'quality.gate.lighthouse.description':
+      'Audits every page with Lighthouse and fails if performance, accessibility, best practices or SEO scores below 95.',
+    'quality.gate.links.name': 'Broken links',
+    'quality.gate.links.description':
+      'Follows every link on the site, from the pages and anchors to the CV and external sites, and fails on any that does not resolve.',
     'quality.gate.deploy.name': 'Deploy from a green build only',
     'quality.gate.deploy.description':
       'A change reaches the live site only after every check above has passed on main.',
@@ -93,6 +99,15 @@ export const ui = {
     'quality.results.branches': 'branches',
     'quality.results.functions': 'functions',
     'quality.results.statements': 'statements',
+    'quality.results.lighthouse': 'Lighthouse',
+    'quality.results.performance': 'performance',
+    'quality.results.accessibility': 'accessibility',
+    'quality.results.bestPractices': 'best practices',
+    'quality.results.seo': 'SEO',
+    'quality.results.lowestScore': 'lowest score on any page',
+    'quality.results.links': 'Links',
+    'quality.results.checked': 'checked',
+    'quality.results.broken': 'broken',
     'quality.results.unavailable':
       'This copy of the site was built without test results, for example locally or for a pull request. The live site shows the results of the run that deployed it.',
     'quality.results.history': 'Every CI run on GitHub Actions',

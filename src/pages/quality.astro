@@ -10,7 +10,9 @@ const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
 const repo = 'https://github.com/djamart/diogo.martins';
 const report = loadQualityReport(join(process.cwd(), 'reports'), process.env);
 const skills = loadSkills(join(process.cwd(), '.claude', 'skills'));
-const hasResults = Boolean(report.unit || report.coverage || report.e2e.length > 0);
+const hasResults = Boolean(
+  report.unit || report.coverage || report.e2e.length > 0 || report.lighthouse || report.links,
+);
 const countLabels = {
   passed: t('quality.results.passed'),
   failed: t('quality.results.failed'),
@@ -21,6 +23,7 @@ const stages = [
   { stage: 'deploy', titleKey: 'quality.gates.deploy' },
 ] as const;
 const coverageMetrics = ['lines', 'branches', 'functions', 'statements'] as const;
+const lighthouseCategories = ['performance', 'accessibility', 'bestPractices', 'seo'] as const;
 ---
 
 <BaseLayout title={t('quality.title')}>
@@ -88,6 +91,29 @@ const coverageMetrics = ['lines', 'branches', 'functions', 'statements'] as cons
                   </li>
                 ))}
               </ul>
+            </dd>
+          </div>
+        )}
+        {report.lighthouse && (
+          <div>
+            <dt>{t('quality.results.lighthouse')}</dt>
+            <dd data-testid="results-lighthouse">
+              {lighthouseCategories
+                .map(
+                  (category) =>
+                    `${report.lighthouse![category]} ${t(`quality.results.${category}`)}`,
+                )
+                .join(' · ')}{' '}
+              ({t('quality.results.lowestScore')})
+            </dd>
+          </div>
+        )}
+        {report.links && (
+          <div>
+            <dt>{t('quality.results.links')}</dt>
+            <dd data-testid="results-links">
+              {report.links.checked} {t('quality.results.checked')}, {report.links.broken}{' '}
+              {t('quality.results.broken')}
             </dd>
           </div>
         )}
