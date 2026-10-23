@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { PostPage, postLabel, postPages } from './pages/PostPage';
 import { pageLabel, SitePage, sitePages } from './pages/SitePage';
 
@@ -13,6 +14,16 @@ for (const colorScheme of ['light', 'dark'] as const) {
         page,
       }) => {
         await new SitePage(page, sitePage.lang).goto(sitePage.path);
+
+        await expectNoSeriousViolations(page);
+      });
+    }
+
+    for (const lang of ['en', 'pt'] as const) {
+      test(`Page not found (${lang}) has no serious accessibility violations`, async ({ page }) => {
+        const notFound = new NotFoundPage(page, lang);
+        await notFound.goto();
+        await expect(notFound.testReport).toBeVisible();
 
         await expectNoSeriousViolations(page);
       });

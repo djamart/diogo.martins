@@ -1,0 +1,129 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { defaultLang } from '../i18n/ui';
+import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import { pageHref } from '../utils/nav';
+import { notFoundRedirects } from '../utils/notFound';
+
+// One page in every language, written as the report of the test that just failed.
+const base = import.meta.env.BASE_URL;
+const lang = getLangFromUrl(Astro.url, base);
+const t = useTranslations(lang);
+const redirects = lang === defaultLang ? notFoundRedirects(base) : [];
+---
+
+<BaseLayout title={t('notFound.title')} translated={false}>
+  {redirects.length > 0 && <script is:inline slot="head" define:vars={{ redirects }}>
+    // GitHub Pages serves this English page for every missing address; a Portuguese one moves
+    // on to the Portuguese 404 page, carrying the address it was looking for.
+    for (const { prefix, href } of redirects) {
+      if (location.pathname.startsWith(prefix)) {
+        location.replace(`${href}?path=${encodeURIComponent(location.pathname)}`);
+        break;
+      }
+    }
+  </script>}
+  <h1>{t('notFound.heading')}</h1>
+  <div class="test-report" data-testid="test-report">
+    <p class="test-name">
+      <svg role="img" aria-label={t('notFound.failed')} viewBox="0 0 16 16" width="16" height="16">
+        <path
+          d="M3 3l10 10M13 3L3 13"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+      <span>
+        {t('notFound.test')} <code data-testid="missing-path">{t('notFound.thisAddress')}</code>
+      </span>
+    </p>
+    <dl>
+      <div>
+        <dt>{t('notFound.expected')}</dt>
+        <dd>{t('notFound.expectedValue')}</dd>
+      </div>
+      <div>
+        <dt>{t('notFound.received')}</dt>
+        <dd>404 Not Found</dd>
+      </div>
+    </dl>
+    <p class="test-summary">{t('notFound.summary')}</p>
+  </div>
+  <p>{t('notFound.message')}</p>
+  <p>
+    <a class="button" href={pageHref(base, '', lang)} data-testid="link-home">
+      {t('notFound.back')}
+    </a>
+  </p>
+</BaseLayout>
+
+<script>
+  import { missingPath } from '../utils/notFound';
+
+  // Names the address that failed, read from the URL; without the script it says "this address".
+  const path = missingPath(location.pathname, location.search, import.meta.env.BASE_URL);
+  const target = document.querySelector('[data-testid="missing-path"]');
+  if (path !== null && target) target.textContent = path;
+</script>
+
+<style>
+  /* A failed test as a terminal prints it. Text stays in the body colours for contrast. */
+  .test-report {
+    margin-block: 1.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-accent);
+    border-left-width: 6px;
+    border-radius: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .test-report p {
+    margin: 0;
+  }
+
+  .test-name {
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    font-weight: 700;
+  }
+
+  /* The cross is a graphic, so cinnabar needs 3:1 against the page, which it has. */
+  .test-name svg {
+    flex: none;
+    align-self: center;
+    color: var(--color-accent);
+  }
+
+  .test-name code {
+    font-family: inherit;
+  }
+
+  dl {
+    margin: 0.75rem 0;
+    padding-left: 1.6rem;
+  }
+
+  dl div {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1ch;
+  }
+
+  dt {
+    min-width: 9ch;
+    color: var(--color-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .test-summary {
+    color: var(--color-muted);
+  }
+</style>
