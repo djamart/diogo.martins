@@ -253,9 +253,13 @@ const messages = Object.fromEntries(
     border-style: dashed;
   }
 
+  /* Set apart from the labels: regular weight, a little smaller, behind an accent bar. */
   .field-error {
     margin: 0;
-    font-weight: 600;
+    padding-left: 0.6rem;
+    border-left: 3px solid var(--color-accent);
+    font-size: 0.95rem;
+    line-height: 1.4;
   }
 
   .contact-form .meta {
