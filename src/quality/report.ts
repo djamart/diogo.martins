@@ -5,7 +5,8 @@ import { join } from 'node:path';
  * Test results from the CI run that built the site, shown on the /quality page.
  * CI writes them to `reports/` before the deploy build (see .github/workflows/ci.yml):
  * `unit.json` (Vitest), `coverage-summary.json` (V8 coverage), `e2e-<browser>.json` (Playwright),
- * `lighthouse.json` (the Lighthouse CI manifest) and `links.json` (linkinator).
+ * `lighthouse-<shard>.json` (the Lighthouse CI manifest of each job that shared the pages) and
+ * `links.json` (linkinator).
  */
 
 export interface UnitResult {
@@ -196,16 +197,24 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
     const path = join(dir, name);
     return existsSync(path) ? readJson(path) : undefined;
   };
+  const names = existsSync(dir) ? readdirSync(dir) : [];
   const unit = read('unit.json');
   const coverage = read('coverage-summary.json');
-  const lighthouse = read('lighthouse.json');
   const links = read('links.json');
-  const e2eBrowsers = existsSync(dir)
-    ? readdirSync(dir)
-        .filter((name) => /^e2e-[\w-]+\.json$/.test(name))
-        .map((name) => name.replace(/^e2e-|\.json$/g, ''))
-        .sort(byBrowserOrder)
-    : [];
+  const e2eBrowsers = names
+    .filter((name) => /^e2e-[\w-]+\.json$/.test(name))
+    .map((name) => name.replace(/^e2e-|\.json$/g, ''))
+    .sort(byBrowserOrder);
+  // Several CI jobs share the Lighthouse pages; their manifests together cover the whole site.
+  const lighthouseFiles = names.filter((name) => /^lighthouse(-\d+)?\.json$/.test(name)).sort();
+  const lighthouse =
+    lighthouseFiles.length === 0
+      ? undefined
+      : lighthouseFiles.flatMap((name) => {
+          const runs = readJson(join(dir, name));
+          if (!Array.isArray(runs)) throw new Error(`${name}: expected a list of runs`);
+          return runs;
+        });
 
   const report: QualityReport = {
     unit: unit === undefined ? undefined : parseUnitReport(unit),
@@ -223,7 +232,7 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
       !report.unit && 'unit.json',
       !report.coverage && 'coverage-summary.json',
       report.e2e.length === 0 && 'e2e-<browser>.json',
-      !report.lighthouse && 'lighthouse.json',
+      !report.lighthouse && 'lighthouse-<shard>.json',
       !report.links && 'links.json',
       !report.run && 'GitHub Actions run details',
     ].filter(Boolean);

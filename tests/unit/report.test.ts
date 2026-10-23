@@ -241,11 +241,29 @@ describe('loadQualityReport', () => {
     });
   });
 
+  it('joins the Lighthouse results of the jobs that shared the pages', () => {
+    write('lighthouse-1.json', [lighthouseRun('/', 0.99), lighthouseRun('/', 0.4, false)]);
+    write('lighthouse-2.json', [lighthouseRun('/about/', 0.96)]);
+    write('lighthouse-3.json', [lighthouseRun('/pt/', 0.98)]);
+
+    const report = loadQualityReport(dir);
+
+    expect(report.lighthouse?.pages).toBe(3);
+    expect(report.lighthouse?.performance).toBe(96);
+  });
+
+  it('rejects a Lighthouse result that is not a list of runs', () => {
+    write('lighthouse-1.json', [lighthouseRun('/', 0.99)]);
+    write('lighthouse-2.json', { runs: [] });
+
+    expect(() => loadQualityReport(dir)).toThrow('lighthouse-2.json: expected a list of runs');
+  });
+
   it('fails the deploy build when a report is missing', () => {
     write('unit.json', unitJson);
 
     expect(() => loadQualityReport(dir, { ...githubEnv, REQUIRE_QUALITY_REPORT: 'true' })).toThrow(
-      /missing coverage-summary\.json, e2e-<browser>\.json, lighthouse\.json, links\.json$/,
+      /missing coverage-summary\.json, e2e-<browser>\.json, lighthouse-<shard>\.json, links\.json$/,
     );
   });
 
@@ -253,7 +271,7 @@ describe('loadQualityReport', () => {
     write('unit.json', unitJson);
     write('coverage-summary.json', coverageJson);
     write('e2e-chromium.json', e2eJson(1));
-    write('lighthouse.json', lighthouseJson);
+    write('lighthouse-1.json', lighthouseJson);
     write('links.json', linksJson);
 
     expect(() =>

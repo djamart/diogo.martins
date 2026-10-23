@@ -40,7 +40,7 @@ npm run dev          # local dev server at http://localhost:4321/diogo.martins/
 
 The E2E tests run in all three browsers; to run a single one, add `-- --project=firefox` (or `chromium`, `webkit`, `mobile-chrome`, `mobile-safari`). To run them against a deployed site: `BASE_URL=https://djamart.github.io/diogo.martins/ npm run test:e2e`.
 
-Lighthouse needs Chrome; if it is not found, point `CHROME_PATH` at a Chrome or Chromium binary. Its HTML reports land in `lighthouse-report/`.
+Lighthouse needs Chrome; if it is not found, point `CHROME_PATH` at a Chrome or Chromium binary. Its HTML reports land in `lighthouse-report/`. Extra arguments go to `lhci autorun`, e.g. `npm run test:lighthouse -- --collect.settings.chromeFlags="--no-sandbox"`. CI shares the pages between three jobs with `LIGHTHOUSE_SHARD`.
 
 ## Working with AI agents
 

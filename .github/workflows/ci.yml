@@ -111,8 +111,13 @@ jobs:
           retention-days: 14
 
   lighthouse:
-    name: Lighthouse
+    name: Lighthouse (${{ matrix.shard }}/3)
     runs-on: ubuntu-latest
+    # Each audit takes about ten seconds, so the pages are shared between three jobs.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -121,19 +126,21 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      # Audits every page three times and fails below 95 in any category (see lighthouserc.json).
+      # Audits each of its pages three times and fails below 95 in any category (see lighthouserc.json).
       - run: npm run test:lighthouse
+        env:
+          LIGHTHOUSE_SHARD: ${{ matrix.shard }}/3
       - name: Upload Lighthouse reports
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-report
+          name: lighthouse-report-${{ matrix.shard }}
           path: lighthouse-report/
           retention-days: 14
-      - run: mkdir -p reports && cp lighthouse-report/manifest.json reports/lighthouse.json
+      - run: mkdir -p reports && cp lighthouse-report/manifest.json reports/lighthouse-${{ matrix.shard }}.json
       - uses: actions/upload-artifact@v4
         with:
-          name: quality-report-lighthouse
+          name: quality-report-lighthouse-${{ matrix.shard }}
           path: reports/
           retention-days: 14
 

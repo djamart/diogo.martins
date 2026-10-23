@@ -31,6 +31,7 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 | `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages` (every menu page, both languages)         |
 |                            | and `BlogPage.ts` holds `postPages`, read from `src/content/blog`                       |
 | `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                               |
+| `scripts/lighthouse.mjs`   | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                 |
 | `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                   |
 | `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                               |
 | `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                           |
