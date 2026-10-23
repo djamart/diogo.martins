@@ -13,7 +13,12 @@ export default defineConfig({
     baseURL: process.env.BASE_URL ?? `http://localhost:${port}${basePath}`,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // CI runs each browser in its own job (see .github/workflows/ci.yml) via --project.
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
   // Tests run against the production build. Set BASE_URL to test a deployed site instead.
   webServer: process.env.BASE_URL
     ? undefined
