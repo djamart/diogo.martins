@@ -34,7 +34,12 @@ for (const [chosen, system] of [
     const site = new SitePage(page);
 
     await site.goto('');
-    await expect(site.themeOption(chosen === 'dark' ? 'Dark' : 'Light')).toBeChecked();
+    // With the menu open, so the scan covers it too.
+    await site.themeButton.click();
+    await expect(site.themeOption(chosen === 'dark' ? 'Dark' : 'Light')).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
 
     await expectNoSeriousViolations(page);
   });

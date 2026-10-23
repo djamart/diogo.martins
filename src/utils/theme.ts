@@ -13,3 +13,22 @@ export const themeStorageKey = 'theme';
 export function parseThemeChoice(value: string | null | undefined): ThemeChoice {
   return value === 'light' || value === 'dark' ? value : 'system';
 }
+
+/**
+ * Where focus goes in the open theme menu after a key press (WAI-ARIA menu pattern):
+ * arrows wrap around, Home and End jump to the ends. Null for keys the menu ignores.
+ */
+export function menuFocusIndex(key: string, index: number, count: number): number | null {
+  switch (key) {
+    case 'ArrowDown':
+      return (index + 1) % count;
+    case 'ArrowUp':
+      return (index - 1 + count) % count;
+    case 'Home':
+      return 0;
+    case 'End':
+      return count - 1;
+    default:
+      return null;
+  }
+}
