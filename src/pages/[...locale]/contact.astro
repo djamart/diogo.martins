@@ -4,33 +4,202 @@ import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/u
 import { contactLinks, profile } from '../../data/profile';
 import { cvFileName } from '../../cv/model';
 import { fileHref } from '../../utils/nav';
+import { formAccessKey, formEndpoint, messageMaxLength } from '../../contact/form';
 
 export const getStaticPaths = localeStaticPaths;
 
 const base = import.meta.env.BASE_URL;
 const lang = getLangFromUrl(Astro.url, base);
 const t = useTranslations(lang);
+const email = contactLinks.find((link) => link.id === 'email');
+// Every message the page script may show, by key, so it needs no strings of its own.
+const messages = Object.fromEntries(
+  (
+    [
+      'contact.form.sending',
+      'contact.form.success',
+      'contact.error.nameMissing',
+      'contact.error.emailMissing',
+      'contact.error.emailInvalid',
+      'contact.error.messageMissing',
+      'contact.error.messageTooLong',
+    ] as const
+  ).map((key) => [key, t(key)]),
+);
 ---
 
 <BaseLayout title={t('contact.title')}>
   <h1>{t('contact.title')}</h1>
   <p>{t('contact.intro')}</p>
-  <ul class="links">
-    {contactLinks.map((link) => (
+
+  <section aria-labelledby="contact-form-title">
+    <h2 id="contact-form-title">{t('contact.form.title')}</h2>
+    <!-- Without JavaScript the browser checks the fields and posts straight to Web3Forms. -->
+    <form
+      class="contact-form"
+      action={formEndpoint}
+      method="post"
+      data-testid="contact-form"
+      data-messages={JSON.stringify(messages)}
+    >
+      <input type="hidden" name="access_key" value={formAccessKey} />
+      <div class="field">
+        <label for="contact-name">{t('contact.form.name')}</label>
+        <input
+          id="contact-name"
+          name="name"
+          type="text"
+          autocomplete="name"
+          required
+          aria-describedby="contact-name-error"
+        />
+        <p id="contact-name-error" class="field-error" data-testid="contact-name-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="contact-email">{t('contact.form.email')}</label>
+        <input
+          id="contact-email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          spellcheck="false"
+          required
+          aria-describedby="contact-email-error"
+        />
+        <p
+          id="contact-email-error"
+          class="field-error"
+          data-testid="contact-email-error"
+          hidden
+        ></p>
+      </div>
+      <div class="field">
+        <label for="contact-message">{t('contact.form.message')}</label>
+        <textarea
+          id="contact-message"
+          name="message"
+          rows="6"
+          maxlength={messageMaxLength}
+          required
+          aria-describedby="contact-message-error"
+        ></textarea>
+        <p
+          id="contact-message-error"
+          class="field-error"
+          data-testid="contact-message-error"
+          hidden
+        ></p>
+      </div>
+      <!-- Honeypot: hidden from people, so only a bot ticks it. -->
+      <input type="checkbox" name="botcheck" hidden />
+      <p class="meta">{t('contact.form.privacy')}</p>
+      <div class="form-actions">
+        <button type="submit" class="button">
+          {t('contact.form.submit')}
+        </button>
+        <!-- Always rendered, so screen readers announce what the script writes into it. -->
+        <p role="status" data-testid="contact-form-status"></p>
+        <p role="alert" data-testid="contact-form-failure" hidden>
+          {t('contact.form.failure')}
+          {email && <a href={email.href}>{email.href.replace('mailto:', '')}</a>}
+        </p>
+      </div>
+    </form>
+  </section>
+
+  <section aria-labelledby="contact-direct-title">
+    <h2 id="contact-direct-title">{t('contact.direct')}</h2>
+    <ul class="links">
+      {contactLinks.map((link) => (
+        <li>
+          <a href={link.href} data-testid={`contact-${link.id}`}>
+            {link.label}
+          </a>
+        </li>
+      ))}
       <li>
-        <a href={link.href} data-testid={`contact-${link.id}`}>
-          {link.label}
+        <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="contact-cv">
+          {t('cv.download')}
         </a>
       </li>
-    ))}
-    <li>
-      <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="contact-cv">
-        {t('cv.download')}
-      </a>
-    </li>
-  </ul>
-  <p class="meta">{profile.location}</p>
+    </ul>
+    <p class="meta">{profile.location}</p>
+  </section>
 </BaseLayout>
+
+<script>
+  import {
+    contactSubmission,
+    formEndpoint,
+    formFields,
+    isAccepted,
+    validateContact,
+    type FormValues,
+  } from '../../contact/form';
+
+  const form = document.querySelector<HTMLFormElement>('[data-testid="contact-form"]');
+
+  if (form) {
+    const messages: Record<string, string> = JSON.parse(form.dataset.messages ?? '{}');
+    const status = form.querySelector<HTMLElement>('[data-testid="contact-form-status"]')!;
+    const failure = form.querySelector<HTMLElement>('[data-testid="contact-form-failure"]')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const field = (name: string) =>
+      form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement;
+
+    // The script shows its own messages, in the page's language, in place of the browser's.
+    form.noValidate = true;
+
+    const showErrors = (errors: ReturnType<typeof validateContact>) => {
+      for (const name of formFields) {
+        const input = field(name);
+        const error = document.getElementById(`contact-${name}-error`)!;
+        const key = errors[name];
+        error.textContent = key ? messages[key] : '';
+        error.hidden = !key;
+        if (key) input.setAttribute('aria-invalid', 'true');
+        else input.removeAttribute('aria-invalid');
+      }
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(
+        formFields.map((name) => [name, field(name).value]),
+      ) as FormValues;
+      const errors = validateContact(values);
+      showErrors(errors);
+      failure.hidden = true;
+      status.textContent = '';
+
+      const firstInvalid = formFields.find((name) => errors[name]);
+      if (firstInvalid) {
+        field(firstInvalid).focus();
+        return;
+      }
+
+      submit.disabled = true;
+      status.textContent = messages['contact.form.sending'];
+      try {
+        const response = await fetch(formEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(
+            contactSubmission(values, (field('botcheck') as HTMLInputElement).checked),
+          ),
+        });
+        if (!isAccepted(await response.json())) throw new Error(`Status ${response.status}`);
+        form.reset();
+        status.textContent = messages['contact.form.success'];
+      } catch {
+        status.textContent = '';
+        failure.hidden = false;
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+</script>
 
 <style>
   .links {
@@ -42,5 +211,82 @@ const t = useTranslations(lang);
 
   .links li + li {
     margin-top: 0.5rem;
+  }
+
+  .contact-form {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  label {
+    font-weight: 600;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--color-muted);
+    border-radius: 0.5rem;
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-field);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    border-color: var(--color-text);
+  }
+
+  [aria-invalid='true'] {
+    border-color: var(--color-text);
+    border-style: dashed;
+  }
+
+  /* Set apart from the labels: regular weight, a little smaller, behind an accent bar. */
+  .field-error {
+    margin: 0;
+    padding-left: 0.6rem;
+    border-left: 3px solid var(--color-accent);
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .contact-form .meta {
+    margin: 0;
+  }
+
+  .form-actions {
+    display: grid;
+    justify-items: start;
+  }
+
+  .form-actions p {
+    margin: 0.75rem 0 0;
+  }
+
+  .form-actions p:empty {
+    margin: 0;
+  }
+
+  .contact-form .button {
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .contact-form .button:disabled {
+    cursor: progress;
+    opacity: 0.7;
   }
 </style>
