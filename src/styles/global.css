@@ -18,6 +18,16 @@ html {
   scrollbar-gutter: stable;
 }
 
+/* Keeps a link target or a focused element in the page from landing under the sticky header. Not
+   on the whole page: the header's own controls are always in view, and room above them would
+   scroll the page to the top whenever one takes focus, e.g. after a theme choice. */
+main,
+main *,
+.site-footer,
+.site-footer * {
+  scroll-margin-top: 6rem;
+}
+
 /* Moving to another page of the site fades between the two instead of flashing, and the header
    stays put. Browsers without cross-document view transitions simply load the page. */
 @media (prefers-reduced-motion: no-preference) {
@@ -27,6 +37,9 @@ html {
 
   .site-header {
     view-transition-name: site-header;
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 }
 
@@ -94,6 +107,8 @@ h3 {
 
 .skip-link {
   position: absolute;
+  /* Above the sticky header. */
+  z-index: 30;
   left: 1rem;
   top: -3rem;
   padding: 0.5rem 1rem;
@@ -104,11 +119,109 @@ h3 {
   top: 1rem;
 }
 
-.site-header,
+/* The header stays at the top of the window. It spans the full width so its background covers
+   the page scrolling under it, and its padding lines the menu up with the 40rem column below. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 1rem max(1rem, (100% - 40rem) / 2);
+}
+
+/* Flat on the page at the top; once the page scrolls under it, a shadow and the page background,
+   slightly see-through and blurred (the script in BaseLayout.astro sets the attribute). */
+.site-header[data-scrolled] {
+  background-color: var(--color-header-bg);
+  box-shadow: var(--header-shadow);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
 .site-footer {
   max-width: 42rem;
   margin: 0 auto;
   padding: 1.5rem 1rem 0;
+}
+
+/* The menu button shows only on windows too narrow for the links, which then hide (the widths are
+   in src/utils/nav.ts, generated into BaseLayout.astro). */
+.menu-button {
+  display: none;
+}
+
+/* The menu button and the button that closes the panel, round like the theme button. */
+.menu-button,
+.menu-close {
+  padding: 0.4rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+/* The panel slides in from the left edge and runs the full height of the window. */
+.site-menu {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: min(20rem, 85vw);
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--color-text);
+  background: var(--color-bg);
+  box-shadow: var(--header-shadow);
+}
+
+.site-menu::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+/* Keeps the page behind still while the panel is open. */
+html:has(.site-menu[open]) {
+  overflow: hidden;
+}
+
+/* The close button sits where the menu button was, so the panel opens and closes in one place. */
+.site-menu-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  height: 100%;
+  padding: 1rem;
+}
+
+.menu-close {
+  display: inline-flex;
+}
+
+.site-header .site-menu ul {
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.site-menu a {
+  display: block;
+  padding: 0.5rem 0.25rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .site-menu[open] {
+    transition: translate 0.25s ease;
+  }
+
+  @starting-style {
+    .site-menu[open] {
+      translate: -100% 0;
+    }
+  }
 }
 
 .site-header ul {
@@ -134,7 +247,7 @@ h3 {
 }
 
 main {
-  padding-top: 2.5rem;
+  padding-top: 1.5rem;
 }
 
 .site-footer {
@@ -373,7 +486,8 @@ main {
   background: var(--color-text);
 }
 
-.theme-icon {
+.theme-icon,
+.menu-icon {
   width: 1.25rem;
   height: 1.25rem;
   fill: none;

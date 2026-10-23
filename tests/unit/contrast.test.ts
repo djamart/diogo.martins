@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { contrastRatio, relativeLuminance } from '../../src/utils/contrast';
-import { contrastRequirements, palette, themeCss, themes } from '../../src/styles/tokens';
+import { blend, contrastRatio, relativeLuminance, translucent } from '../../src/utils/contrast';
+import {
+  contrastRequirements,
+  headerOpacity,
+  palette,
+  themeCss,
+  themes,
+} from '../../src/styles/tokens';
 
 describe('contrastRatio', () => {
   it('is 21:1 for black on white', () => {
@@ -22,9 +28,38 @@ describe('contrastRatio', () => {
   });
 });
 
+describe('blend', () => {
+  it('shows only the top colour when it is opaque', () => {
+    expect(blend(palette.cinnabar, palette.graphite, 1)).toBe(palette.cinnabar);
+  });
+
+  it('shows only the bottom colour when the top one is fully transparent', () => {
+    expect(blend(palette.cinnabar, palette.graphite, 0)).toBe(palette.graphite);
+  });
+
+  it('mixes each channel in proportion to the opacity', () => {
+    expect(blend('#ffffff', '#000000', 0.5)).toBe('#808080');
+  });
+});
+
+describe('translucent', () => {
+  it('writes a hex colour as CSS rgb() with an opacity', () => {
+    expect(translucent(palette.papayaWhip, 0.85)).toBe('rgb(253 240 213 / 0.85)');
+  });
+});
+
 describe.each(Object.entries(themes))('%s theme meets WCAG 2.1 AA', (_name, theme) => {
   it.each(contrastRequirements)('$fg on $bg ($reason) is at least $min:1', ({ fg, bg, min }) => {
     expect(contrastRatio(theme[fg], theme[bg])).toBeGreaterThanOrEqual(min);
+  });
+});
+
+// The header is see-through once the page scrolls under it, so what shows behind it changes the
+// colour its text sits on. Every palette colour could pass behind it: cards, headings, the accent.
+describe.each(Object.entries(themes))('%s theme header over scrolled content', (_name, theme) => {
+  it.each(Object.entries(palette))('keeps menu text at 4.5:1 over %s', (_colour, under) => {
+    const header = blend(theme.bg, under, headerOpacity);
+    expect(contrastRatio(theme.text, header)).toBeGreaterThanOrEqual(4.5);
   });
 });
 
@@ -33,6 +68,13 @@ describe('themeCss', () => {
     const css = themeCss();
     expect(css).toContain('--color-papaya-whip: #fdf0d5;');
     expect(css).toContain('--color-text: #3a3335;');
+  });
+
+  it('gives the header the page background, slightly see-through, and a shadow in each theme', () => {
+    const css = themeCss();
+    expect(css).toContain(`--color-header-bg: rgb(253 240 213 / ${headerOpacity});`);
+    expect(css).toContain(`--color-header-bg: rgb(58 51 53 / ${headerOpacity});`);
+    expect(css.match(/--header-shadow: [^;]+;/g)).toHaveLength(3);
   });
 
   it('follows the OS colour scheme unless the visitor picked light', () => {

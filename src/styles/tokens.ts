@@ -4,6 +4,8 @@
  * (see BaseLayout.astro) and tests/unit/contrast.test.ts checks every pairing against WCAG AA.
  */
 
+import { translucent } from '../utils/contrast';
+
 export const palette = {
   graphite: '#3a3335',
   raspberryRed: '#d81e5b',
@@ -67,6 +69,18 @@ export const themes: Record<ThemeName, Theme> = {
   },
 };
 
+/**
+ * The header stays at the top of the window. Once the page scrolls under it, it takes the page
+ * background at this opacity, blurred, so the content behind shows through faintly.
+ */
+export const headerOpacity = 0.85;
+
+/** The header's shadow once the page scrolls under it; deeper in the dark theme to stay visible. */
+export const headerShadow: Record<ThemeName, string> = {
+  light: '0 2px 16px rgb(58 51 53 / 0.14)',
+  dark: '0 2px 16px rgb(0 0 0 / 0.45)',
+};
+
 /** WCAG 2.1 AA minimums: 4.5 for normal text, 3 for large text and non-text UI (1.4.3, 1.4.11). */
 export const contrastRequirements: ReadonlyArray<{
   fg: keyof Theme;
@@ -86,6 +100,15 @@ export const contrastRequirements: ReadonlyArray<{
 
 const cssName = (key: string) => `--color-${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`;
 
+/** A theme's colour tokens plus the header's translucent background and shadow. */
+function themeDeclarations(name: ThemeName): string {
+  const theme = themes[name];
+  return [
+    declarations({ ...theme, headerBg: translucent(theme.bg, headerOpacity) }),
+    `--header-shadow: ${headerShadow[name]};`,
+  ].join(' ');
+}
+
 function declarations(entries: Record<string, string>): string {
   return Object.entries(entries)
     .map(([key, value]) => `${cssName(key)}: ${value};`)
@@ -97,9 +120,9 @@ function declarations(entries: Record<string, string>): string {
  * unless the visitor picked a theme with the toggle (`data-theme` on the root element).
  */
 export function themeCss(): string {
-  const dark = `${declarations({ ...themes.dark })} color-scheme: dark;`;
+  const dark = `${themeDeclarations('dark')} color-scheme: dark;`;
   return [
-    `:root { ${declarations(palette)} ${declarations({ ...themes.light })} color-scheme: light; }`,
+    `:root { ${declarations(palette)} ${themeDeclarations('light')} color-scheme: light; }`,
     `@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { ${dark} } }`,
     `:root[data-theme='dark'] { ${dark} }`,
   ].join('\n');

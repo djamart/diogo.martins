@@ -12,6 +12,7 @@ import { languages, languageTags, type Lang } from '../i18n/ui';
 import { allLanguages, getLangFromUrl, languageCode, useTranslations } from '../i18n/utils';
 import {
   alternateLinks,
+  navFoldCss,
   fileHref,
   isCurrentPage,
   languageMenuHref,
@@ -52,6 +53,13 @@ const alternates =
 // The footer offers the two fastest ways to reach Diogo, plus the CV.
 const footerLinks = contactLinks.filter((link) => link.id === 'email' || link.id === 'linkedin');
 const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
+// The menu links, shown in a row in the header or, when they do not fit, in the menu panel.
+const menuLinks = navItems.map((item) => ({
+  href: pageHref(base, item.path, lang),
+  label: t(item.labelKey),
+  current: isCurrentPage(Astro.url.pathname, base, item.path, lang),
+  testId: `nav-${item.path || 'home'}`,
+}));
 ---
 
 <!doctype html>
@@ -74,6 +82,7 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
       href={`${pageHref(base, 'blog', lang)}rss.xml`}
     />
     <style is:inline set:html={themeCss()}></style>
+    <style is:inline set:html={navFoldCss()}></style>
     <!-- Applies a stored theme before the first paint, so the page never flashes the other one. -->
     <script is:inline define:vars={{ themeStorageKey }}>
       try {
@@ -86,6 +95,17 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     </script>
     <noscript>
       <style>
+        /* Without the script the header never learns the page scrolled, so it is always opaque. */
+        .site-header {
+          background-color: var(--color-bg);
+        }
+        /* The menu button needs the script to open, so the links stay in the header and wrap. */
+        .site-header .menu-button {
+          display: none !important;
+        }
+        .site-header .site-nav {
+          display: block !important;
+        }
         .language-button {
           display: none;
         }
@@ -103,18 +123,29 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
       {t('nav.skip')}
     </a>
     <header class="site-header">
-      <nav aria-label={t('nav.label')}>
+      <!-- Shown only when the window is too narrow for the links (see navFoldWidth). -->
+      <button
+        type="button"
+        class="menu-button"
+        aria-label={t('nav.open')}
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-controls="site-menu"
+      >
+        <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+      <nav class="site-nav" aria-label={t('nav.label')}>
         <ul>
-          {navItems.map((item) => (
+          {menuLinks.map((link) => (
             <li>
               <a
-                href={pageHref(base, item.path, lang)}
-                aria-current={
-                  isCurrentPage(Astro.url.pathname, base, item.path, lang) ? 'page' : undefined
-                }
-                data-testid={`nav-${item.path || 'home'}`}
+                href={link.href}
+                aria-current={link.current ? 'page' : undefined}
+                data-testid={link.testId}
               >
-                {t(item.labelKey)}
+                {link.label}
               </a>
             </li>
           ))}
@@ -179,6 +210,27 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
           </ul>
         </div>
       </div>
+      <!-- The same links in a panel from the left, for windows too narrow to show them in a row. -->
+      <dialog id="site-menu" class="site-menu" aria-label={t('nav.menu')}>
+        <div class="site-menu-panel">
+          <button type="button" class="menu-close" aria-label={t('nav.close')}>
+            <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18"></path>
+            </svg>
+          </button>
+          <nav aria-label={t('nav.label')}>
+            <ul>
+              {menuLinks.map((link) => (
+                <li>
+                  <a href={link.href} aria-current={link.current ? 'page' : undefined}>
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </dialog>
     </header>
     <main id="content">
       <slot />
@@ -212,6 +264,15 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     <script>
       import { menuFocusIndex, parseThemeChoice, themeStorageKey } from '../utils/theme';
       import type { ThemeChoice } from '../utils/theme';
+      import { languageScrollKey, languageScrollNote, languageScrollTarget } from '../utils/nav';
+
+      // Sticky header: flat at the top of the page, lifted once the page scrolls under it.
+      const header = document.querySelector<HTMLElement>('.site-header');
+      if (header) {
+        const markScrolled = () => header.toggleAttribute('data-scrolled', window.scrollY > 0);
+        window.addEventListener('scroll', markScrolled, { passive: true });
+        markScrolled();
+      }
 
       // Language menu: a button with the current language that shows the list of languages below.
       const languageMenu = document.querySelector<HTMLElement>('[data-testid="language-menu"]');
@@ -242,6 +303,54 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
         document.addEventListener('pointerdown', (event) => {
           if (!languageMenu.contains(event.target as Node)) closeLanguages(false);
         });
+        // Switching language keeps the reader's place: the link notes how far down the page was.
+        languageList.addEventListener('click', (event) => {
+          const link = (event.target as Element).closest('a');
+          if (!link) return;
+          try {
+            sessionStorage.setItem(
+              languageScrollKey,
+              languageScrollNote(link.href, window.scrollY),
+            );
+          } catch {
+            // Storage blocked: the new page opens at the top.
+          }
+        });
+      }
+
+      // Menu panel: the menu button opens the links in a panel from the left. As a modal dialog it
+      // keeps focus inside, closes with Escape and gives focus back to the button when it closes.
+      const menuButton = document.querySelector<HTMLButtonElement>('.menu-button');
+      const menuPanel = document.querySelector<HTMLDialogElement>('.site-menu');
+      if (menuButton && menuPanel) {
+        menuButton.addEventListener('click', () => {
+          menuPanel.showModal();
+          menuButton.setAttribute('aria-expanded', 'true');
+        });
+        menuPanel.addEventListener('close', () =>
+          menuButton.setAttribute('aria-expanded', 'false'),
+        );
+        menuPanel.querySelector('.menu-close')?.addEventListener('click', () => menuPanel.close());
+        // A click outside the panel lands on the dialog itself, whose backdrop fills the window.
+        menuPanel.addEventListener('click', (event) => {
+          if (event.target === menuPanel) menuPanel.close();
+        });
+        // A window widened enough to show the links in the header needs no panel.
+        window.addEventListener('resize', () => {
+          if (menuPanel.open && getComputedStyle(menuButton).display === 'none') menuPanel.close();
+        });
+      }
+
+      // The page a language switch opened scrolls to where the reader was.
+      try {
+        const target = languageScrollTarget(
+          sessionStorage.getItem(languageScrollKey),
+          location.pathname,
+        );
+        sessionStorage.removeItem(languageScrollKey);
+        if (target !== null) window.scrollTo(0, target);
+      } catch {
+        // Storage blocked: the page stays at the top.
       }
 
       const root = document.documentElement;
