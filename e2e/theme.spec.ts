@@ -152,4 +152,16 @@ test.describe('Theme menu', () => {
     await expect(themeMenu.menu).toBeHidden();
     await expect(site.body).toHaveCSS('background-color', background.light);
   });
+
+  test('keeps the page where it was after a choice', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.goto('about');
+    await site.scrollDown();
+    const position = await site.scrollPosition();
+
+    await site.header.themeMenu.choose('Dark');
+
+    await expect(site.root).toHaveAttribute('data-theme', 'dark');
+    expect(await site.scrollPosition()).toBe(position);
+  });
 });

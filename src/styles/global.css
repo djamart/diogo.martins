@@ -13,11 +13,19 @@
   box-sizing: border-box;
 }
 
-/* Keeps room for the scrollbar on every page, so a short page does not shift sideways. The scroll
-   padding keeps a link target or a focused element from landing under the sticky header. */
+/* Keeps room for the scrollbar on every page, so a short page does not shift sideways. */
 html {
   scrollbar-gutter: stable;
-  scroll-padding-top: 6rem;
+}
+
+/* Keeps a link target or a focused element in the page from landing under the sticky header. Not
+   on the whole page: the header's own controls are always in view, and room above them would
+   scroll the page to the top whenever one takes focus, e.g. after a theme choice. */
+main,
+main *,
+.site-footer,
+.site-footer * {
+  scroll-margin-top: 6rem;
 }
 
 /* Moving to another page of the site fades between the two instead of flashing, and the header

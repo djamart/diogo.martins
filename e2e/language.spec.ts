@@ -32,6 +32,23 @@ test.describe('Language', () => {
     });
   }
 
+  test('switching language keeps the page where it was', async ({ page }) => {
+    const english = new AboutPage(page);
+    const portuguese = new AboutPage(page, 'pt');
+    await english.goto();
+    await english.scrollDown();
+    const position = await english.scrollPosition();
+
+    await english.header.languageMenu.choose('pt');
+
+    await expect(portuguese.heading).toHaveText(ui.pt['about.title']);
+    // Near, not to the pixel: the other language wraps differently, and the browser keeps the text
+    // in view while the web fonts settle the layout. A couple of lines either way is the same place.
+    await expect
+      .poll(async () => Math.abs((await portuguese.scrollPosition()) - position))
+      .toBeLessThanOrEqual(60);
+  });
+
   test('the language button shows the current language by its short name', async ({ page }) => {
     const english = new SitePage(page);
     await english.goto('');

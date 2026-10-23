@@ -216,6 +216,7 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     <script>
       import { menuFocusIndex, parseThemeChoice, themeStorageKey } from '../utils/theme';
       import type { ThemeChoice } from '../utils/theme';
+      import { languageScrollKey, languageScrollNote, languageScrollTarget } from '../utils/nav';
 
       // Sticky header: flat at the top of the page, lifted once the page scrolls under it.
       const header = document.querySelector<HTMLElement>('.site-header');
@@ -254,6 +255,31 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
         document.addEventListener('pointerdown', (event) => {
           if (!languageMenu.contains(event.target as Node)) closeLanguages(false);
         });
+        // Switching language keeps the reader's place: the link notes how far down the page was.
+        languageList.addEventListener('click', (event) => {
+          const link = (event.target as Element).closest('a');
+          if (!link) return;
+          try {
+            sessionStorage.setItem(
+              languageScrollKey,
+              languageScrollNote(link.href, window.scrollY),
+            );
+          } catch {
+            // Storage blocked: the new page opens at the top.
+          }
+        });
+      }
+
+      // The page a language switch opened scrolls to where the reader was.
+      try {
+        const target = languageScrollTarget(
+          sessionStorage.getItem(languageScrollKey),
+          location.pathname,
+        );
+        sessionStorage.removeItem(languageScrollKey);
+        if (target !== null) window.scrollTo(0, target);
+      } catch {
+        // Storage blocked: the page stays at the top.
       }
 
       const root = document.documentElement;

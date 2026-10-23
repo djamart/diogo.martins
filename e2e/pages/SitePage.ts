@@ -90,6 +90,11 @@ export class SitePage {
     await this.page.evaluate(() => window.scrollTo(0, 0));
   }
 
+  /** How far down the page is scrolled, in pixels. */
+  async scrollPosition(): Promise<number> {
+    return this.page.evaluate(() => Math.round(window.scrollY));
+  }
+
   /** Where the main navigation starts from the left of the window, in pixels. */
   async navLeftEdge(): Promise<number | undefined> {
     return (await this.header.nav.boundingBox())?.x;

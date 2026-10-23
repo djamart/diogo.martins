@@ -100,3 +100,25 @@ export function languageMenuHref(
 export function fileHref(base: string, fileName: string): string {
   return `${withTrailingSlash(base)}${fileName}`;
 }
+
+/** Where the language menu notes how far down the page was, for the page it opens. */
+export const languageScrollKey = 'language-scroll';
+
+/** The note the language menu leaves: the page it opens and how far down to scroll it. */
+export function languageScrollNote(href: string, scrollY: number): string {
+  return JSON.stringify({ path: new URL(href).pathname, y: Math.round(scrollY) });
+}
+
+/**
+ * How far down to scroll the page at `pathname`, from the note the language menu left, or null
+ * when the note is missing, unreadable or for another page (e.g. the blog index a post fell back to).
+ */
+export function languageScrollTarget(note: string | null, pathname: string): number | null {
+  if (!note) return null;
+  try {
+    const { path, y } = JSON.parse(note) as { path?: unknown; y?: unknown };
+    return path === pathname && typeof y === 'number' && y > 0 ? y : null;
+  } catch {
+    return null;
+  }
+}

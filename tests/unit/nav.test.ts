@@ -4,6 +4,8 @@ import {
   fileHref,
   isCurrentPage,
   languageMenuHref,
+  languageScrollNote,
+  languageScrollTarget,
   navItems,
   pageHref,
   pagePath,
@@ -92,6 +94,24 @@ describe('languageMenuHref', () => {
     expect(languageMenuHref('/diogo.martins/', 'blog/hello', 'pt', ['en'])).toBe(
       '/diogo.martins/pt/',
     );
+  });
+});
+
+describe('languageScrollTarget', () => {
+  const note = languageScrollNote('https://djamart.github.io/diogo.martins/pt/about/', 600.4);
+
+  it('scrolls the page the language menu opened to where the last one was', () => {
+    expect(languageScrollTarget(note, '/diogo.martins/pt/about/')).toBe(600);
+  });
+
+  it('leaves another page at the top, such as the blog index a post fell back to', () => {
+    expect(languageScrollTarget(note, '/diogo.martins/pt/blog/')).toBeNull();
+  });
+
+  it('leaves the page at the top without a note, or with one it cannot read', () => {
+    expect(languageScrollTarget(null, '/diogo.martins/pt/about/')).toBeNull();
+    expect(languageScrollTarget('not json', '/diogo.martins/pt/about/')).toBeNull();
+    expect(languageScrollTarget('{"path":"/diogo.martins/"}', '/diogo.martins/')).toBeNull();
   });
 });
 
