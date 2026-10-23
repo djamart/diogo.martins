@@ -9,6 +9,8 @@ import {
   loadQualityReport,
   parseCoverageSummary,
   parseE2eReport,
+  parseLighthouseManifest,
+  parseLinksReport,
   parseUnitReport,
 } from '../../src/quality/report';
 
@@ -24,6 +26,25 @@ const coverageJson = {
 const e2eJson = (expected: number, flaky = 0) => ({
   stats: { expected, unexpected: 0, flaky, skipped: 0, duration: 1234 },
 });
+const lighthouseRun = (url: string, performance: number, isRepresentativeRun = true) => ({
+  url,
+  isRepresentativeRun,
+  summary: { performance, accessibility: 1, 'best-practices': 0.96, seo: 1 },
+});
+const lighthouseJson = [
+  lighthouseRun('/about/', 0.99),
+  lighthouseRun('/', 0.97),
+  lighthouseRun('/', 0.5, false),
+];
+const linksJson = {
+  passed: false,
+  links: [
+    { url: '/', state: 'OK', status: 200 },
+    { url: '/cv.pdf', state: 'OK', status: 200 },
+    { url: '/missing/', state: 'BROKEN', status: 404 },
+    { url: 'mailto:someone@example.com', state: 'SKIPPED', status: 0 },
+  ],
+};
 const githubEnv = {
   GITHUB_SERVER_URL: 'https://github.com',
   GITHUB_REPOSITORY: 'djamart/diogo.martins',
@@ -79,6 +100,44 @@ describe('parseE2eReport', () => {
 
   it('rejects a report without stats', () => {
     expect(() => parseE2eReport('chromium', {})).toThrow(/e2e-chromium\.json stats/);
+  });
+});
+
+describe('parseLighthouseManifest', () => {
+  it('keeps the lowest score of each category across the median runs, as a whole number', () => {
+    expect(parseLighthouseManifest(lighthouseJson)).toEqual({
+      pages: 2,
+      performance: 97,
+      accessibility: 100,
+      bestPractices: 96,
+      seo: 100,
+    });
+  });
+
+  it('rejects a manifest without runs to report', () => {
+    expect(() => parseLighthouseManifest({})).toThrow(/expected a list of runs/);
+    expect(() => parseLighthouseManifest([lighthouseRun('/', 1, false)])).toThrow(
+      /at least one representative run/,
+    );
+  });
+
+  it('rejects a score outside 0 to 1', () => {
+    expect(() => parseLighthouseManifest([lighthouseRun('/', 95)])).toThrow(
+      /"performance" between 0 and 1/,
+    );
+    expect(() =>
+      parseLighthouseManifest([{ isRepresentativeRun: true, summary: { performance: 1 } }]),
+    ).toThrow(/"accessibility"/);
+  });
+});
+
+describe('parseLinksReport', () => {
+  it('counts checked and broken links, leaving out skipped ones', () => {
+    expect(parseLinksReport(linksJson)).toEqual({ checked: 3, broken: 1 });
+  });
+
+  it('rejects a result without links', () => {
+    expect(() => parseLinksReport({ passed: true })).toThrow(/expected a list of links/);
   });
 });
 
@@ -138,6 +197,8 @@ describe('loadQualityReport', () => {
     write('e2e-webkit.json', e2eJson(3));
     write('e2e-chromium.json', e2eJson(1));
     write('e2e-firefox.json', e2eJson(2));
+    write('lighthouse.json', lighthouseJson);
+    write('links.json', linksJson);
     write('notes.json', {});
 
     const report = loadQualityReport(dir, githubEnv);
@@ -149,6 +210,8 @@ describe('loadQualityReport', () => {
       ['Firefox', 2],
       ['WebKit', 3],
     ]);
+    expect(report.lighthouse?.performance).toBe(97);
+    expect(report.links?.broken).toBe(1);
     expect(report.run?.commit).toBe('dde877c');
   });
 
@@ -157,6 +220,8 @@ describe('loadQualityReport', () => {
       unit: undefined,
       coverage: undefined,
       e2e: [],
+      lighthouse: undefined,
+      links: undefined,
       run: undefined,
     });
   });
@@ -165,7 +230,7 @@ describe('loadQualityReport', () => {
     write('unit.json', unitJson);
 
     expect(() => loadQualityReport(dir, { ...githubEnv, REQUIRE_QUALITY_REPORT: 'true' })).toThrow(
-      /missing coverage-summary\.json, e2e-<browser>\.json$/,
+      /missing coverage-summary\.json, e2e-<browser>\.json, lighthouse\.json, links\.json$/,
     );
   });
 
@@ -173,6 +238,8 @@ describe('loadQualityReport', () => {
     write('unit.json', unitJson);
     write('coverage-summary.json', coverageJson);
     write('e2e-chromium.json', e2eJson(1));
+    write('lighthouse.json', lighthouseJson);
+    write('links.json', linksJson);
 
     expect(() =>
       loadQualityReport(dir, { ...githubEnv, REQUIRE_QUALITY_REPORT: 'true' }),

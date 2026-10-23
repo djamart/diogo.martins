@@ -91,6 +91,8 @@ test.describe('Content', () => {
       'Unit tests',
       'End-to-end tests',
       'Accessibility',
+      'Performance and SEO',
+      'Broken links',
     ]);
     await expect(page.getByTestId('gates-deploy').getByTestId('gate')).toContainText([
       'Deploy from a green build only',

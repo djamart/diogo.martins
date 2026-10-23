@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { qualityGates } from '../../src/data/quality';
 import { ui } from '../../src/i18n/ui';
+import { navItems } from '../../src/utils/nav';
+import lighthouseConfig from '../../lighthouserc.json';
 import vitestConfig from '../../vitest.config';
 
 describe('qualityGates', () => {
@@ -30,5 +32,27 @@ describe('qualityGates', () => {
       expect(thresholds[metric], metric).toBe(80);
     }
     expect(ui.en['quality.gate.unit.description']).toContain('80%');
+  });
+});
+
+describe('Lighthouse CI', () => {
+  const { collect, assert } = lighthouseConfig.ci;
+
+  it('audits every page in the navigation', () => {
+    const paths = collect.url.map((url) => new URL(url).pathname);
+    expect(paths).toEqual(
+      navItems.map((item) =>
+        item.path === '' ? '/diogo.martins/' : `/diogo.martins/${item.path}/`,
+      ),
+    );
+  });
+
+  it('promises the minimum score it actually enforces, in all four categories', () => {
+    for (const category of ['performance', 'accessibility', 'best-practices', 'seo']) {
+      const assertion =
+        assert.assertions[`categories:${category}` as keyof typeof assert.assertions];
+      expect(assertion, category).toEqual(['error', { minScore: 0.95 }]);
+    }
+    expect(ui.en['quality.gate.lighthouse.description']).toContain('95');
   });
 });

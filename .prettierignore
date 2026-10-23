@@ -4,4 +4,6 @@ coverage/
 playwright-report/
 test-results/
 reports/
+lighthouse-report/
+.lighthouseci/
 package-lock.json

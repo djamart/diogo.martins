@@ -75,11 +75,60 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
+  lighthouse:
+    name: Lighthouse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Audits every page three times and fails below 95 in any category (see lighthouserc.json).
+      - run: npm run test:lighthouse
+      - name: Upload Lighthouse reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: lighthouse-report/
+          retention-days: 14
+      - run: mkdir -p reports && cp lighthouse-report/manifest.json reports/lighthouse.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quality-report-lighthouse
+          path: reports/
+          retention-days: 14
+
+  links:
+    name: Broken links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:links
+        env:
+          LINKS_REPORT_FILE: reports/links.json
+          # Links to files in this repository are checked at the commit under test, not on main.
+          LINKS_GIT_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: quality-report-links
+          path: reports/
+          retention-days: 14
+
   # Only a green build on main reaches production.
   deploy:
     name: Deploy to GitHub Pages
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [quality, e2e]
+    needs: [quality, e2e, lighthouse, links]
     runs-on: ubuntu-latest
     permissions:
       contents: read
