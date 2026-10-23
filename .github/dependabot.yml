@@ -7,6 +7,13 @@ updates:
     groups:
       dev-dependencies:
         dependency-type: development
+    ignore:
+      # @astrojs/check only accepts TypeScript 5 or 6
+      - dependency-name: typescript
+        versions: ['>=7']
+      # Types follow the Node version in .nvmrc (22)
+      - dependency-name: '@types/node'
+        versions: ['>=23']
   - package-ecosystem: github-actions
     directory: /
     schedule:
