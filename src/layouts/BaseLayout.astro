@@ -3,7 +3,7 @@ import '../styles/global.css';
 import { themeCss } from '../styles/tokens';
 import { getLangFromUrl, useTranslations } from '../i18n/utils';
 import { isCurrentPage, navItems, pageHref } from '../utils/nav';
-import { themeStorageKey } from '../utils/theme';
+import { themeChoices, themeStorageKey } from '../utils/theme';
 
 interface Props {
   title?: string;
@@ -59,22 +59,30 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
         </ul>
       </nav>
       <!-- Hidden until the script below runs: without JavaScript the OS colour scheme applies. -->
-      <button
-        type="button"
-        class="theme-toggle"
-        aria-label={t('theme.dark')}
-        aria-pressed="false"
-        data-testid="theme-toggle"
-        hidden
-      >
-        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"></path>
-        </svg>
-        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="4"></circle>
-          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
-        </svg>
-      </button>
+      <fieldset class="theme-picker" data-testid="theme-picker" hidden>
+        <legend class="visually-hidden">{t('theme.label')}</legend>
+        {themeChoices.map((choice) => (
+          <label title={t(`theme.${choice}` as const)}>
+            <input type="radio" name="theme" value={choice} checked={choice === 'system'} />
+            <span class="visually-hidden">{t(`theme.${choice}` as const)}</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              {choice === 'light' && (
+                <>
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                </>
+              )}
+              {choice === 'dark' && <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />}
+              {choice === 'system' && (
+                <>
+                  <rect x="3" y="4" width="18" height="12" rx="2" />
+                  <path d="M8 20h8M12 16v4" />
+                </>
+              )}
+            </svg>
+          </label>
+        ))}
+      </fieldset>
     </header>
     <main id="content" tabindex="-1">
       <slot />
@@ -87,34 +95,32 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
       </p>
     </footer>
     <script>
-      import {
-        effectiveTheme,
-        oppositeTheme,
-        parseStoredTheme,
-        themeStorageKey,
-      } from '../utils/theme';
+      import { parseThemeChoice, themeStorageKey } from '../utils/theme';
 
       const root = document.documentElement;
-      const toggle = document.querySelector<HTMLButtonElement>('[data-testid="theme-toggle"]');
-      const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-      const current = () =>
-        effectiveTheme(parseStoredTheme(root.dataset.theme), darkScheme.matches);
-      const render = () => toggle?.setAttribute('aria-pressed', String(current() === 'dark'));
+      const picker = document.querySelector<HTMLFieldSetElement>('[data-testid="theme-picker"]');
 
-      toggle?.addEventListener('click', () => {
-        const theme = oppositeTheme(current());
-        root.dataset.theme = theme;
-        try {
-          localStorage.setItem(themeStorageKey, theme);
-        } catch {
-          // Storage blocked: the choice lasts until the next page.
+      if (picker) {
+        // The inline script in <head> already applied the stored choice; reflect it in the picker.
+        const current = parseThemeChoice(root.dataset.theme);
+        for (const option of picker.querySelectorAll<HTMLInputElement>('input')) {
+          option.checked = option.value === current;
         }
-        render();
-      });
-      darkScheme.addEventListener('change', render);
 
-      render();
-      toggle?.removeAttribute('hidden');
+        picker.addEventListener('change', (event) => {
+          const choice = parseThemeChoice((event.target as HTMLInputElement).value);
+          try {
+            if (choice === 'system') localStorage.removeItem(themeStorageKey);
+            else localStorage.setItem(themeStorageKey, choice);
+          } catch {
+            // Storage blocked: the choice lasts until the next page.
+          }
+          if (choice === 'system') delete root.dataset.theme;
+          else root.dataset.theme = choice;
+        });
+
+        picker.hidden = false;
+      }
     </script>
   </body>
 </html>

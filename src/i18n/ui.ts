@@ -19,7 +19,10 @@ export const ui = {
     'nav.projects': 'Projects',
     'nav.quality': 'Quality',
     'nav.contact': 'Contact',
-    'theme.dark': 'Dark theme',
+    'theme.label': 'Theme',
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
+    'theme.system': 'System',
     'footer.builtWith':
       'Built with Astro and shipped only when every test passes. See the source on GitHub.',
     'home.greeting': "Hi, I'm Diogo Martins.",

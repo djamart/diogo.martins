@@ -128,33 +128,66 @@ main:focus {
   gap: 1rem;
 }
 
-/* The icon shows the theme a press switches to; the state is in aria-pressed for assistive tech. */
-.theme-toggle {
-  display: inline-flex;
-  flex-shrink: 0;
-  padding: 0.4rem;
-  border: 2px solid var(--color-accent);
-  border-radius: 999px;
-  color: var(--color-text);
-  background: transparent;
-  cursor: pointer;
+/* Hides content visually but keeps it for screen readers and keyboard focus. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.theme-toggle[hidden] {
+/* Three icon radios: light, dark, system. The selected one is filled with the text colour. */
+.theme-picker {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0.125rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+}
+
+.theme-picker[hidden] {
   display: none;
 }
 
-.theme-toggle svg {
-  width: 1.25rem;
-  height: 1.25rem;
+.theme-picker label {
+  position: relative;
+  display: inline-flex;
+  padding: 0.35rem;
+  border-radius: 999px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+/* The radio is invisible but covers its icon, so clicks, taps and focus land on a real input. */
+.theme-picker input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.theme-picker label:has(input:checked) {
+  color: var(--color-bg);
+  background: var(--color-text);
+}
+
+.theme-picker label:has(input:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.theme-picker svg {
+  width: 1.125rem;
+  height: 1.125rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.theme-toggle[aria-pressed='true'] .icon-moon,
-.theme-toggle[aria-pressed='false'] .icon-sun {
-  display: none;
 }

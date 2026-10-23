@@ -34,7 +34,7 @@ for (const [chosen, system] of [
     const site = new SitePage(page);
 
     await site.goto('');
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', String(chosen === 'dark'));
+    await expect(site.themeOption(chosen === 'dark' ? 'Dark' : 'Light')).toBeChecked();
 
     await expectNoSeriousViolations(page);
   });

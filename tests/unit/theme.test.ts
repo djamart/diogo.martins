@@ -1,41 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import {
-  effectiveTheme,
-  oppositeTheme,
-  parseStoredTheme,
-  themeStorageKey,
-} from '../../src/utils/theme';
+import { parseThemeChoice, themeChoices, themeStorageKey } from '../../src/utils/theme';
+import { ui } from '../../src/i18n/ui';
 
-describe('parseStoredTheme', () => {
-  it('accepts the two theme names', () => {
-    expect(parseStoredTheme('light')).toBe('light');
-    expect(parseStoredTheme('dark')).toBe('dark');
+describe('parseThemeChoice', () => {
+  it('returns a stored light or dark theme', () => {
+    expect(parseThemeChoice('light')).toBe('light');
+    expect(parseThemeChoice('dark')).toBe('dark');
   });
 
-  it('treats a missing or unknown value as no choice', () => {
-    expect(parseStoredTheme(null)).toBeNull();
-    expect(parseStoredTheme(undefined)).toBeNull();
-    expect(parseStoredTheme('Dark')).toBeNull();
-    expect(parseStoredTheme('')).toBeNull();
+  it('follows the system when nothing, or something unknown, is stored', () => {
+    expect(parseThemeChoice(null)).toBe('system');
+    expect(parseThemeChoice(undefined)).toBe('system');
+    expect(parseThemeChoice('Dark')).toBe('system');
+    expect(parseThemeChoice('')).toBe('system');
   });
 });
 
-describe('effectiveTheme', () => {
-  it('follows the OS colour scheme when the visitor has not chosen', () => {
-    expect(effectiveTheme(null, true)).toBe('dark');
-    expect(effectiveTheme(null, false)).toBe('light');
-  });
-
-  it("keeps the visitor's choice over the OS colour scheme", () => {
-    expect(effectiveTheme('light', true)).toBe('light');
-    expect(effectiveTheme('dark', false)).toBe('dark');
-  });
-});
-
-describe('oppositeTheme', () => {
-  it('switches between light and dark', () => {
-    expect(oppositeTheme('light')).toBe('dark');
-    expect(oppositeTheme('dark')).toBe('light');
+describe('themeChoices', () => {
+  it('offers light, dark and system, each with a label', () => {
+    expect(themeChoices).toEqual(['light', 'dark', 'system']);
+    for (const choice of themeChoices) {
+      expect(ui.en[`theme.${choice}`]).toBeTruthy();
+    }
   });
 });
 

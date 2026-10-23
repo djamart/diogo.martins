@@ -18,18 +18,23 @@ export class SitePage {
   readonly heading: Locator;
   readonly nav: Locator;
   readonly skipLink: Locator;
-  readonly themeToggle: Locator;
+  readonly themePicker: Locator;
 
   constructor(private readonly page: Page) {
     this.body = page.locator('body');
     this.heading = page.getByRole('heading', { level: 1 });
     this.nav = page.getByRole('navigation', { name: 'Main' });
     this.skipLink = page.getByRole('link', { name: 'Skip to content' });
-    this.themeToggle = page.getByRole('button', { name: 'Dark theme' });
+    this.themePicker = page.getByRole('group', { name: 'Theme' });
   }
 
   async goto(path: SitePath) {
     return this.page.goto(path === '' ? './' : `./${path}/`);
+  }
+
+  /** An option in the header theme picker: 'Light', 'Dark' or 'System'. */
+  themeOption(name: 'Light' | 'Dark' | 'System'): Locator {
+    return this.themePicker.getByRole('radio', { name, exact: true });
   }
 
   navLink(name: string): Locator {

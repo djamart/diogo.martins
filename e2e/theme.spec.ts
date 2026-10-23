@@ -13,71 +13,73 @@ function hexToRgb(hex: string): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-test.describe('Theme toggle', () => {
+test.describe('Theme picker', () => {
   for (const colorScheme of ['light', 'dark'] as const) {
-    test(`starts in the ${colorScheme} theme when the system prefers it`, async ({ browser }) => {
-      const context = await browser.newContext({ colorScheme });
-      const site = new SitePage(await context.newPage());
+    test(`follows the system by default, here ${colorScheme}`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme });
+      const site = new SitePage(page);
 
       await site.goto('');
 
-      await expect(site.themeToggle).toHaveAttribute(
-        'aria-pressed',
-        String(colorScheme === 'dark'),
-      );
+      await expect(site.themeOption('System')).toBeChecked();
       await expect(site.body).toHaveCSS('background-color', background[colorScheme]);
-      await context.close();
     });
   }
 
-  test('switches between light and dark on click', async ({ page }) => {
-    const site = new SitePage(page);
-    await site.goto('');
-
-    await site.themeToggle.click();
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(site.body).toHaveCSS('background-color', background.dark);
-
-    await site.themeToggle.click();
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', 'false');
-    await expect(site.body).toHaveCSS('background-color', background.light);
-  });
-
-  test('remembers the choice on other pages and after a reload', async ({ page }) => {
-    const site = new SitePage(page);
-    await site.goto('');
-
-    await site.themeToggle.click();
-    await site.navLink('About').click();
-    await expect(site.heading).toHaveText('About');
-
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', 'true');
-    await expect(site.body).toHaveCSS('background-color', background.dark);
-    await page.reload();
-    await expect(site.body).toHaveCSS('background-color', background.dark);
-  });
-
-  test('a chosen theme wins over the system preference', async ({ page }) => {
+  test('light and dark override the system preference', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     const site = new SitePage(page);
     await site.goto('');
 
-    await site.themeToggle.click();
-    await page.reload();
-
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', 'false');
+    await site.themeOption('Light').check();
     await expect(site.body).toHaveCSS('background-color', background.light);
+
+    await page.emulateMedia({ colorScheme: 'light' });
+    await site.themeOption('Dark').check();
+    await expect(site.body).toHaveCSS('background-color', background.dark);
   });
 
-  test('can be used with the keyboard', async ({ page }) => {
+  test('system goes back to following the system preference, live', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    const site = new SitePage(page);
+    await site.goto('');
+    await site.themeOption('Dark').check();
+
+    await site.themeOption('System').check();
+    await expect(site.body).toHaveCSS('background-color', background.light);
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await expect(site.body).toHaveCSS('background-color', background.dark);
+
+    await page.reload();
+    await expect(site.themeOption('System')).toBeChecked();
+  });
+
+  test('remembers the choice on other pages and after a reload', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
     const site = new SitePage(page);
     await site.goto('');
 
-    await site.themeToggle.focus();
-    await page.keyboard.press('Enter');
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', 'true');
-    await page.keyboard.press('Space');
+    await site.themeOption('Dark').check();
+    await site.navLink('About').click();
+    await expect(site.heading).toHaveText('About');
 
-    await expect(site.themeToggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(site.themeOption('Dark')).toBeChecked();
+    await expect(site.body).toHaveCSS('background-color', background.dark);
+    await page.reload();
+    await expect(site.themeOption('Dark')).toBeChecked();
+    await expect(site.body).toHaveCSS('background-color', background.dark);
+  });
+
+  test('can be used with the keyboard', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light' });
+    const site = new SitePage(page);
+    await site.goto('');
+
+    await site.themeOption('System').focus();
+    await page.keyboard.press('ArrowLeft');
+
+    await expect(site.themeOption('Dark')).toBeChecked();
+    await expect(site.themeOption('Dark')).toBeFocused();
+    await expect(site.body).toHaveCSS('background-color', background.dark);
   });
 });
