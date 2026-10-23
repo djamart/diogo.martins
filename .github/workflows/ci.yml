@@ -192,7 +192,7 @@ jobs:
           cache: npm
       - run: npm ci
       # The /quality page shows the results of this run; the build fails if any are missing.
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: quality-report-*
           path: reports/
