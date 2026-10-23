@@ -6,6 +6,8 @@ import {
   languageMenuHref,
   languageScrollNote,
   languageScrollTarget,
+  navFoldCss,
+  navFoldWidth,
   navItems,
   pageHref,
   pagePath,
@@ -112,6 +114,23 @@ describe('languageScrollTarget', () => {
     expect(languageScrollTarget(null, '/diogo.martins/pt/about/')).toBeNull();
     expect(languageScrollTarget('not json', '/diogo.martins/pt/about/')).toBeNull();
     expect(languageScrollTarget('{"path":"/diogo.martins/"}', '/diogo.martins/')).toBeNull();
+  });
+});
+
+describe('navFoldCss', () => {
+  it('folds the menu links into the menu button below the width of each language', () => {
+    const css = navFoldCss();
+    expect(css).toContain(
+      `@media (width < ${navFoldWidth.en}px) { :root[lang='en'] .site-nav { display: none; }`,
+    );
+    expect(css).toContain(
+      `@media (width < ${navFoldWidth.pt}px) { :root[lang='pt-PT'] .site-nav { display: none; }`,
+    );
+    expect(css.match(/\.menu-button \{ display: inline-flex; \}/g)).toHaveLength(2);
+  });
+
+  it('folds Portuguese at a wider window, since its menu names are longer', () => {
+    expect(navFoldWidth.pt).toBeGreaterThan(navFoldWidth.en);
   });
 });
 

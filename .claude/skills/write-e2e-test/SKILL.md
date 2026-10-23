@@ -17,6 +17,8 @@ Check the existing specs first; extend a test rather than adding a near-duplicat
 | ----------------------- | --------------------------------------------------------------- |
 | `smoke.spec.ts`         | The few checks that must pass on the live site after a deploy   |
 | `navigation.spec.ts`    | Every page loads, menu, skip link, calls to action              |
+| `menu.spec.ts`          | Menu button on narrow windows: folding, panel, keyboard         |
+| `header.spec.ts`        | Sticky header: flat at the top, see-through once scrolled       |
 | `content.spec.ts`       | Content promises: role, experience order, contacts, CV download |
 | `accessibility.spec.ts` | axe on every page in `sitePages`, light and dark themes         |
 | `theme.spec.ts`         | Theme menu: system default, light/dark/system, keyboard         |
@@ -40,7 +42,8 @@ The suite follows the Page Object Model: specs say what the visitor does and wha
 | `QualityPage`             |                                                                        |
 | `BlogPage`, `PostPage`    | The blog index of one language, and one post from `postPages`          |
 | `NotFoundPage`            | The 404 page                                                           |
-| `components/Header`       | Skip link, `navLink(name)`, and the `themeMenu` and `languageMenu`     |
+| `components/Header`       | Skip link, `navLink(name)`, `showNav()` and `goToPage(name)` (open the |
+|                           | menu panel first on narrow windows), `themeMenu` and `languageMenu`    |
 | `components/ThemeMenu`    | `button`, `menu`, `option('Dark')`, `choose('Dark')`, `rememberChoice` |
 | `components/LanguageMenu` | `button`, `menu`, `option('pt')`, `choose('pt')`                       |
 | `components/Footer`       | Contact region, email, LinkedIn, CV and source code links              |

@@ -21,13 +21,16 @@ test.describe('Language', () => {
 
       await site.header.languageMenu.choose('pt');
       await expect(portugueseSite.heading).toHaveText(portuguese.heading);
+      await portugueseSite.header.showNav();
       await expect(portugueseSite.header.navLink(portuguese.name)).toHaveAttribute(
         'aria-current',
         'page',
       );
+      await portugueseSite.header.hideNav();
 
       await portugueseSite.header.languageMenu.choose('en');
       await expect(site.heading).toHaveText(english.heading);
+      await site.header.showNav();
       await expect(site.header.navLink(english.name)).toHaveAttribute('aria-current', 'page');
     });
   }
@@ -157,6 +160,7 @@ test.describe('Language', () => {
       'Engenharia de qualidade',
       'Testes com IA',
     ]);
+    await home.header.showNav();
     await expect(home.header.navLink('Contacto')).toBeVisible();
   });
 

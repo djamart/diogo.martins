@@ -58,6 +58,7 @@ test.describe('Mobile', () => {
       await site.goto('');
 
       for (const { name, heading } of pagesIn(lang)) {
+        await site.header.showNav();
         await expect(site.header.navLink(name)).toBeInViewport();
         await site.header.navLink(name).tap();
         await expect(site.heading).toHaveText(heading);

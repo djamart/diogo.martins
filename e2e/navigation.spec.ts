@@ -15,6 +15,7 @@ test.describe('Navigation', () => {
 
       expect(response?.status()).toBe(200);
       await expect(site.heading).toHaveText(heading);
+      await site.header.showNav();
       await expect(site.header.navLink(name)).toHaveAttribute('aria-current', 'page');
       await expect(site.header.currentLinks).toHaveCount(1);
     });
@@ -26,7 +27,7 @@ test.describe('Navigation', () => {
       await site.goto('');
 
       for (const { name, heading } of pagesIn(lang)) {
-        await site.header.navLink(name).click();
+        await site.header.goToPage(name);
         await expect(site.heading).toHaveText(heading);
       }
     });
@@ -67,7 +68,7 @@ test.describe('Navigation', () => {
     await site.watchPageTransitions();
     await site.goto('');
 
-    await site.header.navLink('Blog').click();
+    await site.header.goToPage('Blog');
     await expect(site.heading).toHaveText('Blog');
 
     const { supported, animated } = await site.pageTransition();
@@ -82,7 +83,7 @@ test.describe('Navigation', () => {
       await site.watchPageTransitions();
       await site.goto('');
 
-      await site.header.navLink('Blog').click();
+      await site.header.goToPage('Blog');
       await expect(site.heading).toHaveText('Blog');
 
       expect((await site.pageTransition()).animated).toBe(false);

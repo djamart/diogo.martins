@@ -30,7 +30,6 @@ test.describe('Sticky header', () => {
       await site.scrollDown();
 
       await expect(site.header.bar).toBeInViewport({ ratio: 1 });
-      await expect(site.header.nav).toBeVisible();
       await expect(site.header.bar).toHaveCSS(
         'background-color',
         headerBackground(themes[colorScheme].bg),

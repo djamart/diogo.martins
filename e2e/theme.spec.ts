@@ -98,7 +98,7 @@ test.describe('Theme menu', () => {
     await site.goto('');
 
     await themeMenu.choose('Dark');
-    await site.header.navLink('About').click();
+    await site.header.goToPage('About');
     await expect(site.heading).toHaveText('About');
 
     await expect(site.body).toHaveCSS('background-color', background.dark);

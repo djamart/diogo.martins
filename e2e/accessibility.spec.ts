@@ -91,3 +91,18 @@ async function expectNoSeriousViolations(page: Page) {
 
   expect(serious, JSON.stringify(serious, null, 2)).toEqual([]);
 }
+
+for (const colorScheme of ['light', 'dark'] as const) {
+  test(`open menu panel has no serious accessibility violations (${colorScheme} theme)`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme });
+    await page.setViewportSize({ width: 360, height: 740 });
+    const site = new SitePage(page, 'pt');
+    await site.goto('');
+    await site.header.menuButton.click();
+    await expect(site.header.menuPanel).toBeVisible();
+
+    await expectNoSeriousViolations(page);
+  });
+}

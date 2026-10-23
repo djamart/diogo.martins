@@ -122,3 +122,23 @@ export function languageScrollTarget(note: string | null, pathname: string): num
     return null;
   }
 }
+
+/**
+ * The narrowest window, in CSS pixels, that shows the menu links in a row in the header; narrower
+ * windows fold them into the menu button. Measured with the site's fonts plus a margin for other
+ * browsers; e2e/menu.spec.ts checks the links still fit at this width in every browser.
+ */
+export const navFoldWidth: Record<Lang, number> = { en: 480, pt: 512 };
+
+/** The CSS that folds the menu links into the menu button below each language's width. */
+export function navFoldCss(): string {
+  return (Object.keys(navFoldWidth) as Lang[])
+    .map((lang) => {
+      const page = `:root[lang='${languageTags[lang]}']`;
+      return (
+        `@media (width < ${navFoldWidth[lang]}px) { ` +
+        `${page} .site-nav { display: none; } ${page} .menu-button { display: inline-flex; } }`
+      );
+    })
+    .join('\n');
+}
