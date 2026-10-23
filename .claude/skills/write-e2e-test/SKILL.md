@@ -19,7 +19,7 @@ Check the existing specs first; extend a test rather than adding a near-duplicat
 | `navigation.spec.ts`    | Every page loads, menu, skip link, calls to action              |
 | `content.spec.ts`       | Content promises: role, experience order, contacts, CV download |
 | `accessibility.spec.ts` | axe on every page in `sitePages`, light and dark themes         |
-| `theme.spec.ts`         | Theme picker: system default, light/dark/system, keyboard       |
+| `theme.spec.ts`         | Theme menu: system default, light/dark/system, keyboard         |
 
 Only add to `smoke.spec.ts` if a failure would mean the live site is broken for everyone. A new concern that does not fit these gets its own `<concern>.spec.ts`.
 
