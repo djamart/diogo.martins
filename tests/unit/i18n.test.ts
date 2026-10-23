@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   getLangFromUrl,
   localeStaticPaths,
-  otherLanguages,
+  allLanguages,
+  languageCode,
   useTranslations,
 } from '../../src/i18n/utils';
 import { defaultLang, languages, languageTags, ui, type Lang } from '../../src/i18n/ui';
@@ -60,9 +61,13 @@ describe('languages', () => {
     expect(languageTags.pt).toBe('pt-PT');
   });
 
-  it('offers every other language in the switcher, never the current one', () => {
-    expect(otherLanguages('en')).toEqual(['pt']);
-    expect(otherLanguages('pt')).toEqual(['en']);
+  it('lists every language in the language menu, English first', () => {
+    expect(allLanguages).toEqual(['en', 'pt']);
+  });
+
+  it('shows each language on the button by its short code', () => {
+    expect(languageCode('en')).toBe('EN');
+    expect(languageCode('pt')).toBe('PT');
   });
 
   it('builds every page at the root for English and under /pt/ for Portuguese', () => {

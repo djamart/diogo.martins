@@ -25,9 +25,12 @@ export function useTranslations(lang: Lang) {
   };
 }
 
-/** The other languages of the site, for the language switcher. */
-export function otherLanguages(lang: Lang): Lang[] {
-  return (Object.keys(languages) as Lang[]).filter((other) => other !== lang);
+/** Every language of the site, in the order the language menu lists them. */
+export const allLanguages = Object.keys(languages) as Lang[];
+
+/** The short name the language button shows, e.g. "PT". */
+export function languageCode(lang: Lang): string {
+  return lang.toUpperCase();
 }
 
 /**
@@ -35,7 +38,7 @@ export function otherLanguages(lang: Lang): Lang[] {
  * language under its prefix, e.g. /about/ and /pt/about/.
  */
 export function localeStaticPaths() {
-  return (Object.keys(languages) as Lang[]).map((lang) => ({
+  return allLanguages.map((lang) => ({
     params: { locale: lang === defaultLang ? undefined : lang },
   }));
 }

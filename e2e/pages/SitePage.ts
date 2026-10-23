@@ -41,6 +41,8 @@ export class SitePage {
   readonly skipLink: Locator;
   readonly themeButton: Locator;
   readonly themeMenu: Locator;
+  readonly languageButton: Locator;
+  readonly languageMenu: Locator;
 
   constructor(
     private readonly page: Page,
@@ -53,6 +55,10 @@ export class SitePage {
     this.skipLink = page.getByRole('link', { name: t['nav.skip'] });
     this.themeButton = page.getByRole('button', { name: t['theme.label'] });
     this.themeMenu = page.getByRole('menu', { name: t['theme.label'] });
+    this.languageButton = page.getByRole('button', {
+      name: `${t['language.label']}: ${lang.toUpperCase()}`,
+    });
+    this.languageMenu = page.getByTestId('language-menu').getByRole('list');
   }
 
   async goto(path: SitePath) {
@@ -75,8 +81,14 @@ export class SitePage {
     return this.nav.getByRole('link', { name, exact: true });
   }
 
-  /** The header link to this page in another language, named in that language. */
-  languageLink(name: string): Locator {
-    return this.page.getByRole('banner').getByRole('link', { name, exact: true });
+  /** A language in the header language menu, named in that language. Visible only while open. */
+  languageOption(name: string): Locator {
+    return this.languageMenu.getByRole('link', { name, exact: true });
+  }
+
+  /** Opens the language menu and picks a language with the mouse. */
+  async chooseLanguage(name: string) {
+    await this.languageButton.click();
+    await this.languageOption(name).click();
   }
 }

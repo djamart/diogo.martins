@@ -57,7 +57,7 @@ The CV at `/diogo-martins-cv.pdf` is generated at build time from the same data 
 
 ## Translations
 
-The site is in English at the root and in European Portuguese under `/pt/`, with a language switcher in the header and `hreflang` alternates on every page. The CV is in English only.
+The site is in English at the root and in European Portuguese under `/pt/`, with a language menu in the header (a button with the current language code, e.g. "PT", that opens the list below it) and `hreflang` alternates on every page. The CV is in English only.
 
 - Pages live in `src/pages/[...locale]/`, and `localeStaticPaths` builds each one per language. Links go through `pageHref(base, path, lang)`.
 - Interface strings are in `src/i18n/ui.ts`. The Portuguese table is typed against the English keys, so a missing translation fails `astro check`.

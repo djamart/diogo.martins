@@ -132,9 +132,54 @@ main {
   gap: 1rem;
 }
 
-/* Padded to a comfortable tap target, like the theme button next to it. */
-.language-link {
-  padding: 0.4rem 0;
+/* A button with the current language's code; the list of languages always opens below it. */
+.language-menu {
+  position: relative;
+}
+
+.language-button {
+  min-width: 2.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.language-menu .language-options {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 10;
+  display: grid;
+  gap: 0.4rem;
+  min-width: 9rem;
+  /* Room for the focus ring of the first and last options. */
+  padding: 0.4rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 0.75rem;
+  background: var(--color-bg);
+}
+
+.language-menu .language-options[hidden] {
+  display: none;
+}
+
+.language-options a {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+}
+
+/* The current language is filled with the text colour, like the chosen theme. */
+.language-options a[aria-current='true'] {
+  font-weight: 600;
+  color: var(--color-bg);
+  background: var(--color-text);
 }
 
 /* One icon button showing the current choice; it opens a menu with light, dark and system. */

@@ -60,6 +60,20 @@ for (const [chosen, system] of [
   });
 }
 
+for (const colorScheme of ['light', 'dark'] as const) {
+  test(`open language menu has no serious accessibility violations (${colorScheme} theme)`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme });
+    const site = new SitePage(page, 'pt');
+    await site.goto('');
+    await site.languageButton.click();
+    await expect(site.languageMenu).toBeVisible();
+
+    await expectNoSeriousViolations(page);
+  });
+}
+
 async function expectNoSeriousViolations(page: Page) {
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

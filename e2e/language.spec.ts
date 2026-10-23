@@ -14,18 +14,84 @@ test.describe('Language', () => {
       const site = new SitePage(page);
       await site.goto(english.path);
 
-      await site.languageLink('Português').click();
+      await site.chooseLanguage('Português');
       await expect(site.heading).toHaveText(portuguese.heading);
-      await expect(new SitePage(page, 'pt').navLink(portuguese.name)).toHaveAttribute(
-        'aria-current',
-        'page',
-      );
+      const portugueseSite = new SitePage(page, 'pt');
+      await expect(portugueseSite.navLink(portuguese.name)).toHaveAttribute('aria-current', 'page');
 
-      await site.languageLink('English').click();
+      await portugueseSite.chooseLanguage('English');
       await expect(site.heading).toHaveText(english.heading);
       await expect(site.navLink(english.name)).toHaveAttribute('aria-current', 'page');
     });
   }
+
+  test('the language button shows the current language by its short name', async ({ page }) => {
+    const english = new SitePage(page);
+    await english.goto('');
+    await expect(english.languageButton).toHaveText('EN');
+
+    const portuguese = new SitePage(page, 'pt');
+    await portuguese.goto('');
+    await expect(portuguese.languageButton).toHaveText('PT');
+  });
+
+  test('the language menu opens below the button and marks the current language', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    const site = new SitePage(page, 'pt');
+    await site.goto('about');
+    await expect(site.languageMenu).toBeHidden();
+
+    await site.languageButton.click();
+
+    await expect(site.languageButton).toHaveAttribute('aria-expanded', 'true');
+    await expect(site.languageMenu).toBeInViewport({ ratio: 1 });
+    const button = await site.languageButton.boundingBox();
+    const menu = await site.languageMenu.boundingBox();
+    expect(menu!.y).toBeGreaterThanOrEqual(button!.y + button!.height);
+    await expect(site.languageOption('Português')).toHaveAttribute('aria-current', 'true');
+    await expect(site.languageOption('English')).not.toHaveAttribute('aria-current');
+  });
+
+  test('the language menu can be used with the keyboard', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.goto('contact');
+
+    await site.languageButton.focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Tab');
+    await expect(site.languageOption('English')).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(site.languageOption('Português')).toBeFocused();
+    await page.keyboard.press('Enter');
+
+    await expect(site.heading).toHaveText('Contacto');
+  });
+
+  test('Escape closes the language menu and returns focus to the button', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.goto('');
+    await site.languageButton.click();
+    await site.languageOption('English').focus();
+
+    await page.keyboard.press('Escape');
+
+    await expect(site.languageMenu).toBeHidden();
+    await expect(site.languageButton).toBeFocused();
+    await expect(site.languageButton).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('clicking elsewhere closes the language menu', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.goto('');
+    await site.languageButton.click();
+    await expect(site.languageMenu).toBeVisible();
+
+    await site.heading.click();
+
+    await expect(site.languageMenu).toBeHidden();
+  });
 
   for (const sitePage of sitePages) {
     test(`${pageLabel(sitePage)} page declares its language and lists its translations`, async ({
@@ -104,8 +170,9 @@ test.describe('Language', () => {
     await site.goto('');
     await site.chooseTheme('Dark');
 
-    await site.languageLink('Português').click();
+    await site.chooseLanguage('Português');
 
+    await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 
@@ -113,7 +180,7 @@ test.describe('Language', () => {
     await page.goto('./this-page-does-not-exist');
     const site = new SitePage(page);
 
-    await site.languageLink('Português').click();
+    await site.chooseLanguage('Português');
 
     await expect(page.locator('html')).toHaveAttribute('lang', 'pt-PT');
     await expect(site.heading).toHaveText(ui.pt['home.greeting']);

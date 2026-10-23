@@ -85,6 +85,32 @@ test.describe('Mobile', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 
+  test('the language menu opens below the button, inside the screen, and a tap switches language', async ({
+    page,
+  }) => {
+    const site = new SitePage(page);
+    await site.goto('experience');
+
+    await site.languageButton.tap();
+    await expect(site.languageMenu).toBeInViewport({ ratio: 1 });
+    const button = await site.languageButton.boundingBox();
+    const menu = await site.languageMenu.boundingBox();
+    expect(menu!.y).toBeGreaterThanOrEqual(button!.y + button!.height);
+
+    await site.languageOption('Português').tap();
+    await expect(site.heading).toHaveText('Experiência');
+  });
+
+  test('tapping outside the language menu closes it', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.goto('');
+    await site.languageButton.tap();
+
+    await site.heading.tap();
+
+    await expect(site.languageMenu).toBeHidden();
+  });
+
   test('tapping outside the theme menu closes it', async ({ page }) => {
     const site = new SitePage(page);
     await site.goto('');
