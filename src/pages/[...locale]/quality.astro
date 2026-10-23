@@ -1,12 +1,15 @@
 ---
 import { join } from 'node:path';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { qualityGates } from '../data/quality';
-import { formatCounts, formatPercent, loadQualityReport } from '../quality/report';
-import { loadSkills } from '../quality/skills';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
+import { qualityGates } from '../../data/quality';
+import { formatCounts, formatPercent, loadQualityReport } from '../../quality/report';
+import { loadSkills } from '../../quality/skills';
 
-const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+export const getStaticPaths = localeStaticPaths;
+
+const lang = getLangFromUrl(Astro.url, import.meta.env.BASE_URL);
+const t = useTranslations(lang);
 const repo = 'https://github.com/djamart/diogo.martins';
 const report = loadQualityReport(join(process.cwd(), 'reports'), process.env);
 const skills = loadSkills(join(process.cwd(), '.claude', 'skills'));
@@ -143,7 +146,7 @@ const lighthouseCategories = ['performance', 'accessibility', 'bestPractices', '
         <a href={`${repo}/blob/main/${skill.path}`}>
           <code>{skill.name}</code>
         </a>
-        : {skill.summary}
+        : <span lang="en">{skill.summary}</span>
       </li>
     ))}
   </ul>

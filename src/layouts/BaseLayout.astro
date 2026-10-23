@@ -2,29 +2,45 @@
 import '../styles/global.css';
 import ThemeIcon from '../components/ThemeIcon.astro';
 import { themeCss } from '../styles/tokens';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { fileHref, isCurrentPage, navItems, pageHref } from '../utils/nav';
+import { languages, languageTags } from '../i18n/ui';
+import { allLanguages, getLangFromUrl, languageCode, useTranslations } from '../i18n/utils';
+import {
+  alternateLinks,
+  fileHref,
+  isCurrentPage,
+  navItems,
+  pageHref,
+  pagePath,
+} from '../utils/nav';
 import { themeChoices, themeStorageKey } from '../utils/theme';
 
 interface Props {
   title?: string;
+  /** False for a page that exists in one language only (404): it gets no alternates. */
+  translated?: boolean;
 }
 
 const base = import.meta.env.BASE_URL;
 const lang = getLangFromUrl(Astro.url, base);
 const t = useTranslations(lang);
-const { title } = Astro.props;
+const { title, translated = true } = Astro.props;
+// The language menu leads to the same page in each language, or home if the page has none.
+const path = translated ? pagePath(Astro.url.pathname, base) : '';
+const alternates = translated && Astro.site ? alternateLinks(Astro.site, base, path) : [];
 const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={languageTags[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={t('site.description')} />
     <link rel="icon" type="image/svg+xml" href={fileHref(base, 'favicon.svg')} />
     <title>{pageTitle}</title>
+    {alternates.map((alternate) => (
+      <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
+    ))}
     <style is:inline set:html={themeCss()}></style>
     <!-- Applies a stored theme before the first paint, so the page never flashes the other one. -->
     <script is:inline define:vars={{ themeStorageKey }}>
@@ -36,6 +52,19 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
         // Storage blocked: follow the OS colour scheme.
       }
     </script>
+    <noscript>
+      <style>
+        .language-button {
+          display: none;
+        }
+        .language-menu .language-options[hidden] {
+          position: static;
+          display: flex !important;
+          border: 0;
+          padding: 0;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <a class="skip-link" href="#content">
@@ -47,9 +76,9 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
           {navItems.map((item) => (
             <li>
               <a
-                href={pageHref(base, item.path)}
+                href={pageHref(base, item.path, lang)}
                 aria-current={
-                  isCurrentPage(Astro.url.pathname, base, item.path) ? 'page' : undefined
+                  isCurrentPage(Astro.url.pathname, base, item.path, lang) ? 'page' : undefined
                 }
                 data-testid={`nav-${item.path || 'home'}`}
               >
@@ -59,36 +88,64 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
           ))}
         </ul>
       </nav>
-      <!-- Hidden until the script below runs: without JavaScript the OS colour scheme applies. -->
-      <div class="theme-menu" data-testid="theme-menu" data-current="system" hidden>
-        <button
-          type="button"
-          class="theme-button"
-          aria-label={t('theme.label')}
-          aria-haspopup="menu"
-          aria-expanded="false"
-          aria-controls="theme-options"
-        >
-          {themeChoices.map((choice) => (
-            <ThemeIcon choice={choice} />
-          ))}
-        </button>
-        <ul id="theme-options" role="menu" aria-label={t('theme.label')} hidden>
-          {themeChoices.map((choice) => (
-            <li role="none">
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={choice === 'system' ? 'true' : 'false'}
-                tabindex="-1"
-                data-choice={choice}
-              >
-                <ThemeIcon choice={choice} />
-                {t(`theme.${choice}` as const)}
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div class="header-tools">
+        <!-- Without JavaScript the list shows inline instead (see the <noscript> style in <head>). -->
+        <div class="language-menu" data-testid="language-menu">
+          <button
+            type="button"
+            class="language-button"
+            aria-label={`${t('language.label')}: ${languageCode(lang)}`}
+            aria-expanded="false"
+            aria-controls="language-options"
+          >
+            {languageCode(lang)}
+          </button>
+          <ul id="language-options" class="language-options" hidden>
+            {allLanguages.map((option) => (
+              <li>
+                <a
+                  href={pageHref(base, path, option)}
+                  lang={languageTags[option]}
+                  hreflang={languageTags[option]}
+                  aria-current={option === lang ? 'true' : undefined}
+                >
+                  {languages[option]}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <!-- Hidden until the script below runs: without JavaScript the OS colour scheme applies. -->
+        <div class="theme-menu" data-testid="theme-menu" data-current="system" hidden>
+          <button
+            type="button"
+            class="theme-button"
+            aria-label={t('theme.label')}
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="theme-options"
+          >
+            {themeChoices.map((choice) => (
+              <ThemeIcon choice={choice} />
+            ))}
+          </button>
+          <ul id="theme-options" role="menu" aria-label={t('theme.label')} hidden>
+            {themeChoices.map((choice) => (
+              <li role="none">
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={choice === 'system' ? 'true' : 'false'}
+                  tabindex="-1"
+                  data-choice={choice}
+                >
+                  <ThemeIcon choice={choice} />
+                  {t(`theme.${choice}` as const)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </header>
     <main id="content">
@@ -104,6 +161,37 @@ const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
     <script>
       import { menuFocusIndex, parseThemeChoice, themeStorageKey } from '../utils/theme';
       import type { ThemeChoice } from '../utils/theme';
+
+      // Language menu: a button with the current language that shows the list of languages below.
+      const languageMenu = document.querySelector<HTMLElement>('[data-testid="language-menu"]');
+      const languageButton = languageMenu?.querySelector<HTMLButtonElement>('button');
+      const languageList = languageMenu?.querySelector<HTMLElement>('ul');
+
+      if (languageMenu && languageButton && languageList) {
+        const closeLanguages = (returnFocus: boolean) => {
+          if (languageList.hidden) return;
+          languageList.hidden = true;
+          languageButton.setAttribute('aria-expanded', 'false');
+          if (returnFocus) languageButton.focus();
+        };
+
+        languageButton.addEventListener('click', () => {
+          if (!languageList.hidden) return closeLanguages(false);
+          languageList.hidden = false;
+          languageButton.setAttribute('aria-expanded', 'true');
+        });
+        languageMenu.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') closeLanguages(true);
+        });
+        // Closes when focus leaves the menu, e.g. by tabbing past the last language.
+        languageMenu.addEventListener('focusout', (event) => {
+          if (!languageMenu.contains(event.relatedTarget as Node | null)) closeLanguages(false);
+        });
+        // pointerdown, not click: iOS Safari fires no click for a tap on text that is not a control.
+        document.addEventListener('pointerdown', (event) => {
+          if (!languageMenu.contains(event.target as Node)) closeLanguages(false);
+        });
+      }
 
       const root = document.documentElement;
       const container = document.querySelector<HTMLElement>('[data-testid="theme-menu"]');

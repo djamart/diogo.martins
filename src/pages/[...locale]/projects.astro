@@ -1,8 +1,11 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
 
-const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+export const getStaticPaths = localeStaticPaths;
+
+const lang = getLangFromUrl(Astro.url, import.meta.env.BASE_URL);
+const t = useTranslations(lang);
 const repo = 'https://github.com/djamart/diogo.martins';
 ---
 

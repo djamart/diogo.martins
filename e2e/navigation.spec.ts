@@ -1,11 +1,14 @@
 import { expect, test } from '@playwright/test';
-import { SitePage, sitePages } from './pages/SitePage';
+import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
 import { HomePage } from './pages/HomePage';
 
 test.describe('Navigation', () => {
-  for (const { path, name, heading } of sitePages) {
-    test(`${name} page loads and is marked as current in the menu`, async ({ page }) => {
-      const site = new SitePage(page);
+  for (const sitePage of sitePages) {
+    const { lang, path, name, heading } = sitePage;
+    test(`${pageLabel(sitePage)} page loads and is marked as current in the menu`, async ({
+      page,
+    }) => {
+      const site = new SitePage(page, lang);
       const response = await site.goto(path);
 
       expect(response?.status()).toBe(200);
@@ -15,15 +18,17 @@ test.describe('Navigation', () => {
     });
   }
 
-  test('every menu link reaches its page', async ({ page }) => {
-    const site = new SitePage(page);
-    await site.goto('');
+  for (const lang of ['en', 'pt'] as const) {
+    test(`every menu link reaches its page (${lang})`, async ({ page }) => {
+      const site = new SitePage(page, lang);
+      await site.goto('');
 
-    for (const { name, heading } of sitePages) {
-      await site.navLink(name).click();
-      await expect(site.heading).toHaveText(heading);
-    }
-  });
+      for (const { name, heading } of pagesIn(lang)) {
+        await site.navLink(name).click();
+        await expect(site.heading).toHaveText(heading);
+      }
+    });
+  }
 
   test('skip link jumps past the menu to the main content', async ({ page }) => {
     const site = new SitePage(page);

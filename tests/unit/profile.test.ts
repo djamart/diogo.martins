@@ -2,14 +2,22 @@ import { describe, expect, it } from 'vitest';
 import {
   certifications,
   contactLinks,
+  earlierCareer,
   experience,
   formatMonth,
   formatPeriod,
+  profile,
+  type Localized,
 } from '../../src/data/profile';
+import { languages, type Lang } from '../../src/i18n/ui';
 
 describe('formatMonth', () => {
   it('formats a year-month as a short month and year', () => {
     expect(formatMonth('2022-10')).toBe('Oct 2022');
+  });
+
+  it('formats a month in Portuguese', () => {
+    expect(formatMonth('2022-10', 'pt')).toBe('out. 2022');
   });
 
   it('rejects a value that is not YYYY-MM', () => {
@@ -28,6 +36,10 @@ describe('formatPeriod', () => {
 
   it('shows "present" for the current role', () => {
     expect(formatPeriod({ start: '2026-07' })).toBe('Jul 2026 – present');
+  });
+
+  it('shows "presente" for the current role in Portuguese', () => {
+    expect(formatPeriod({ start: '2026-07' }, 'pt')).toBe('jul. 2026 – presente');
   });
 });
 
@@ -51,6 +63,36 @@ describe('experience', () => {
   it('has valid dates for every role', () => {
     for (const role of experience) {
       expect(() => formatPeriod(role), role.company).not.toThrow();
+    }
+  });
+});
+
+describe('translations', () => {
+  const texts: [string, Localized][] = [
+    ...profile.pillars.map((pillar, index): [string, Localized] => [`pillar ${index}`, pillar]),
+    ['earlier career', earlierCareer],
+    ...experience.flatMap((role) => [
+      [`${role.company} summary`, role.summary] as [string, Localized],
+      ...role.highlights.map((highlight, index): [string, Localized] => [
+        `${role.company} highlight ${index}`,
+        highlight,
+      ]),
+    ]),
+  ];
+
+  it('has every profile text in every language', () => {
+    for (const [name, text] of texts) {
+      for (const lang of Object.keys(languages) as Lang[]) {
+        expect(text[lang], `${name} (${lang})`).toBeTruthy();
+      }
+    }
+  });
+
+  it('never mentions a CVE identifier in any language', () => {
+    for (const [name, text] of texts) {
+      for (const value of Object.values(text)) {
+        expect(value, name).not.toMatch(/CVE-\d{4}-\d+/i);
+      }
     }
   });
 });

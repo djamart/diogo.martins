@@ -1,9 +1,12 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { earlierCareer, experience, formatPeriod } from '../data/profile';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
+import { earlierCareer, experience, formatPeriod } from '../../data/profile';
 
-const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
+export const getStaticPaths = localeStaticPaths;
+
+const lang = getLangFromUrl(Astro.url, import.meta.env.BASE_URL);
+const t = useTranslations(lang);
 ---
 
 <BaseLayout title={t('experience.title')}>
@@ -18,19 +21,19 @@ const t = useTranslations(getLangFromUrl(Astro.url, import.meta.env.BASE_URL));
           </span>
         )}
       </h2>
-      <p class="meta">{formatPeriod(role)}</p>
-      <p>{role.summary}</p>
+      <p class="meta">{formatPeriod(role, lang)}</p>
+      <p>{role.summary[lang]}</p>
       {role.highlights.length > 0 && (
         <ul>
           {role.highlights.map((highlight) => (
-            <li>{highlight}</li>
+            <li>{highlight[lang]}</li>
           ))}
         </ul>
       )}
     </article>
   ))}
   <h2>{t('experience.earlier')}</h2>
-  <p>{earlierCareer}</p>
+  <p>{earlierCareer[lang]}</p>
 </BaseLayout>
 
 <style>

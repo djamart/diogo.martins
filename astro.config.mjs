@@ -9,8 +9,8 @@ export default defineConfig({
   trailingSlash: 'ignore',
   i18n: {
     defaultLocale: 'en',
-    // Add 'pt' here (and its strings in src/i18n/ui.ts) to publish a Portuguese version under /pt/.
-    locales: ['en'],
+    // European Portuguese under /pt/. Pages live in src/pages/[...locale]/; strings in src/i18n/ui.ts.
+    locales: ['en', 'pt'],
     routing: {
       prefixDefaultLocale: false,
     },

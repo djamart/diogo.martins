@@ -20,7 +20,7 @@ export function renderCvPdf(cv: Cv, options: RenderOptions = {}): Promise<Uint8A
     size: 'A4',
     margin,
     compress: options.compress ?? true,
-    lang: 'en',
+    lang: cv.lang,
     displayTitle: true,
     info: {
       Title: `${cv.name} | CV`,

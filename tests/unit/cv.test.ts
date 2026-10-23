@@ -5,11 +5,10 @@ import { palette } from '../../src/styles/tokens';
 import { contrastRatio } from '../../src/utils/contrast';
 import { GET } from '../../src/pages/diogo-martins-cv.pdf';
 import { certifications, contactLinks, experience, profile } from '../../src/data/profile';
-import { useTranslations } from '../../src/i18n/utils';
 import { pdfText } from './helpers/pdfText';
 
 const siteUrl = 'https://djamart.github.io/diogo.martins/';
-const cv: Cv = buildCv(useTranslations('en'), siteUrl);
+const cv: Cv = buildCv('en', siteUrl);
 
 describe('displayLink', () => {
   it('shows an email address without mailto', () => {
@@ -44,6 +43,12 @@ describe('buildCv', () => {
     expect(cv.roles.find((role) => role.heading.includes('Capgemini'))?.client).toBe(
       'for Boehringer Ingelheim',
     );
+  });
+
+  it('is written in English, with the English text of each role', () => {
+    expect(cv.lang).toBe('en');
+    expect(cv.roles[0].summary).toBe(experience[0].summary.en);
+    expect(cv.roles[0].highlights).toEqual(experience[0].highlights.map((item) => item.en));
   });
 
   it('lists every certification', () => {

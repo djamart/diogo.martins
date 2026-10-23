@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { SitePage, sitePages } from './pages/SitePage';
+import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
 
 // Runs only in the phone projects (see playwright.config.ts), with their touch screen and viewport.
 
@@ -13,9 +13,11 @@ async function horizontalOverflow(page: Page): Promise<number> {
 }
 
 test.describe('Mobile', () => {
-  for (const { path, name } of sitePages) {
-    test(`${name} page fits the phone screen without scrolling sideways`, async ({ page }) => {
-      await new SitePage(page).goto(path);
+  for (const sitePage of sitePages) {
+    test(`${pageLabel(sitePage)} page fits the phone screen without scrolling sideways`, async ({
+      page,
+    }) => {
+      await new SitePage(page, sitePage.lang).goto(sitePage.path);
 
       expect(await horizontalOverflow(page)).toBe(0);
     });
@@ -25,19 +27,19 @@ test.describe('Mobile', () => {
   test.describe('at 320 pixels wide', () => {
     test.use({ viewport: { width: 320, height: 640 } });
 
-    for (const { path, name } of sitePages) {
-      test(`${name} page reflows without scrolling sideways`, async ({ page }) => {
-        await new SitePage(page).goto(path);
+    for (const sitePage of sitePages) {
+      test(`${pageLabel(sitePage)} page reflows without scrolling sideways`, async ({ page }) => {
+        await new SitePage(page, sitePage.lang).goto(sitePage.path);
 
         expect(await horizontalOverflow(page)).toBe(0);
       });
     }
   });
 
-  for (const { path, name } of sitePages) {
+  for (const sitePage of sitePages) {
     // WCAG 2.2 2.5.8 Target Size: controls are at least 24 by 24 pixels, or spaced apart.
-    test(`${name} page has controls large enough to tap`, async ({ page }) => {
-      await new SitePage(page).goto(path);
+    test(`${pageLabel(sitePage)} page has controls large enough to tap`, async ({ page }) => {
+      await new SitePage(page, sitePage.lang).goto(sitePage.path);
 
       const results = await new AxeBuilder({ page }).withRules(['target-size']).analyze();
 
@@ -45,16 +47,18 @@ test.describe('Mobile', () => {
     });
   }
 
-  test('every menu link can be tapped to reach its page', async ({ page }) => {
-    const site = new SitePage(page);
-    await site.goto('');
+  for (const lang of ['en', 'pt'] as const) {
+    test(`every menu link can be tapped to reach its page (${lang})`, async ({ page }) => {
+      const site = new SitePage(page, lang);
+      await site.goto('');
 
-    for (const { name, heading } of sitePages) {
-      await expect(site.navLink(name)).toBeInViewport();
-      await site.navLink(name).tap();
-      await expect(site.heading).toHaveText(heading);
-    }
-  });
+      for (const { name, heading } of pagesIn(lang)) {
+        await expect(site.navLink(name)).toBeInViewport();
+        await site.navLink(name).tap();
+        await expect(site.heading).toHaveText(heading);
+      }
+    });
+  }
 
   test('the theme menu opens below the button, inside the screen', async ({ page }) => {
     const site = new SitePage(page);
@@ -79,6 +83,32 @@ test.describe('Mobile', () => {
 
     await expect(site.themeMenu).toBeHidden();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  });
+
+  test('the language menu opens below the button, inside the screen, and a tap switches language', async ({
+    page,
+  }) => {
+    const site = new SitePage(page);
+    await site.goto('experience');
+
+    await site.languageButton.tap();
+    await expect(site.languageMenu).toBeInViewport({ ratio: 1 });
+    const button = await site.languageButton.boundingBox();
+    const menu = await site.languageMenu.boundingBox();
+    expect(menu!.y).toBeGreaterThanOrEqual(button!.y + button!.height);
+
+    await site.languageOption('Português').tap();
+    await expect(site.heading).toHaveText('Experiência');
+  });
+
+  test('tapping outside the language menu closes it', async ({ page }) => {
+    const site = new SitePage(page);
+    await site.goto('');
+    await site.languageButton.tap();
+
+    await site.heading.tap();
+
+    await expect(site.languageMenu).toBeHidden();
   });
 
   test('tapping outside the theme menu closes it', async ({ page }) => {

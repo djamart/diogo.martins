@@ -1,12 +1,15 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { getLangFromUrl, useTranslations } from '../i18n/utils';
-import { contactLinks, profile } from '../data/profile';
-import { cvFileName } from '../cv/model';
-import { fileHref } from '../utils/nav';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
+import { contactLinks, profile } from '../../data/profile';
+import { cvFileName } from '../../cv/model';
+import { fileHref } from '../../utils/nav';
+
+export const getStaticPaths = localeStaticPaths;
 
 const base = import.meta.env.BASE_URL;
-const t = useTranslations(getLangFromUrl(Astro.url, base));
+const lang = getLangFromUrl(Astro.url, base);
+const t = useTranslations(lang);
 ---
 
 <BaseLayout title={t('contact.title')}>
@@ -21,7 +24,7 @@ const t = useTranslations(getLangFromUrl(Astro.url, base));
       </li>
     ))}
     <li>
-      <a href={fileHref(base, cvFileName)} download data-testid="contact-cv">
+      <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="contact-cv">
         {t('cv.download')}
       </a>
     </li>

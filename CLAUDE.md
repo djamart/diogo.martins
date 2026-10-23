@@ -10,27 +10,27 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 
 - Stack: [Astro](https://astro.build) 7, TypeScript (strict), static output.
 - Hosting: GitHub Pages under the base path `/diogo.martins/`. Live at https://djamart.github.io/diogo.martins/
-- Content language: English. The site is i18n-ready (see the README); never hardcode user-facing text in a page.
+- Content languages: English (default, at the root) and European Portuguese (pt-PT, under `/pt/`). Never hardcode user-facing text in a page; every string and profile text exists in both languages. The CV is in English only, by Diogo's choice. Portuguese uses pt-PT vocabulary (ecrã, telemóvel, contacto, ficheiro), never pt-BR.
 
 ## Project map
 
-| Path                       | What lives there                                                                         |
-| -------------------------- | ---------------------------------------------------------------------------------------- |
-| `src/pages/`               | One `.astro` file per page, plus `diogo-martins-cv.pdf.ts` (the CV, built at build time) |
-| `src/layouts/`             | `BaseLayout.astro`: header, navigation, skip link, footer                                |
-| `src/i18n/ui.ts`           | Every user-facing string, keyed by `section.name`                                        |
-| `src/data/profile.ts`      | Experience, certifications and contact links. Single source for the pages and the CV     |
-| `src/cv/`                  | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                          |
-| `src/quality/`             | Build-time readers for the /quality page: CI test reports (`report.ts`) and skills       |
-| `src/styles/tokens.ts`     | Colour palette and themes, with the contrast pairs they must meet                        |
-| `src/utils/`               | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested     |
-| `tests/unit/`              | Vitest unit tests, one file per module                                                   |
-| `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme)  |
-| `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages`, the list every page-level suite loops on  |
-| `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                                |
-| `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                    |
-| `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                                |
-| `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                            |
+| Path                       | What lives there                                                                        |
+| -------------------------- | --------------------------------------------------------------------------------------- |
+| `src/pages/`               | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint     |
+| `src/layouts/`             | `BaseLayout.astro`: header, navigation, skip link, footer                               |
+| `src/i18n/ui.ts`           | Every user-facing string in every language, keyed by `section.name`                     |
+| `src/data/profile.ts`      | Experience, certifications and contact links. Single source for the pages and the CV    |
+| `src/cv/`                  | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                         |
+| `src/quality/`             | Build-time readers for the /quality page: CI test reports (`report.ts`) and skills      |
+| `src/styles/tokens.ts`     | Colour palette and themes, with the contrast pairs they must meet                       |
+| `src/utils/`               | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested    |
+| `tests/unit/`              | Vitest unit tests, one file per module                                                  |
+| `e2e/`                     | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme) |
+| `e2e/pages/`               | Page objects. `SitePage.ts` holds `sitePages` (every page, both languages)              |
+| `lighthouserc.json`        | Lighthouse CI: the pages it audits and the minimum scores                               |
+| `scripts/check-links.mjs`  | Link check on the build (linkinator), with the links it skips and why                   |
+| `docs/test-plan.md`        | Scope, risks, test levels and phase gates                                               |
+| `.github/workflows/ci.yml` | The quality gates, deploy and live smoke test                                           |
 
 ## Quality gates
 
@@ -48,7 +48,7 @@ npm run test:links      # linkinator: every link on the build resolves (after a 
 
 E2E runs in Chromium, Firefox and WebKit (one CI job per browser), and on phones: `mobile-chrome` (Pixel 7) in the Chromium job and `mobile-safari` (iPhone 15) in the WebKit job. `e2e/mobile.spec.ts` (reflow at 320 px, tap targets, touch) runs only in the phone projects. Locally, pick one with `-- --project=chromium`.
 
-A new page must also be added to `lighthouserc.json`; a unit test fails until it is.
+A new page must also be added to `lighthouserc.json`, in both languages; a unit test fails until it is.
 
 Never weaken a gate to get green: do not lower the coverage threshold or a Lighthouse score, skip or `.only` a test, loosen an assertion until it passes, or filter out an axe violation, or skip a link that is really broken. If a gate is wrong, say so and fix it in its own change.
 

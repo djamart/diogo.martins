@@ -21,6 +21,7 @@ Check the existing specs first; extend a test rather than adding a near-duplicat
 | `accessibility.spec.ts` | axe on every page in `sitePages`, light and dark themes         |
 | `theme.spec.ts`         | Theme menu: system default, light/dark/system, keyboard         |
 | `mobile.spec.ts`        | Phones only: reflow at 320 px, tap target size, touch           |
+| `language.spec.ts`      | Language switch, `lang` and `hreflang`, Portuguese content      |
 
 Only add to `smoke.spec.ts` if a failure would mean the live site is broken for everyone. A new concern that does not fit these gets its own `<concern>.spec.ts`.
 
@@ -58,7 +59,7 @@ test.describe('Content', () => {
 - Use web-first assertions that retry: `await expect(locator).toHaveText(...)`, `toHaveAttribute`, `toBeVisible`, `toHaveCount`. Avoid `expect(await locator.textContent())`.
 - No `page.waitForTimeout`. Wait for an event (`page.waitForEvent('download')`) or an assertion instead.
 - For downloads, check the file name, status, content type and the first bytes (see the CV test in `content.spec.ts`).
-- Loop over `sitePages` when a rule applies to every page, so new pages are covered automatically.
+- Loop over `sitePages` when a rule applies to every page, so new pages are covered automatically in both languages. Build the page object for the page's language (`new SitePage(page, 'pt')`): its locators use that language's accessible names.
 - One behaviour per test, Arrange / Act / Assert separated by a blank line.
 
 ## 4. Run it

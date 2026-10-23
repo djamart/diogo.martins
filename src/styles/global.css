@@ -124,6 +124,71 @@ main {
   gap: 1rem;
 }
 
+/* The language switcher and the theme menu, side by side at the end of the header. */
+.header-tools {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* A button with the current language's code; the list of languages always opens below it. */
+.language-menu {
+  position: relative;
+}
+
+/* Text only, padded to a comfortable tap target; underlined on hover like the menu links. */
+.language-button {
+  min-width: 2.5rem;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  border-radius: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.language-button:hover,
+.language-button[aria-expanded='true'] {
+  text-decoration: underline var(--color-accent) 2px;
+  text-underline-offset: 3px;
+}
+
+.language-menu .language-options {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 10;
+  display: grid;
+  gap: 0.4rem;
+  min-width: 9rem;
+  /* Room for the focus ring of the first and last options. */
+  padding: 0.4rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 0.75rem;
+  background: var(--color-bg);
+}
+
+.language-menu .language-options[hidden] {
+  display: none;
+}
+
+.language-options a {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+}
+
+/* The current language is filled with the text colour, like the chosen theme. */
+.language-options a[aria-current='true'] {
+  font-weight: 600;
+  color: var(--color-bg);
+  background: var(--color-text);
+}
+
 /* One icon button showing the current choice; it opens a menu with light, dark and system. */
 .theme-menu {
   position: relative;
