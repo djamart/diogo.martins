@@ -36,6 +36,15 @@ npm run dev          # local dev server at http://localhost:4321/diogo.martins/
 
 The E2E tests run in all three browsers; to run a single one, add `-- --project=firefox` (or `chromium`, `webkit`). To run them against a deployed site: `BASE_URL=https://djamart.github.io/diogo.martins/ npm run test:e2e`.
 
+## Working with AI agents
+
+The tests on this site are written and maintained with AI agents, under the same quality gates as any other change. The context they work from is part of the repository:
+
+- [`CLAUDE.md`](CLAUDE.md): what the project is, how it is laid out, the quality gates, testing conventions and content rules.
+- [`.claude/skills/`](.claude/skills/): step-by-step procedures for recurring work: writing E2E and unit tests, adding a page with full coverage, fixing a bug test-first, and investigating a failing test.
+
+The agent proposes the change; the gates decide whether it ships.
+
 ## CV
 
 The CV at `/diogo-martins-cv.pdf` is generated at build time from the same data as the site (`src/data/profile.ts`), so the PDF and the pages never drift apart. The layout lives in `src/cv/pdf.ts` (PDFKit, built-in fonts) and unit tests read the text back from the PDF to check its content.
