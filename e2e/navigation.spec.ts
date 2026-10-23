@@ -25,14 +25,17 @@ test.describe('Navigation', () => {
     }
   });
 
-  test('skip link moves focus to the main content', async ({ page }) => {
+  test('skip link jumps past the menu to the main content', async ({ page }) => {
     const site = new SitePage(page);
-    await site.goto('about');
+    const home = new HomePage(page);
+    await home.goto();
 
     await page.keyboard.press('Tab');
     await expect(site.skipLink).toBeFocused();
     await page.keyboard.press('Enter');
-    await expect(page.locator('main')).toBeFocused();
+    await page.keyboard.press('Tab');
+
+    await expect(home.contactCta).toBeFocused();
   });
 
   test('home call-to-action buttons lead to contact and experience', async ({ page }) => {

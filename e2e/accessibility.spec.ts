@@ -18,7 +18,18 @@ for (const colorScheme of ['light', 'dark'] as const) {
   });
 }
 
-// A theme picked with the toggle goes through different CSS than the system preference.
+// Only controls take keyboard focus; tabindex on a heading or landmark confuses screen readers.
+for (const { path, name } of sitePages) {
+  test(`${name} page puts tabindex only on interactive elements`, async ({ page }) => {
+    await new SitePage(page).goto(path);
+
+    const nonInteractive = page.locator('[tabindex]:not(a, button, input, select, textarea)');
+
+    await expect(nonInteractive).toHaveCount(0);
+  });
+}
+
+// A theme picked in the theme menu goes through different CSS than the system preference.
 for (const [chosen, system] of [
   ['light', 'dark'],
   ['dark', 'light'],
