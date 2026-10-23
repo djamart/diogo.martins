@@ -1,9 +1,11 @@
 ---
+import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getLangFromUrl, localeStaticPaths, useTranslations } from '../../i18n/utils';
 import { profile } from '../../data/profile';
 import { fileHref, pageHref } from '../../utils/nav';
 import { cvFileName } from '../../cv/model';
+import photo from '../../assets/diogo-martins.jpg';
 
 export const getStaticPaths = localeStaticPaths;
 
@@ -15,10 +17,19 @@ const repo = 'https://github.com/djamart/diogo.martins';
 
 <BaseLayout>
   <section class="hero">
-    <!-- A photo will take the monogram's place later, at the same size. -->
-    <div class="monogram" aria-hidden="true">
-      DM
-    </div>
+    <!-- Loaded eagerly: it sits at the top of the page, next to the headline. -->
+    <Picture
+      src={photo}
+      alt={t('home.photoAlt')}
+      formats={['avif', 'webp']}
+      widths={[72, 88, 144, 176, 264]}
+      width={176}
+      height={176}
+      sizes="(max-width: 30rem) 4.5rem, 5.5rem"
+      loading="eager"
+      class="photo"
+      data-testid="photo"
+    />
     <div class="hero-text">
       <h1>{t('home.greeting')}</h1>
       <p class="headline" data-testid="headline">
@@ -97,19 +108,15 @@ const repo = 'https://github.com/djamart/diogo.martins';
     align-items: flex-start;
   }
 
-  /* Initials on the accent, the same in both themes. Large, bold and hidden from screen readers. */
-  .monogram {
-    display: grid;
+  /* A round photo with an accent ring, the same in both themes. */
+  .photo {
+    display: block;
     flex: none;
-    place-items: center;
     width: 5.5rem;
     height: 5.5rem;
     border-radius: 50%;
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--color-graphite);
-    background: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent);
+    object-fit: cover;
   }
 
   .hero-text {
@@ -188,10 +195,9 @@ const repo = 'https://github.com/djamart/diogo.martins';
       gap: 1rem;
     }
 
-    .monogram {
+    .photo {
       width: 4.5rem;
       height: 4.5rem;
-      font-size: 1.6rem;
     }
   }
 </style>

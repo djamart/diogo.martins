@@ -38,6 +38,7 @@ const en = {
   'footer.builtWith':
     'Built with Astro and published only when every test passes. See the source on GitHub.',
   'home.greeting': "Hi, I'm Diogo Martins.",
+  'home.photoAlt': 'Photo of Diogo Martins, smiling, with round glasses and a light blue shirt',
   'home.headline': "I break things on purpose so your users don't by accident.",
   'home.intro':
     'I started out in quality control and logistics, then taught myself to test software. Now I help teams catch bugs early, automate the tests worth automating, and hand the repetitive parts of testing to AI.',
@@ -233,6 +234,7 @@ const pt: Record<UiKey, string> = {
   'footer.builtWith':
     'Feito com Astro e publicado apenas quando todos os testes passam. Veja o código-fonte no GitHub.',
   'home.greeting': 'Olá, sou o Diogo Martins.',
+  'home.photoAlt': 'Fotografia de Diogo Martins, a sorrir, com óculos redondos e camisa azul-clara',
   'home.headline':
     'Parto coisas de propósito para que os seus utilizadores não as partam sem querer.',
   'home.intro':
