@@ -72,6 +72,9 @@ export const ui = {
     'quality.gate.a11y.name': 'Accessibility',
     'quality.gate.a11y.description':
       'Scans every page against WCAG 2.1 AA in light and dark themes, and fails on any serious or critical violation.',
+    'quality.gate.mobile.name': 'Phone screens',
+    'quality.gate.mobile.description':
+      'Runs the end-to-end and accessibility tests again on an emulated Pixel 7 and iPhone 15, with touch, and checks that every page fits 320 pixels wide and its controls are large enough to tap.',
     'quality.gate.lighthouse.name': 'Performance and SEO',
     'quality.gate.lighthouse.description':
       'Audits every page with Lighthouse and fails if performance, accessibility, best practices or SEO scores below 95.',

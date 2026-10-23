@@ -91,6 +91,7 @@ test.describe('Content', () => {
       'Unit tests',
       'End-to-end tests',
       'Accessibility',
+      'Phone screens',
       'Performance and SEO',
       'Broken links',
     ]);

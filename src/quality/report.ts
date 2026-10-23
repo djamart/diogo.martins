@@ -60,11 +60,24 @@ export interface QualityReport {
 
 export type Env = Record<string, string | undefined>;
 
+/** Display names of the Playwright projects, in the order the /quality page lists them. */
 const browserNames: Record<string, string> = {
   chromium: 'Chromium',
   firefox: 'Firefox',
   webkit: 'WebKit',
+  'mobile-chrome': 'Chrome on Android (Pixel 7)',
+  'mobile-safari': 'Safari on iPhone (iPhone 15)',
 };
+const browserOrder = Object.keys(browserNames);
+
+/** Known projects first, in display order; unknown ones after them, alphabetically. */
+function byBrowserOrder(a: string, b: string): number {
+  const rank = (id: string) => {
+    const index = browserOrder.indexOf(id);
+    return index === -1 ? browserOrder.length : index;
+  };
+  return rank(a) - rank(b) || a.localeCompare(b);
+}
 
 function count(source: Record<string, unknown>, key: string, file: string): number {
   const value = source[key];
@@ -187,17 +200,18 @@ export function loadQualityReport(dir: string, env: Env = {}): QualityReport {
   const coverage = read('coverage-summary.json');
   const lighthouse = read('lighthouse.json');
   const links = read('links.json');
-  const e2eFiles = existsSync(dir)
+  const e2eBrowsers = existsSync(dir)
     ? readdirSync(dir)
         .filter((name) => /^e2e-[\w-]+\.json$/.test(name))
-        .sort()
+        .map((name) => name.replace(/^e2e-|\.json$/g, ''))
+        .sort(byBrowserOrder)
     : [];
 
   const report: QualityReport = {
     unit: unit === undefined ? undefined : parseUnitReport(unit),
     coverage: coverage === undefined ? undefined : parseCoverageSummary(coverage),
-    e2e: e2eFiles.map((name) =>
-      parseE2eReport(name.replace(/^e2e-|\.json$/g, ''), readJson(join(dir, name))),
+    e2e: e2eBrowsers.map((browser) =>
+      parseE2eReport(browser, readJson(join(dir, `e2e-${browser}.json`))),
     ),
     lighthouse: lighthouse === undefined ? undefined : parseLighthouseManifest(lighthouse),
     links: links === undefined ? undefined : parseLinksReport(links),

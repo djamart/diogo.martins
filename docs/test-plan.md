@@ -22,6 +22,7 @@ Out of scope:
 | A broken deploy takes the site down                       | High   | Deploy only from green `main`, live smoke test |
 | Broken links or a missing CV download                     | High   | E2E tests, linkinator on every build           |
 | Pages unusable with a keyboard or screen reader           | High   | axe accessibility checks on every page         |
+| Pages broken or hard to tap on a phone                    | High   | E2E and axe on Pixel 7 and iPhone 15, 320 px   |
 | The chosen theme is lost or flashes the other one on load | Medium | E2E theme tests, axe in both chosen themes     |
 | A translation is missing and the page shows an empty text | Medium | Unit tests on translation keys                 |
 | Unintended visual changes                                 | Medium | Visual regression snapshots (phase 2)          |
@@ -37,7 +38,7 @@ Out of scope:
 | End-to-end        | Playwright (Page Object Model)      | Every PR and `main`  | 0     |
 | Live smoke        | Playwright against the live URL     | After every deploy   | 0     |
 | Accessibility     | `@axe-core/playwright`              | Every PR and `main`  | 1     |
-| Cross-browser     | Playwright: Firefox, WebKit, mobile | Every PR and `main`  | 1     |
+| Cross-browser     | Playwright: Firefox, WebKit, mobile | Every PR and `main`  | 1, 2  |
 | Visual regression | Playwright `toHaveScreenshot`       | Every PR and `main`  | 2     |
 | Performance, SEO  | Lighthouse CI                       | Every PR and `main`  | 2     |
 | Links             | linkinator                          | Every PR and `main`  | 2     |

@@ -5,7 +5,7 @@ description: Add or change Playwright end-to-end tests for a page, a visitor flo
 
 # Write an E2E test
 
-End-to-end tests prove the site works for a visitor, in Chromium, Firefox and WebKit, against the production build and the live site. They are the slowest level, so they cover behaviour that only a browser can show. Logic that can be checked without a browser belongs in a unit test (see `write-unit-test`).
+End-to-end tests prove the site works for a visitor, in Chromium, Firefox and WebKit and on phones (Pixel 7, iPhone 15), against the production build and the live site. They are the slowest level, so they cover behaviour that only a browser can show. Logic that can be checked without a browser belongs in a unit test (see `write-unit-test`).
 
 ## 1. Decide what to prove
 
@@ -20,6 +20,7 @@ Check the existing specs first; extend a test rather than adding a near-duplicat
 | `content.spec.ts`       | Content promises: role, experience order, contacts, CV download |
 | `accessibility.spec.ts` | axe on every page in `sitePages`, light and dark themes         |
 | `theme.spec.ts`         | Theme menu: system default, light/dark/system, keyboard         |
+| `mobile.spec.ts`        | Phones only: reflow at 320 px, tap target size, touch           |
 
 Only add to `smoke.spec.ts` if a failure would mean the live site is broken for everyone. A new concern that does not fit these gets its own `<concern>.spec.ts`.
 

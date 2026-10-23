@@ -94,8 +94,15 @@ describe('parseE2eReport', () => {
     });
   });
 
+  it('names the phone projects after the device they emulate', () => {
+    expect(parseE2eReport('mobile-chrome', e2eJson(1)).browser).toBe('Chrome on Android (Pixel 7)');
+    expect(parseE2eReport('mobile-safari', e2eJson(1)).browser).toBe(
+      'Safari on iPhone (iPhone 15)',
+    );
+  });
+
   it('keeps an unknown browser id as its name', () => {
-    expect(parseE2eReport('mobile-safari', e2eJson(1)).browser).toBe('mobile-safari');
+    expect(parseE2eReport('tablet-edge', e2eJson(1)).browser).toBe('tablet-edge');
   });
 
   it('rejects a report without stats', () => {
@@ -191,12 +198,16 @@ describe('loadQualityReport', () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it('loads every report in the folder, with browsers in a stable order', () => {
+  it('loads every report in the folder, with desktop browsers before phones', () => {
     write('unit.json', unitJson);
     write('coverage-summary.json', coverageJson);
+    write('e2e-mobile-safari.json', e2eJson(5));
     write('e2e-webkit.json', e2eJson(3));
+    write('e2e-tablet-edge.json', e2eJson(7));
     write('e2e-chromium.json', e2eJson(1));
+    write('e2e-mobile-chrome.json', e2eJson(4));
     write('e2e-firefox.json', e2eJson(2));
+    write('e2e-a-new-browser.json', e2eJson(6));
     write('lighthouse.json', lighthouseJson);
     write('links.json', linksJson);
     write('notes.json', {});
@@ -209,6 +220,10 @@ describe('loadQualityReport', () => {
       ['Chromium', 1],
       ['Firefox', 2],
       ['WebKit', 3],
+      ['Chrome on Android (Pixel 7)', 4],
+      ['Safari on iPhone (iPhone 15)', 5],
+      ['a-new-browser', 6],
+      ['tablet-edge', 7],
     ]);
     expect(report.lighthouse?.performance).toBe(97);
     expect(report.links?.broken).toBe(1);
