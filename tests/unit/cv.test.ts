@@ -1,6 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { buildCv, displayLink, type Cv } from '../../src/cv/model';
-import { renderCvPdf } from '../../src/cv/pdf';
+import { cvColors, cvHeadingSize, renderCvPdf } from '../../src/cv/pdf';
+import { palette } from '../../src/styles/tokens';
+import { contrastRatio } from '../../src/utils/contrast';
 import { GET } from '../../src/pages/diogo-martins-cv.pdf';
 import { certifications, contactLinks, experience, profile } from '../../src/data/profile';
 import { useTranslations } from '../../src/i18n/utils';
@@ -107,5 +109,20 @@ describe('CV endpoint', () => {
     expect(response.headers.get('Content-Type')).toBe('application/pdf');
     const body = new Uint8Array(await response.arrayBuffer());
     expect(Buffer.from(body.subarray(0, 5)).toString('latin1')).toBe('%PDF-');
+  });
+});
+
+describe('CV colours', () => {
+  it('use the same accent as the site', () => {
+    expect(cvColors.accent).toBe(palette.cinnabar);
+  });
+
+  it('keep the accent on large text, where 3:1 on white meets WCAG AA', () => {
+    expect(cvHeadingSize).toBeGreaterThanOrEqual(14);
+    expect(contrastRatio(cvColors.accent, '#ffffff')).toBeGreaterThanOrEqual(3);
+  });
+
+  it('keep body text at 4.5:1 on white', () => {
+    expect(contrastRatio(cvColors.text, '#ffffff')).toBeGreaterThanOrEqual(4.5);
   });
 });
