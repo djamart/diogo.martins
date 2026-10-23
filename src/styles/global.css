@@ -1,6 +1,5 @@
 /* Colour tokens are generated from src/styles/tokens.ts in BaseLayout.astro. */
 :root {
-  color-scheme: light dark;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -120,4 +119,42 @@ main:focus {
 .meta {
   margin-top: 0;
   color: var(--color-muted);
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* The icon shows the theme a press switches to; the state is in aria-pressed for assistive tech. */
+.theme-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0.4rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 999px;
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+}
+
+.theme-toggle[hidden] {
+  display: none;
+}
+
+.theme-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-toggle[aria-pressed='true'] .icon-moon,
+.theme-toggle[aria-pressed='false'] .icon-sun {
+  display: none;
 }

@@ -79,10 +79,15 @@ function declarations(entries: Record<string, string>): string {
     .join(' ');
 }
 
-/** CSS custom properties for the palette and both themes, following the OS colour scheme. */
+/**
+ * CSS custom properties for the palette and both themes. The OS colour scheme decides,
+ * unless the visitor picked a theme with the toggle (`data-theme` on the root element).
+ */
 export function themeCss(): string {
+  const dark = `${declarations({ ...themes.dark })} color-scheme: dark;`;
   return [
-    `:root { ${declarations(palette)} ${declarations({ ...themes.light })} }`,
-    `@media (prefers-color-scheme: dark) { :root { ${declarations({ ...themes.dark })} } }`,
+    `:root { ${declarations(palette)} ${declarations({ ...themes.light })} color-scheme: light; }`,
+    `@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) { ${dark} } }`,
+    `:root[data-theme='dark'] { ${dark} }`,
   ].join('\n');
 }

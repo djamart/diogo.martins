@@ -14,14 +14,18 @@ export type SitePath = (typeof sitePages)[number]['path'];
 
 /** Any page of the site: the shared header, navigation and main heading. */
 export class SitePage {
+  readonly body: Locator;
   readonly heading: Locator;
   readonly nav: Locator;
   readonly skipLink: Locator;
+  readonly themeToggle: Locator;
 
   constructor(private readonly page: Page) {
+    this.body = page.locator('body');
     this.heading = page.getByRole('heading', { level: 1 });
     this.nav = page.getByRole('navigation', { name: 'Main' });
     this.skipLink = page.getByRole('link', { name: 'Skip to content' });
+    this.themeToggle = page.getByRole('button', { name: 'Dark theme' });
   }
 
   async goto(path: SitePath) {
