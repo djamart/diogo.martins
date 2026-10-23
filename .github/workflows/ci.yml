@@ -30,14 +30,14 @@ jobs:
       - run: npm run test:coverage
       - name: Upload coverage report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: coverage/
           retention-days: 14
       # Results for the /quality page, picked up by the deploy job.
       - run: cp coverage/coverage-summary.json reports/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: quality-report-unit
           path: reports/
@@ -95,14 +95,14 @@ jobs:
         env:
           E2E_REPORT_FILE: reports/e2e-${{ matrix.mobile }}.json
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-mobile
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: quality-report-e2e-${{ matrix.browser }}
           path: reports/
           retention-days: 14
       - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report-${{ matrix.browser }}
           path: |
@@ -132,13 +132,13 @@ jobs:
           LIGHTHOUSE_SHARD: ${{ matrix.shard }}/3
       - name: Upload Lighthouse reports
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-report-${{ matrix.shard }}
           path: lighthouse-report/
           retention-days: 14
       - run: mkdir -p reports && cp lighthouse-report/manifest.json reports/lighthouse-${{ matrix.shard }}.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: quality-report-lighthouse-${{ matrix.shard }}
           path: reports/
@@ -160,7 +160,7 @@ jobs:
           LINKS_REPORT_FILE: reports/links.json
           # Links to files in this repository are checked at the commit under test, not on main.
           LINKS_GIT_REF: ${{ github.event.pull_request.head.sha || github.sha }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: quality-report-links
           path: reports/
