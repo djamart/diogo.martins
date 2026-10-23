@@ -10,6 +10,7 @@ import {
   type Localized,
 } from '../../src/data/profile';
 import { languages, type Lang } from '../../src/i18n/ui';
+import { stockPhrases } from './helpers/stockPhrases';
 
 describe('formatMonth', () => {
   it('formats a year-month as a short month and year', () => {
@@ -95,6 +96,23 @@ describe('translations', () => {
     for (const [name, text] of texts) {
       for (const value of Object.values(text)) {
         expect(value, name).not.toMatch(/CVE-\d{4}-\d+/i);
+      }
+    }
+  });
+
+  it('never gives the size of a team', () => {
+    for (const [name, text] of texts) {
+      for (const value of Object.values(text)) {
+        expect(value, name).not.toMatch(/\d+\s+(developers|QAs?|engineers|testers|people)\b/i);
+        expect(value, name).not.toMatch(/\d+\s+(programadores|QA|engenheiros|testers|pessoas)\b/i);
+      }
+    }
+  });
+
+  it('keeps stock corporate phrases out of every language', () => {
+    for (const [name, text] of texts) {
+      for (const value of Object.values(text)) {
+        for (const phrase of stockPhrases) expect(value, name).not.toMatch(phrase);
       }
     }
   });

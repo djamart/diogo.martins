@@ -41,13 +41,13 @@ export interface ContactLink {
 
 export const profile = {
   name: 'Diogo Martins',
-  title: 'Quality Enablement Engineer',
+  title: 'Quality Assurance Engineer',
   pillars: [
     {
       name: { en: 'Test automation', pt: 'Automação de testes' },
       summary: {
-        en: 'Playwright and TypeScript suites that run on every change, and that teams trust.',
-        pt: 'Testes em Playwright e TypeScript que correm a cada alteração e em que a equipa confia.',
+        en: 'Playwright and TypeScript tests that run on every change and catch regressions before release.',
+        pt: 'Testes em Playwright e TypeScript que correm a cada alteração e apanham regressões antes de cada versão.',
       },
     },
     {
@@ -74,8 +74,8 @@ export const experience: Role[] = [
     title: 'QA Engineer',
     start: '2026-07',
     summary: {
-      en: 'Fintech serving small businesses. QA for the internal platform customer agents use to manage accounts across credit, current account and savings products, in a team of 9 developers and 3 QAs.',
-      pt: 'Fintech para pequenas empresas. QA da plataforma interna que os agentes de apoio ao cliente usam para gerir contas de crédito, conta corrente e poupança, numa equipa de 9 programadores e 3 QA.',
+      en: 'Fintech serving small businesses. QA for the internal platform customer agents use to manage accounts across credit, current account and savings products.',
+      pt: 'Fintech para pequenas empresas. QA da plataforma interna que os agentes de apoio ao cliente usam para gerir contas de crédito, conta corrente e poupança.',
     },
     highlights: [
       {
@@ -83,8 +83,8 @@ export const experience: Role[] = [
         pt: 'QA lead de uma nova funcionalidade e QA release lead da app móvel.',
       },
       {
-        en: 'Drives a shift-left approach, coaching developers to test their own work.',
-        pt: 'Promove uma abordagem shift-left, orientando os programadores a testarem o próprio trabalho.',
+        en: 'Coaches developers to test their own work, so problems are caught before they reach QA (shift-left).',
+        pt: 'Orienta os programadores a testarem o próprio trabalho, para os problemas serem apanhados antes de chegarem ao QA (shift-left).',
       },
       {
         en: 'Manual and automated testing with Playwright (TypeScript) and API tests in C#.',
@@ -98,8 +98,8 @@ export const experience: Role[] = [
     start: '2022-10',
     end: '2026-07',
     summary: {
-      en: 'Higher-education CMS used by universities. Dedicated QA for the core product in a team of 9 developers and 4 QAs.',
-      pt: 'CMS para o ensino superior, usado por universidades. QA dedicado ao produto principal numa equipa de 9 programadores e 4 QA.',
+      en: 'Higher-education CMS used by universities. Dedicated QA for the core product.',
+      pt: 'CMS para o ensino superior, usado por universidades. QA dedicado ao produto principal.',
     },
     highlights: [
       {

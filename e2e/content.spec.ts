@@ -13,7 +13,7 @@ test.describe('Content', () => {
     const home = new HomePage(page);
     await home.goto();
 
-    await expect(home.role).toHaveText('Quality Enablement Engineer');
+    await expect(home.role).toHaveText('Quality Assurance Engineer');
     await expect(home.headline).toHaveText(ui.en['home.headline']);
     await expect(home.pillars).toHaveText([
       'Test automation',

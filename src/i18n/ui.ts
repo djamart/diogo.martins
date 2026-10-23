@@ -15,9 +15,9 @@ export const languageTags: Record<Lang, string> = {
 };
 
 const en = {
-  'site.title': 'Diogo Martins | Quality Enablement Engineer',
+  'site.title': 'Diogo Martins | Quality Assurance Engineer',
   'site.description':
-    'Diogo Martins, Quality Enablement Engineer: test automation, quality engineering and AI-driven testing.',
+    'Diogo Martins, Quality Assurance Engineer: test automation, quality engineering and AI-driven testing.',
   'nav.label': 'Main',
   'nav.skip': 'Skip to content',
   'nav.menu': 'Menu',
@@ -36,11 +36,11 @@ const en = {
   'footer.contactTitle': 'Want to talk?',
   'footer.cv': 'CV (PDF)',
   'footer.builtWith':
-    'Built with Astro and shipped only when every test passes. See the source on GitHub.',
+    'Built with Astro and published only when every test passes. See the source on GitHub.',
   'home.greeting': "Hi, I'm Diogo Martins.",
   'home.headline': "I break things on purpose so your users don't by accident.",
   'home.intro':
-    "I started out in quality control and logistics, taught myself to test software, and never looked back. Now I help teams catch bugs early, automate what's worth automating, and use AI to test smarter.",
+    'I started out in quality control and logistics, then taught myself to test software. Now I help teams catch bugs early, automate the tests worth automating, and hand the repetitive parts of testing to AI.',
   'home.ctaContact': 'Get in touch',
   'home.ctaExperience': 'See my experience',
   'home.ctaCv': 'Download CV (PDF)',
@@ -54,9 +54,9 @@ const en = {
   'home.project.testPlan': 'Test plan',
   'about.title': 'About',
   'about.p1':
-    "I'm a Quality Enablement Engineer. In practice that means helping teams build quality into their work from the start: I write test automation, show developers how to test their own changes, and use AI to take the repetitive parts of testing off people's plates.",
+    'I work in QA, but finding bugs is only part of it. I write test automation, show developers how to test their own changes, and use AI for the repetitive parts of testing, so problems get caught earlier and by more people than just me.',
   'about.p2':
-    "Before software, I worked in quality control and logistics. That's where I learned that quality is a process, not a final check. I taught myself software testing through online courses, and my first QA job was testing genomic data pipelines for a pharmaceutical company.",
+    "Before software, I worked in quality control and logistics. That's where I learned that a problem is cheaper to fix early than at the final check. I taught myself software testing through online courses, and my first QA job was testing genomic data pipelines for a pharmaceutical company.",
   'about.p3':
     "Since then I've helped teams move from manual to AI-assisted testing, found security bugs that were published as CVEs, and spent a lot of time with developers on catching problems before they reach QA.",
   'about.certifications': 'Certifications',
@@ -158,7 +158,7 @@ const en = {
   'quality.links.summary': '{checked} links checked, {broken} broken',
   'quality.ai.title': 'AI-driven testing',
   'quality.ai.p1':
-    'The tests on this site are written and maintained with AI agents. The agents do not guess: a CLAUDE.md file in the repository gives them the context (the quality gates, the testing conventions and the content rules), and skills give them step-by-step procedures for recurring work.',
+    "The tests on this site are written and maintained with AI agents. So they don't have to guess, a CLAUDE.md file in the repository gives them the context (the quality gates, the testing conventions and the content rules), and skills give them step-by-step procedures for recurring work.",
   'quality.ai.p2':
     'The result is tests that follow the same conventions whoever writes them, and quality gates no agent is allowed to weaken to get a green build.',
   'quality.ai.claudeMd': 'Read CLAUDE.md',
@@ -166,7 +166,7 @@ const en = {
   'quality.testPlan': 'Read the test plan',
   'blog.title': 'Blog',
   'blog.intro':
-    'Notes on test automation, quality engineering and AI-driven testing, from the work behind this site and beyond.',
+    'Notes on test automation, quality engineering and AI-driven testing, from my day job and from building this site.',
   'blog.empty': 'No posts yet. The first one is on its way.',
   'blog.feed': 'Follow with RSS',
   'blog.feedTitle': 'Diogo Martins: blog',
@@ -198,7 +198,7 @@ const en = {
   'contact.direct': 'Or reach me directly',
   'cv.profile': 'Profile',
   'cv.summary':
-    'QA engineer who builds test automation, helps teams treat quality as a shared practice, and uses AI to make testing faster and smarter. Moved a team from manual to AI-assisted testing, found security vulnerabilities published as CVEs, and coaches developers to catch defects earlier.',
+    'QA engineer who writes test automation in Playwright, Cypress and Selenium, coaches developers to test their own work, and uses AI agents to plan, write and run tests. Moved a team from mostly manual to AI-assisted testing and found two security vulnerabilities published as CVEs.',
   'cv.earlier': 'Earlier career',
   'cv.download': 'Download my CV (PDF)',
   'notFound.title': 'Page not found',
@@ -210,9 +210,9 @@ export type UiKey = keyof typeof en;
 
 // Typed against the English keys, so a missing or misspelled translation fails `astro check`.
 const pt: Record<UiKey, string> = {
-  'site.title': 'Diogo Martins | Quality Enablement Engineer',
+  'site.title': 'Diogo Martins | Quality Assurance Engineer',
   'site.description':
-    'Diogo Martins, Quality Enablement Engineer: automação de testes, engenharia de qualidade e testes com IA.',
+    'Diogo Martins, Quality Assurance Engineer: automação de testes, engenharia de qualidade e testes com IA.',
   'nav.label': 'Principal',
   'nav.skip': 'Saltar para o conteúdo',
   'nav.menu': 'Menu',
@@ -236,7 +236,7 @@ const pt: Record<UiKey, string> = {
   'home.headline':
     'Parto coisas de propósito para que os seus utilizadores não as partam sem querer.',
   'home.intro':
-    'Comecei no controlo de qualidade e na logística, aprendi sozinho a testar software e nunca mais olhei para trás. Hoje ajudo equipas a apanhar bugs cedo, a automatizar o que vale a pena automatizar e a usar IA para testar melhor.',
+    'Comecei no controlo de qualidade e na logística e depois aprendi sozinho a testar software. Hoje ajudo equipas a apanhar bugs cedo, a automatizar os testes que vale a pena automatizar e a passar para a IA a parte repetitiva dos testes.',
   'home.ctaContact': 'Entrar em contacto',
   'home.ctaExperience': 'Ver a minha experiência',
   'home.ctaCv': 'Descarregar CV (PDF, em inglês)',
@@ -250,9 +250,9 @@ const pt: Record<UiKey, string> = {
   'home.project.testPlan': 'Plano de testes',
   'about.title': 'Sobre',
   'about.p1':
-    'Sou Quality Enablement Engineer. Na prática, isto quer dizer ajudar as equipas a pôr a qualidade no trabalho desde o início: escrevo automação de testes, mostro aos programadores como testar as próprias alterações e uso IA para tirar às pessoas a parte repetitiva dos testes.',
+    'Trabalho em QA, mas encontrar bugs é só uma parte. Escrevo automação de testes, mostro aos programadores como testar as próprias alterações e uso IA na parte repetitiva dos testes, para os problemas serem apanhados mais cedo e por mais pessoas do que só eu.',
   'about.p2':
-    'Antes do software, trabalhei em controlo de qualidade e logística. Foi aí que aprendi que a qualidade é um processo e não uma verificação final. Aprendi testes de software sozinho, com cursos online, e o meu primeiro trabalho em QA foi testar pipelines de dados genómicos para uma farmacêutica.',
+    'Antes do software, trabalhei em controlo de qualidade e logística. Foi aí que aprendi que um problema sai mais barato se for corrigido cedo do que na verificação final. Aprendi testes de software sozinho, com cursos online, e o meu primeiro trabalho em QA foi testar pipelines de dados genómicos para uma farmacêutica.',
   'about.p3':
     'Desde então, ajudei equipas a passar dos testes manuais para os testes assistidos por IA, encontrei falhas de segurança que foram publicadas como CVE e passei muito tempo com programadores a apanhar problemas antes de chegarem ao QA.',
   'about.certifications': 'Certificações',
@@ -356,7 +356,7 @@ const pt: Record<UiKey, string> = {
   'quality.links.summary': '{checked} links verificados, {broken} partidos',
   'quality.ai.title': 'Testes com IA',
   'quality.ai.p1':
-    'Os testes deste site são escritos e mantidos com agentes de IA. Os agentes não adivinham: um ficheiro CLAUDE.md no repositório dá-lhes o contexto (os quality gates, as convenções de testes e as regras de conteúdo), e as skills dão-lhes procedimentos passo a passo para o trabalho recorrente.',
+    'Os testes deste site são escritos e mantidos com agentes de IA. Para não terem de adivinhar, um ficheiro CLAUDE.md no repositório dá-lhes o contexto (os quality gates, as convenções de testes e as regras de conteúdo), e as skills dão-lhes procedimentos passo a passo para o trabalho recorrente.',
   'quality.ai.p2':
     'O resultado são testes que seguem as mesmas convenções, seja quem for que os escreva, e quality gates que nenhum agente pode enfraquecer para conseguir um build verde.',
   'quality.ai.claudeMd': 'Ler o CLAUDE.md',
@@ -364,7 +364,7 @@ const pt: Record<UiKey, string> = {
   'quality.testPlan': 'Ler o plano de testes',
   'blog.title': 'Blog',
   'blog.intro':
-    'Notas sobre automação de testes, engenharia de qualidade e testes com IA, a partir do trabalho por trás deste site e não só.',
+    'Notas sobre automação de testes, engenharia de qualidade e testes com IA, a partir do meu trabalho e da construção deste site.',
   'blog.empty': 'Ainda não há artigos. O primeiro está a caminho.',
   'blog.feed': 'Seguir por RSS',
   'blog.feedTitle': 'Diogo Martins: blog',
@@ -395,7 +395,7 @@ const pt: Record<UiKey, string> = {
   'contact.direct': 'Ou fale comigo diretamente',
   'cv.profile': 'Perfil',
   'cv.summary':
-    'Engenheiro de QA que constrói automação de testes, ajuda as equipas a tratar a qualidade como uma prática partilhada e usa IA para tornar os testes mais rápidos e inteligentes. Levou uma equipa dos testes manuais para os testes assistidos por IA, encontrou vulnerabilidades de segurança publicadas como CVE e orienta programadores para detetarem defeitos mais cedo.',
+    'Engenheiro de QA que escreve automação de testes em Playwright, Cypress e Selenium, orienta os programadores a testarem o próprio trabalho e usa agentes de IA para planear, escrever e executar testes. Levou uma equipa de testes sobretudo manuais para testes assistidos por IA e encontrou duas vulnerabilidades de segurança publicadas como CVE.',
   'cv.earlier': 'Percurso anterior',
   'cv.download': 'Descarregar o meu CV (PDF, em inglês)',
   'notFound.title': 'Página não encontrada',

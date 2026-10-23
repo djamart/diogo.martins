@@ -4,7 +4,7 @@ Context for AI coding agents (and humans) working on this repository. Read this 
 
 ## What this is
 
-The personal website of Diogo Martins, Quality Enablement Engineer. The audience is recruiters and technical hiring managers; the goal of every page is to make it easy to contact Diogo or open his LinkedIn or CV.
+The personal website of Diogo Martins, Quality Assurance (QA) Engineer. The audience is recruiters and technical hiring managers; the goal of every page is to make it easy to contact Diogo or open his LinkedIn or CV.
 
 The site is also proof of how Diogo works: it is built like a product, every change passes automated quality gates, and the tests are written and maintained with AI agents guided by this file and the skills next to it. Treat the tests and the docs as part of the product, not as overhead.
 
@@ -85,9 +85,11 @@ Rules that keep the suites readable and stable:
 
 These are deliberate decisions; tests enforce several of them.
 
-- Title is "Quality Enablement Engineer"; the three pillars are test automation, quality engineering and AI-driven testing.
+- Title is "Quality Assurance Engineer", matching Diogo's job titles (QA Engineer), which recruiters search for; the enablement side (coaching developers, AI) lives in the copy. The three pillars are test automation, quality engineering and AI-driven testing.
 - No phone number anywhere, including the CV. Contact is email (mailto), LinkedIn, GitHub and the CV PDF.
 - CVEs can be mentioned, but never their identifiers.
+- No team sizes ("a team of 9 developers"), in any language or the CV.
+- Plain, first-person copy. No corporate or AI-sounding stock phrases (ship, teams trust, smarter, at a glance...); `tests/unit/helpers/stockPhrases.ts` lists the ones Diogo flagged, and the unit tests reject them.
 - No Education section; certifications take its place.
 - A blog post may exist in one language only. The other language's blog index lists it with a note on its language, and the language menu leads to that blog index instead.
 - The accent colour is cinnabar in both themes, the CV and the favicon, used only on large text, underlines and focus rings to keep contrast at WCAG AA.

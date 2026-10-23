@@ -86,7 +86,7 @@ describe('renderCvPdf', () => {
 
   it('shows the header, every role and every certification', () => {
     expect(text).toContain('Diogo Martins');
-    expect(text).toContain('Quality Enablement Engineer');
+    expect(text).toContain('Quality Assurance Engineer');
     for (const role of cv.roles) expect(text).toContain(role.heading);
     for (const name of cv.certifications) expect(text).toContain(name);
   });
