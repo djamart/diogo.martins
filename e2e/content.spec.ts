@@ -22,6 +22,18 @@ test.describe('Content', () => {
     ]);
   });
 
+  test('home page shows a photo of Diogo described in each language', async ({ page }) => {
+    for (const lang of ['en', 'pt'] as const) {
+      const home = new HomePage(page, lang);
+      await home.goto();
+
+      await expect(home.photo).toBeVisible();
+      await expect(home.photo).toHaveAttribute('alt', ui[lang]['home.photoAlt']);
+      // Loaded and decoded, not a broken image.
+      await expect.poll(() => home.photoWidth()).toBeGreaterThan(0);
+    }
+  });
+
   test('about lists roles from the most recent', async ({ page }) => {
     const about = new AboutPage(page);
     await about.goto();
