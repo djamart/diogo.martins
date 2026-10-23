@@ -69,7 +69,10 @@ describe('experience', () => {
 
 describe('translations', () => {
   const texts: [string, Localized][] = [
-    ...profile.pillars.map((pillar, index): [string, Localized] => [`pillar ${index}`, pillar]),
+    ...profile.pillars.flatMap((pillar, index): [string, Localized][] => [
+      [`pillar ${index} name`, pillar.name],
+      [`pillar ${index} summary`, pillar.summary],
+    ]),
     ['earlier career', earlierCareer],
     ...experience.flatMap((role) => [
       [`${role.company} summary`, role.summary] as [string, Localized],

@@ -23,6 +23,12 @@ export interface Role {
   highlights: Localized[];
 }
 
+/** One of the three areas Diogo works in: a short name and a line on what it means in practice. */
+export interface Pillar {
+  name: Localized;
+  summary: Localized;
+}
+
 export interface Certification {
   name: string;
 }
@@ -37,10 +43,28 @@ export const profile = {
   name: 'Diogo Martins',
   title: 'Quality Enablement Engineer',
   pillars: [
-    { en: 'Test automation', pt: 'Automação de testes' },
-    { en: 'Quality engineering', pt: 'Engenharia de qualidade' },
-    { en: 'AI-driven testing', pt: 'Testes com IA' },
-  ] satisfies Localized[],
+    {
+      name: { en: 'Test automation', pt: 'Automação de testes' },
+      summary: {
+        en: 'Playwright and TypeScript suites that run on every change, and that teams trust.',
+        pt: 'Testes em Playwright e TypeScript que correm a cada alteração e em que a equipa confia.',
+      },
+    },
+    {
+      name: { en: 'Quality engineering', pt: 'Engenharia de qualidade' },
+      summary: {
+        en: 'Helping developers test their own work and catch problems before they reach QA.',
+        pt: 'Ajudar os programadores a testar o próprio trabalho e a apanhar problemas antes de chegarem ao QA.',
+      },
+    },
+    {
+      name: { en: 'AI-driven testing', pt: 'Testes com IA' },
+      summary: {
+        en: 'AI agents and skills that plan, write and run tests, with people reviewing the results.',
+        pt: 'Agentes e skills de IA que planeiam, escrevem e executam testes, com pessoas a rever os resultados.',
+      },
+    },
+  ] satisfies Pillar[],
   location: 'Porto, Portugal',
 } as const;
 

@@ -10,51 +10,133 @@ export const getStaticPaths = localeStaticPaths;
 const base = import.meta.env.BASE_URL;
 const lang = getLangFromUrl(Astro.url, base);
 const t = useTranslations(lang);
+const repo = 'https://github.com/djamart/diogo.martins';
 ---
 
 <BaseLayout>
-  <h1>{t('home.greeting')}</h1>
-  <p class="role" data-testid="role">
-    {profile.title}
-  </p>
-  <p class="pillars" data-testid="pillars">
-    {profile.pillars.map((pillar) => pillar[lang]).join(' · ')}
-  </p>
-  <p class="intro">{t('home.intro')}</p>
-  <p class="actions">
-    <a class="button" href={pageHref(base, 'contact', lang)} data-testid="cta-contact">
-      {t('home.ctaContact')}
-    </a>
-    <a
-      class="button button-secondary"
-      href={pageHref(base, 'experience', lang)}
-      data-testid="cta-experience"
-    >
-      {t('home.ctaExperience')}
-    </a>
-    <a
-      class="button button-secondary"
-      href={fileHref(base, cvFileName)}
-      download
-      hreflang="en"
-      data-testid="cta-cv"
-    >
-      {t('home.ctaCv')}
-    </a>
-  </p>
-  <p class="proof">{t('home.proof')}</p>
+  <section class="hero">
+    <!-- A photo will take the monogram's place later, at the same size. -->
+    <div class="monogram" aria-hidden="true">
+      DM
+    </div>
+    <div class="hero-text">
+      <h1>{t('home.greeting')}</h1>
+      <p class="headline" data-testid="headline">
+        {t('home.headline')}
+      </p>
+      <p class="role" data-testid="role">
+        {profile.title}
+      </p>
+      <p class="intro">{t('home.intro')}</p>
+      <p class="actions">
+        <a class="button" href={pageHref(base, 'contact', lang)} data-testid="cta-contact">
+          {t('home.ctaContact')}
+        </a>
+        <a
+          class="button button-secondary"
+          href={fileHref(base, cvFileName)}
+          download
+          hreflang="en"
+          data-testid="cta-cv"
+        >
+          {t('home.ctaCv')}
+        </a>
+        <a
+          class="button button-secondary"
+          href={pageHref(base, 'experience', lang)}
+          data-testid="cta-experience"
+        >
+          {t('home.ctaExperience')}
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <section aria-labelledby="pillars-title">
+    <h2 id="pillars-title">{t('home.pillarsTitle')}</h2>
+    <ul class="cards" data-testid="pillars">
+      {profile.pillars.map((pillar) => (
+        <li class="card">
+          <h3>{pillar.name[lang]}</h3>
+          <p>{pillar.summary[lang]}</p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section id="project" aria-labelledby="project-title">
+    <h2 id="project-title">{t('home.projectTitle')}</h2>
+    <article class="card project" data-testid="project">
+      <h3>{t('home.project.title')}</h3>
+      <p>{t('home.project.description')}</p>
+      <ul class="project-links">
+        <li>
+          <a href={pageHref(base, 'quality', lang)} data-testid="link-quality">
+            {t('home.project.quality')}
+          </a>
+        </li>
+        <li>
+          <a href={repo} data-testid="link-repo">
+            {t('home.project.source')}
+          </a>
+        </li>
+        <li>
+          <a href={`${repo}/blob/main/docs/test-plan.md`} data-testid="link-test-plan">
+            {t('home.project.testPlan')}
+          </a>
+        </li>
+      </ul>
+    </article>
+  </section>
 </BaseLayout>
 
 <style>
-  .role {
-    margin-bottom: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
+  .hero {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
   }
 
-  .pillars {
-    margin-top: 0.25rem;
-    color: var(--color-muted);
+  /* Initials on the accent, the same in both themes. Large, bold and hidden from screen readers. */
+  .monogram {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-graphite);
+    background: var(--color-accent);
+  }
+
+  .hero-text {
+    min-width: 0;
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    color: var(--color-text);
+  }
+
+  /* The visual headline. Large text, so cinnabar meets the 3:1 contrast for large text. */
+  .headline {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.4rem + 3vw, 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--color-heading);
+    text-wrap: balance;
+  }
+
+  .role {
+    margin: 1.25rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
   }
 
   .intro {
@@ -67,10 +149,49 @@ const t = useTranslations(lang);
     gap: 0.75rem;
   }
 
-  .proof {
-    margin-top: 2.5rem;
-    padding: 1rem;
-    border-left: 4px solid var(--color-accent);
-    font-size: 0.95rem;
+  section + section {
+    margin-top: 3.5rem;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cards p,
+  .project p {
+    margin-bottom: 0;
+  }
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-weight: 600;
+  }
+
+  .project-links a {
+    display: inline-block;
+    padding-block: 0.25rem;
+  }
+
+  @media (max-width: 30rem) {
+    .hero {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .monogram {
+      width: 4.5rem;
+      height: 4.5rem;
+      font-size: 1.6rem;
+    }
   }
 </style>
