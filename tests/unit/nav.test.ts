@@ -3,6 +3,7 @@ import {
   alternateLinks,
   fileHref,
   isCurrentPage,
+  languageMenuHref,
   navItems,
   pageHref,
   pagePath,
@@ -55,6 +56,42 @@ describe('alternateLinks', () => {
       { hreflang: 'pt-PT', href: 'https://djamart.github.io/diogo.martins/pt/about/' },
       { hreflang: 'x-default', href: 'https://djamart.github.io/diogo.martins/about/' },
     ]);
+  });
+
+  it('lists only the languages a page exists in', () => {
+    expect(alternateLinks(site, '/diogo.martins/', 'blog/hello', ['en'])).toEqual([
+      { hreflang: 'en', href: 'https://djamart.github.io/diogo.martins/blog/hello/' },
+      { hreflang: 'x-default', href: 'https://djamart.github.io/diogo.martins/blog/hello/' },
+    ]);
+  });
+
+  it('makes the only language the default for a page without an English version', () => {
+    expect(alternateLinks(site, '/diogo.martins/', 'blog/ola', ['pt'])).toEqual([
+      { hreflang: 'pt-PT', href: 'https://djamart.github.io/diogo.martins/pt/blog/ola/' },
+      { hreflang: 'x-default', href: 'https://djamart.github.io/diogo.martins/pt/blog/ola/' },
+    ]);
+  });
+
+  it('lists nothing for a page in no language', () => {
+    expect(alternateLinks(site, '/diogo.martins/', 'blog/gone', [])).toEqual([]);
+  });
+});
+
+describe('languageMenuHref', () => {
+  it('leads to the same page in a language it exists in', () => {
+    expect(languageMenuHref('/diogo.martins/', 'about', 'pt')).toBe('/diogo.martins/pt/about/');
+    expect(languageMenuHref('/diogo.martins/', 'blog/hello', 'pt', ['en', 'pt'], 'blog')).toBe(
+      '/diogo.martins/pt/blog/hello/',
+    );
+  });
+
+  it('leads to the fallback page in a language the page is not in', () => {
+    expect(languageMenuHref('/diogo.martins/', 'blog/hello', 'pt', ['en'], 'blog')).toBe(
+      '/diogo.martins/pt/blog/',
+    );
+    expect(languageMenuHref('/diogo.martins/', 'blog/hello', 'pt', ['en'])).toBe(
+      '/diogo.martins/pt/',
+    );
   });
 });
 

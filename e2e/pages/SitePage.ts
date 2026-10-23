@@ -8,12 +8,14 @@ export const sitePages = [
   { lang: 'en', path: 'experience', name: 'Experience', heading: 'Experience' },
   { lang: 'en', path: 'projects', name: 'Projects', heading: 'Projects' },
   { lang: 'en', path: 'quality', name: 'Quality', heading: 'Quality' },
+  { lang: 'en', path: 'blog', name: 'Blog', heading: 'Blog' },
   { lang: 'en', path: 'contact', name: 'Contact', heading: 'Contact' },
   { lang: 'pt', path: '', name: 'Início', heading: /Diogo Martins/ },
   { lang: 'pt', path: 'about', name: 'Sobre', heading: 'Sobre' },
   { lang: 'pt', path: 'experience', name: 'Experiência', heading: 'Experiência' },
   { lang: 'pt', path: 'projects', name: 'Projectos', heading: 'Projectos' },
   { lang: 'pt', path: 'quality', name: 'Qualidade', heading: 'Qualidade' },
+  { lang: 'pt', path: 'blog', name: 'Blog', heading: 'Blog' },
   { lang: 'pt', path: 'contact', name: 'Contacto', heading: 'Contacto' },
 ] as const satisfies { lang: Lang; path: string; name: string; heading: string | RegExp }[];
 

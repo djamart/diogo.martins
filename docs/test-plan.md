@@ -26,6 +26,7 @@ Out of scope:
 | The chosen theme is lost or flashes the other one on load | Medium | E2E theme tests, axe in both chosen themes     |
 | A translation is missing and the page shows an empty text | Medium | Typed translation keys, unit tests             |
 | A Portuguese page drifts from its English twin            | Medium | Every suite loops over both languages          |
+| A new blog post ships untested or breaks the feed         | Medium | Post tests generated from `src/content/blog`   |
 | Unintended visual changes                                 | Medium | Visual regression snapshots (phase 2)          |
 | Slow pages hurt first impressions and SEO                 | Medium | Lighthouse CI, 95 minimum on every page        |
 | Vulnerable dependencies                                   | Low    | Dependabot, `npm audit`                        |

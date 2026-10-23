@@ -1,4 +1,6 @@
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { loadPostFiles, parsePostId, postPath, published } from '../../src/blog/posts';
 import { qualityGates } from '../../src/data/quality';
 import { languages, ui, type Lang } from '../../src/i18n/ui';
 import { navItems, pageHref } from '../../src/utils/nav';
@@ -60,11 +62,20 @@ describe('qualityGates', () => {
 describe('Lighthouse CI', () => {
   const { collect, assert } = lighthouseConfig.ci;
 
-  it('audits every page in the navigation, in every language', () => {
+  it('audits every page in the navigation, in every language, then every blog post', () => {
     const paths = collect.url.map((url) => new URL(url).pathname);
-    expect(paths).toEqual(
-      langs.flatMap((lang) => navItems.map((item) => pageHref('/diogo.martins/', item.path, lang))),
+    const posts = published(loadPostFiles(join(process.cwd(), 'src', 'content', 'blog'))).map(
+      (post) => {
+        const { lang, slug } = parsePostId(post.id);
+        return pageHref('/diogo.martins/', postPath(slug), lang);
+      },
     );
+    expect(paths).toEqual([
+      ...langs.flatMap((lang) =>
+        navItems.map((item) => pageHref('/diogo.martins/', item.path, lang)),
+      ),
+      ...posts,
+    ]);
   });
 
   it('promises the minimum score it actually enforces, in all four categories', () => {

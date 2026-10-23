@@ -47,13 +47,17 @@ Lighthouse needs Chrome; if it is not found, point `CHROME_PATH` at a Chrome or 
 The tests on this site are written and maintained with AI agents, under the same quality gates as any other change. The context they work from is part of the repository:
 
 - [`CLAUDE.md`](CLAUDE.md): what the project is, how it is laid out, the quality gates, testing conventions and content rules.
-- [`.claude/skills/`](.claude/skills/): step-by-step procedures for recurring work: writing E2E and unit tests, adding a page with full coverage, fixing a bug test-first, and investigating a failing test.
+- [`.claude/skills/`](.claude/skills/): step-by-step procedures for recurring work: writing E2E and unit tests, adding a page with full coverage, writing a blog post, fixing a bug test-first, and investigating a failing test.
 
 The agent proposes the change; the gates decide whether it ships.
 
 ## CV
 
 The CV at `/diogo-martins-cv.pdf` is generated at build time from the same data as the site (`src/data/profile.ts`), so the PDF and the pages never drift apart. The layout lives in `src/cv/pdf.ts` (PDFKit, built-in fonts) and unit tests read the text back from the PDF to check its content.
+
+## Blog
+
+Posts are Markdown files in `src/content/blog/<lang>/<slug>.md` (see the [README there](src/content/blog/README.md)), built at `/blog/<slug>/` and `/pt/blog/<slug>/`, with an RSS feed per language at `/blog/rss.xml` and `/pt/blog/rss.xml`. A post may exist in one language only. The E2E, accessibility and phone tests for post pages are generated from the files, so each new post is tested without adding a test; Lighthouse needs the post's URL in `lighthouserc.json`, and a unit test says so.
 
 ## Translations
 

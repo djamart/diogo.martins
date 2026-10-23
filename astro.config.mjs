@@ -4,6 +4,10 @@ import { defineConfig } from 'astro/config';
 // Served from GitHub Pages as a project site: https://djamart.github.io/diogo.martins/
 // If a custom domain is added later, set `site` to it and remove `base`.
 export default defineConfig({
+  markdown: {
+    // Code blocks use the theme colours (see global.css), which the contrast tests check.
+    syntaxHighlight: false,
+  },
   site: 'https://djamart.github.io',
   base: '/diogo.martins',
   trailingSlash: 'ignore',
