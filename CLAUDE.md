@@ -14,30 +14,30 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 
 ## Project map
 
-| Path                             | What lives there                                                                        |
-| -------------------------------- | --------------------------------------------------------------------------------------- |
-| `src/pages/`                     | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint     |
-| `src/content/blog/`              | Blog posts in Markdown, `<lang>/<slug>.md`; schema in `src/content.config.ts`           |
-| `src/blog/`                      | Blog logic: post order, languages, dates (`posts.ts`) and the RSS feed (`rss.ts`)       |
-| `src/layouts/`                   | `BaseLayout.astro`: header, navigation, skip link, footer                               |
-| `src/i18n/ui.ts`                 | Every user-facing string in every language, keyed by `section.name`                     |
-| `src/data/profile.ts`            | Experience, certifications and contact links. Single source for the pages and the CV    |
-| `src/cv/`                        | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                         |
-| `src/quality/`                   | Build-time readers for the /quality page: CI reports, deploy history and skills         |
-| `src/styles/tokens.ts`           | Colour palette and themes, with the contrast pairs they must meet                       |
-| `src/utils/`                     | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested    |
-| `tests/unit/`                    | Vitest unit tests, one file per module                                                  |
-| `e2e/`                           | Playwright specs, grouped by concern (smoke, navigation, content, accessibility, theme) |
-| `e2e/__screenshots__/`           | Approved screenshots for `e2e/visual.spec.ts`, one folder per Playwright project        |
-| `e2e/pages/`                     | Page objects, one per page, all extending `SitePage`. `SitePage.ts` holds `sitePages`   |
-|                                  | (every menu page, both languages); `PostPage.ts` holds `postPages`, read from the blog  |
-| `e2e/pages/components/`          | Parts shared by every page: header, theme and language menus, footer, `<head>` links    |
-| `lighthouserc.json`              | Lighthouse CI: the pages it audits and the minimum scores                               |
-| `scripts/lighthouse.mjs`         | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                 |
-| `scripts/check-links.mjs`        | Link check on the build (linkinator), with the links it skips and why                   |
-| `scripts/update-screenshots.mjs` | Renders the visual baselines in the Playwright Docker image CI uses                     |
-| `docs/test-plan.md`              | Scope, risks, test levels and phase gates                                               |
-| `.github/workflows/ci.yml`       | The quality gates, deploy and live smoke test                                           |
+| Path                             | What lives there                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `src/pages/`                     | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint             |
+| `src/content/blog/`              | Blog posts in Markdown, `<lang>/<slug>.md`; schema in `src/content.config.ts`                   |
+| `src/blog/`                      | Blog logic: post order, languages, dates (`posts.ts`) and the RSS feed (`rss.ts`)               |
+| `src/layouts/`                   | `BaseLayout.astro`: header, navigation, skip link, footer                                       |
+| `src/i18n/ui.ts`                 | Every user-facing string in every language, keyed by `section.name`                             |
+| `src/data/profile.ts`            | Experience, certifications and contact links. Single source for the pages and the CV            |
+| `src/cv/`                        | CV model (`model.ts`) and PDF layout (`pdf.ts`)                                                 |
+| `src/quality/`                   | Build-time readers for the /quality page: CI reports, deploy history and skills                 |
+| `src/styles/tokens.ts`           | Colour palette and themes, with the contrast pairs they must meet                               |
+| `src/utils/`                     | Pure helpers (navigation, contrast, theme). Logic goes here so it can be unit tested            |
+| `tests/unit/`                    | Vitest unit tests, one file per module                                                          |
+| `e2e/`                           | Playwright specs, grouped by concern (smoke, navigation, layout, content, accessibility, theme) |
+| `e2e/__screenshots__/`           | Approved screenshots for `e2e/visual.spec.ts`, one folder per Playwright project                |
+| `e2e/pages/`                     | Page objects, one per page, all extending `SitePage`. `SitePage.ts` holds `sitePages`           |
+|                                  | (every menu page, both languages); `PostPage.ts` holds `postPages`, read from the blog          |
+| `e2e/pages/components/`          | Parts shared by every page: header, theme and language menus, footer, `<head>` links            |
+| `lighthouserc.json`              | Lighthouse CI: the pages it audits and the minimum scores                                       |
+| `scripts/lighthouse.mjs`         | Runs Lighthouse CI; `LIGHTHOUSE_SHARD` splits the pages between CI jobs                         |
+| `scripts/check-links.mjs`        | Link check on the build (linkinator), with the links it skips and why                           |
+| `scripts/update-screenshots.mjs` | Renders the visual baselines in the Playwright Docker image CI uses                             |
+| `docs/test-plan.md`              | Scope, risks, test levels and phase gates                                                       |
+| `.github/workflows/ci.yml`       | The quality gates, deploy and live smoke test                                                   |
 
 ## Quality gates
 

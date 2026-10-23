@@ -80,6 +80,11 @@ export class SitePage {
     });
   }
 
+  /** Where the main navigation starts from the left of the window, in pixels. */
+  async navLeftEdge(): Promise<number | undefined> {
+    return (await this.header.nav.boundingBox())?.x;
+  }
+
   /** Waits for the web fonts, since text set in a fallback font would shift every line. */
   async fontsLoaded() {
     await this.page.evaluate(() => document.fonts.ready);
