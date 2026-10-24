@@ -19,4 +19,9 @@ export class Footer {
     this.contactLinks = this.contact.getByRole('link');
     this.sourceLink = page.getByTestId('link-source');
   }
+
+  /** The visible text of a contact link, without its icon. */
+  labelOf(link: Locator, label: string): Locator {
+    return link.getByText(label, { exact: true });
+  }
 }

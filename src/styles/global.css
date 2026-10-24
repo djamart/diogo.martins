@@ -281,8 +281,8 @@ main {
   font-weight: 600;
 }
 
-/* Each way in is a rounded chip with its icon, well above the minimum tap target. The accent
-   underline on the label appears on hover, like the other links. */
+/* Each way in is a rounded chip with its icon, well above the minimum tap target. On hover the
+   chip darkens (lightens in the dark theme) instead of underlining its label. */
 .footer-contact a {
   display: inline-flex;
   align-items: center;
@@ -293,11 +293,8 @@ main {
   text-decoration: none;
 }
 
-.footer-contact a:hover span {
-  text-decoration: underline;
-  text-decoration-color: var(--color-accent);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
+.footer-contact a:hover {
+  background: var(--color-surface-hover);
 }
 
 .contact-icon {
