@@ -26,6 +26,8 @@ export class PostPage extends SitePage {
   readonly date: Locator;
   readonly readingTime: Locator;
   readonly backLink: Locator;
+  /** The headings that split the post into sections, below its title. */
+  readonly sectionHeadings: Locator;
 
   constructor(
     page: Page,
@@ -37,6 +39,7 @@ export class PostPage extends SitePage {
     this.date = this.article.locator('.meta time').first();
     this.readingTime = page.getByTestId('reading-time');
     this.backLink = page.getByTestId('link-blog');
+    this.sectionHeadings = this.article.getByRole('heading', { level: 2 });
   }
 
   override async goto() {
