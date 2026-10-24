@@ -258,10 +258,6 @@ main {
 
 /* A way to get in touch at the end of every page, for visitors who never see the home page. */
 .footer-contact {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem 1.25rem;
   padding-top: 1.5rem;
   border-top: 2px solid var(--color-accent);
   font-size: 1.0625rem;
@@ -269,7 +265,7 @@ main {
 }
 
 .footer-contact-title {
-  margin: 0;
+  margin: 0 0 0.75rem;
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 600;
@@ -278,17 +274,45 @@ main {
 .footer-contact ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
+  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
   font-weight: 600;
 }
 
-/* Padded to a comfortable tap target without changing the line. */
+/* Each way in is a rounded chip with its icon, well above the minimum tap target. The accent
+   underline on the label appears on hover, like the other links. */
 .footer-contact a {
-  display: inline-block;
-  padding-block: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  background: var(--color-surface);
+  text-decoration: none;
+}
+
+.footer-contact a:hover span {
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.contact-icon {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.footer-source {
+  margin: 1.5rem 0 0;
 }
 
 /* Dates, tools and other technical details are set in the monospace. */

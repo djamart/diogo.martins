@@ -6,6 +6,7 @@ import '../styles/global.css';
 // The Latin files of the heading and body fonts, preloaded so the first paint uses them.
 import displayFont from '@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2?url';
 import bodyFont from '@fontsource-variable/source-sans-3/files/source-sans-3-latin-wght-normal.woff2?url';
+import ContactIcon from '../components/ContactIcon.astro';
 import ThemeIcon from '../components/ThemeIcon.astro';
 import { themeCss } from '../styles/tokens';
 import { languages, languageTags, type Lang } from '../i18n/ui';
@@ -22,7 +23,6 @@ import {
 } from '../utils/nav';
 import { themeChoices, themeStorageKey } from '../utils/theme';
 import { contactLinks } from '../data/profile';
-import { cvFileName } from '../cv/model';
 
 interface Props {
   title?: string;
@@ -50,8 +50,6 @@ const {
 const path = translated ? pagePath(Astro.url.pathname, base) : '';
 const alternates =
   translated && Astro.site ? alternateLinks(Astro.site, base, path, availableIn) : [];
-// The footer offers the two fastest ways to reach Diogo, plus the CV.
-const footerLinks = contactLinks.filter((link) => link.id === 'email' || link.id === 'linkedin');
 const pageTitle = title ? `${title} | Diogo Martins` : t('site.title');
 // The menu links, shown in a row in the header or, when they do not fit, in the menu panel.
 const menuLinks = navItems.map((item) => ({
@@ -243,21 +241,17 @@ const menuLinks = navItems.map((item) => ({
           {t('footer.contactTitle')}
         </p>
         <ul>
-          {footerLinks.map((link) => (
+          {contactLinks.map((link) => (
             <li>
               <a href={link.href} data-testid={`footer-${link.id}`}>
-                {link.label}
+                <ContactIcon name={link.id} />
+                <span>{link.label}</span>
               </a>
             </li>
           ))}
-          <li>
-            <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="footer-cv">
-              {t('footer.cv')}
-            </a>
-          </li>
         </ul>
       </section>
-      <p>
+      <p class="footer-source">
         <a href="https://github.com/djamart/diogo.martins" data-testid="link-source">
           {t('footer.builtWith')}
         </a>
