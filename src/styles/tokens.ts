@@ -18,6 +18,10 @@ export const palette = {
   papayaWhipShade: '#f3e2bf',
   /** Graphite a step down, for form fields on the dark background. */
   graphiteSunken: '#2e282a',
+  /** Ash grey a shade darker, for a hovered card-coloured control on the light background. */
+  ashGreyShade: '#a9c2bb',
+  /** Graphite lifted two steps, for a hovered card-coloured control on the dark background. */
+  graphiteHighlight: '#605659',
 } as const;
 
 export type ThemeName = 'light' | 'dark';
@@ -27,6 +31,8 @@ export interface Theme {
   bg: string;
   /** Cards and highlighted blocks. */
   surface: string;
+  /** A control on the surface colour under the pointer, such as a footer contact link. */
+  surfaceHover: string;
   /** Inside form fields, a shade darker than the page so they read as places to type. */
   field: string;
   /** Body text. */
@@ -47,6 +53,7 @@ export const themes: Record<ThemeName, Theme> = {
   light: {
     bg: palette.papayaWhip,
     surface: palette.ashGrey,
+    surfaceHover: palette.ashGreyShade,
     field: palette.papayaWhipShade,
     text: palette.graphite,
     muted: palette.graphite,
@@ -59,6 +66,7 @@ export const themes: Record<ThemeName, Theme> = {
   dark: {
     bg: palette.graphite,
     surface: palette.graphiteRaised,
+    surfaceHover: palette.graphiteHighlight,
     field: palette.graphiteSunken,
     text: palette.papayaWhip,
     muted: palette.ashGrey,
@@ -90,6 +98,7 @@ export const contrastRequirements: ReadonlyArray<{
 }> = [
   { fg: 'text', bg: 'bg', min: 4.5, reason: 'body text' },
   { fg: 'text', bg: 'surface', min: 4.5, reason: 'body text on cards' },
+  { fg: 'text', bg: 'surfaceHover', min: 4.5, reason: 'link text on a hovered contact link' },
   { fg: 'muted', bg: 'bg', min: 4.5, reason: 'secondary text' },
   { fg: 'text', bg: 'field', min: 4.5, reason: 'text typed in form fields' },
   { fg: 'muted', bg: 'field', min: 3, reason: 'form field borders' },
