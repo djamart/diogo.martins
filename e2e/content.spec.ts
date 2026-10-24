@@ -79,15 +79,13 @@ test.describe('Content', () => {
         'https://www.linkedin.com/in/diogojamartins/',
       );
       await expect(footer.github).toHaveAttribute('href', 'https://github.com/djamart');
-      await expect(footer.cv).toHaveAttribute('href', /\/diogo-martins-cv\.pdf$/);
-      await expect(footer.cv).toHaveAttribute('download');
     }
   });
 
   test('footer links are named by their text, not by their icons', async ({ page }) => {
     for (const lang of allLanguages) {
       const site = new SitePage(page, lang);
-      const names = [...contactLinks.map((link) => link.label), ui[lang]['footer.cv']];
+      const names = contactLinks.map((link) => link.label);
       await site.goto();
 
       await expect(site.footer.contactLinks).toHaveCount(names.length);

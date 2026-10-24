@@ -23,7 +23,6 @@ import {
 } from '../utils/nav';
 import { themeChoices, themeStorageKey } from '../utils/theme';
 import { contactLinks } from '../data/profile';
-import { cvFileName } from '../cv/model';
 
 interface Props {
   title?: string;
@@ -248,12 +247,6 @@ const menuLinks = navItems.map((item) => ({
               </a>
             </li>
           ))}
-          <li>
-            <a href={fileHref(base, cvFileName)} download hreflang="en" data-testid="footer-cv">
-              <ContactIcon name="cv" />
-              <span>{t('footer.cv')}</span>
-            </a>
-          </li>
         </ul>
       </section>
       <p class="footer-source">

@@ -34,7 +34,6 @@ const en = {
   'theme.system': 'System',
   'language.label': 'Language',
   'footer.contactTitle': 'Want to talk?',
-  'footer.cv': 'CV (PDF)',
   'footer.builtWith':
     'Built with Astro and published only when every test passes. See the source on GitHub.',
   'home.greeting': "Hi, I'm Diogo Martins.",
@@ -230,7 +229,6 @@ const pt: Record<UiKey, string> = {
   'theme.system': 'Sistema',
   'language.label': 'Idioma',
   'footer.contactTitle': 'Vamos conversar?',
-  'footer.cv': 'CV (PDF, em inglês)',
   'footer.builtWith':
     'Feito com Astro e publicado apenas quando todos os testes passam. Veja o código-fonte no GitHub.',
   'home.greeting': 'Olá, sou o Diogo Martins.',

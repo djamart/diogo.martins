@@ -46,7 +46,7 @@ The suite follows the Page Object Model: specs say what the visitor does and wha
 |                           | menu panel first on narrow windows), `themeMenu` and `languageMenu`    |
 | `components/ThemeMenu`    | `button`, `menu`, `option('Dark')`, `choose('Dark')`, `rememberChoice` |
 | `components/LanguageMenu` | `button`, `menu`, `option('pt')`, `choose('pt')`                       |
-| `components/Footer`       | Contact region, email, LinkedIn, CV and source code links              |
+| `components/Footer`       | Contact region, email, LinkedIn, GitHub and source code links          |
 | `components/PageHead`     | `<link>` elements in the head: icon, feed, `alternate(hreflang)`       |
 
 Rules:
