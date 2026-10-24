@@ -541,6 +541,11 @@ main {
   margin-top: 2rem;
 }
 
+/* Section headings in a post keep the text colour; the accent stays on the title. */
+.post h2 {
+  color: var(--color-text);
+}
+
 .post img {
   max-width: 100%;
   height: auto;

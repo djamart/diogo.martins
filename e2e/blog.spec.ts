@@ -1,9 +1,16 @@
 import { expect, test } from '@playwright/test';
 import { formatPostDate, isoDate, postPath } from '../src/blog/posts';
 import { languageTags, ui } from '../src/i18n/ui';
+import { themes } from '../src/styles/tokens';
 import { BlogPage, expectedIndex } from './pages/BlogPage';
 import { PostPage, postLabel, postPages } from './pages/PostPage';
 import { SitePage } from './pages/SitePage';
+
+/** A hex colour as the browser reports a computed colour. */
+function rgb(hex: string): string {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return `rgb(${r}, ${g}, ${b})`;
+}
 
 // The post tests are generated from src/content/blog, so every new post is covered on its own.
 test.describe('Blog', () => {
@@ -97,6 +104,20 @@ test.describe('Blog', () => {
         await expect(postPage.heading).toHaveText(ui[other]['blog.title']);
       }
     });
+
+    for (const colorScheme of ['light', 'dark'] as const) {
+      test(`${postLabel(post)} shows its section headings in the text colour, not the accent (${colorScheme} theme)`, async ({
+        page,
+      }) => {
+        await page.emulateMedia({ colorScheme });
+        const postPage = new PostPage(page, post);
+        await postPage.goto();
+
+        for (const sectionHeading of await postPage.sectionHeadings.all()) {
+          await expect(sectionHeading).toHaveCSS('color', rgb(themes[colorScheme].text));
+        }
+      });
+    }
 
     test(`${postLabel(post)} lists only the languages it exists in`, async ({ page }) => {
       const postPage = new PostPage(page, post);
