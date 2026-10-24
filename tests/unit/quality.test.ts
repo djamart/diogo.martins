@@ -4,6 +4,7 @@ import { loadPostFiles, parsePostId, postPath, published } from '../../src/blog/
 import { qualityGates } from '../../src/data/quality';
 import { languages, ui, type Lang } from '../../src/i18n/ui';
 import { navItems, pageHref } from '../../src/utils/nav';
+import { notFoundRedirects } from '../../src/utils/notFound';
 import lighthouseConfig from '../../lighthouserc.json';
 import vitestConfig from '../../vitest.config';
 import playwrightConfig from '../../playwright.config';
@@ -78,7 +79,7 @@ describe('qualityGates', () => {
 describe('Lighthouse CI', () => {
   const { collect, assert } = lighthouseConfig.ci;
 
-  it('audits every page in the navigation, in every language, then every blog post', () => {
+  it('audits every page in the navigation and every blog post, then the page not found, in every language', () => {
     const paths = collect.url.map((url) => new URL(url).pathname);
     const posts = published(loadPostFiles(join(process.cwd(), 'src', 'content', 'blog'))).map(
       (post) => {
@@ -91,6 +92,8 @@ describe('Lighthouse CI', () => {
         navItems.map((item) => pageHref('/diogo.martins/', item.path, lang)),
       ),
       ...posts,
+      '/diogo.martins/404.html',
+      ...notFoundRedirects('/diogo.martins/').map((redirect) => redirect.href),
     ]);
   });
 

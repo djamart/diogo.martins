@@ -202,7 +202,16 @@ const en = {
   'cv.earlier': 'Earlier career',
   'cv.download': 'Download my CV (PDF)',
   'notFound.title': 'Page not found',
-  'notFound.message': "This page doesn't exist, or it moved. That one escaped the test suite.",
+  'notFound.heading': 'This one escaped the test suite',
+  'notFound.failed': 'Failed',
+  'notFound.test': 'visitor opens',
+  'notFound.thisAddress': 'this address',
+  'notFound.expected': 'Expected:',
+  'notFound.expectedValue': 'a page',
+  'notFound.received': 'Received:',
+  'notFound.summary': '1 failed, every other page passed',
+  'notFound.message':
+    'There is no page at this address. Maybe a typo in the link, maybe I moved it.',
   'notFound.back': 'Back to the home page',
 } as const;
 
@@ -399,7 +408,16 @@ const pt: Record<UiKey, string> = {
   'cv.earlier': 'Percurso anterior',
   'cv.download': 'Descarregar o meu CV (PDF, em inglês)',
   'notFound.title': 'Página não encontrada',
-  'notFound.message': 'Esta página não existe, ou mudou de sítio. Esta escapou aos testes.',
+  'notFound.heading': 'Esta escapou aos testes',
+  'notFound.failed': 'Falhou',
+  'notFound.test': 'visitante abre',
+  'notFound.thisAddress': 'este endereço',
+  'notFound.expected': 'Esperado:',
+  'notFound.expectedValue': 'uma página',
+  'notFound.received': 'Obtido:',
+  'notFound.summary': '1 falhou, todas as outras páginas passaram',
+  'notFound.message':
+    'Não há nenhuma página neste endereço. Pode ser um erro no link, ou mudei-a de sítio.',
   'notFound.back': 'Voltar à página inicial',
 };
 

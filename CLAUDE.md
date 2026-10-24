@@ -16,7 +16,7 @@ The site is also proof of how Diogo works: it is built like a product, every cha
 
 | Path                             | What lives there                                                                                |
 | -------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `src/pages/`                     | Pages in `[...locale]/` (built once per language), `404.astro`, and the CV endpoint             |
+| `src/pages/`                     | Pages in `[...locale]/` (built once per language), `404.astro`, `pt/404.astro`, CV endpoint     |
 | `src/content/blog/`              | Blog posts in Markdown, `<lang>/<slug>.md`; schema in `src/content.config.ts`                   |
 | `src/blog/`                      | Blog logic: post order, languages, dates (`posts.ts`) and the RSS feed (`rss.ts`)               |
 | `src/layouts/`                   | `BaseLayout.astro`: header, navigation, skip link, footer                                       |
