@@ -1,15 +1,18 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { deployTarget } from './src/utils/deployTarget.ts';
 
-// Served from GitHub Pages as a project site: https://djamart.github.io/diogo.martins/
-// If a custom domain is added later, set `site` to it and remove `base`.
+// Served from GitHub Pages as a project site (https://djamart.github.io/diogo.martins/) by default,
+// and from the root of its domain on Vercel. See src/utils/deployTarget.ts for the variables.
+const { site, base } = deployTarget(process.env);
+
 export default defineConfig({
   markdown: {
     // Code blocks use the theme colours (see global.css), which the contrast tests check.
     syntaxHighlight: false,
   },
-  site: 'https://djamart.github.io',
-  base: '/diogo.martins',
+  site,
+  base,
   trailingSlash: 'ignore',
   i18n: {
     defaultLocale: 'en',

@@ -1,8 +1,18 @@
 import type { Locator, Page } from '@playwright/test';
 import type { Lang } from '../../src/i18n/ui';
+import { deployTarget } from '../../src/utils/deployTarget';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { PageHead } from './components/PageHead';
+
+/** The path the build serves pages under: "/diogo.martins/" for GitHub Pages, "/" for Vercel. */
+export const basePath = `${deployTarget(process.env).base}/`.replace(/\/+$/, '/');
+
+/** A pattern for URLs that end in this path under the site base, e.g. "pt/about/#experience". */
+export function endsUnderBase(path: string): RegExp {
+  const escaped = `${basePath}${path}`.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`${escaped}$`);
+}
 
 /** The pages in the main navigation in every language, by their path relative to the site base. */
 export const sitePages = [

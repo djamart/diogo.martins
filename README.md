@@ -16,6 +16,10 @@ Every pull request runs:
 
 Merges to `main` deploy to GitHub Pages only when all checks pass, then a smoke test runs against the live site. See the [test plan](docs/test-plan.md) for scope, risks and phase gates.
 
+### Hosting
+
+The build defaults to GitHub Pages, under the base path `/diogo.martins/`. On Vercel it builds for the root of the domain instead: Vercel sets `VERCEL=1` and `VERCEL_PROJECT_PRODUCTION_URL` on every build, and `src/utils/deployTarget.ts` reads them. To serve the site elsewhere, such as a custom domain, set `SITE_URL` (e.g. `https://example.com`) and `BASE_PATH` (e.g. `/`) at build time. The E2E tests read the same variables, so `VERCEL=1 VERCEL_PROJECT_PRODUCTION_URL=example.vercel.app npm run build && npm run test:e2e` tests the Vercel build.
+
 ## Getting started
 
 Requires Node.js 22 (see `.nvmrc`).
