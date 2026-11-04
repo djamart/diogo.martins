@@ -8,7 +8,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
 import { QualityPage } from './pages/QualityPage';
-import { SitePage, pageLabel, sitePages } from './pages/SitePage';
+import { SitePage, endsUnderBase, pageLabel, sitePages } from './pages/SitePage';
 
 test.describe('Content', () => {
   test('home page shows the role and the three focus areas', async ({ page }) => {
@@ -125,8 +125,8 @@ test.describe('Content', () => {
 
   test('the old experience address leads to the experience on the about page', async ({ page }) => {
     for (const [lang, to] of [
-      ['en', /\/diogo\.martins\/about\/#experience$/],
-      ['pt', /\/diogo\.martins\/pt\/about\/#experience$/],
+      ['en', endsUnderBase('about/#experience')],
+      ['pt', endsUnderBase('pt/about/#experience')],
     ] as const) {
       const about = new AboutPage(page, lang);
       await about.gotoOldExperienceAddress();
@@ -157,8 +157,8 @@ test.describe('Content', () => {
     page,
   }) => {
     for (const [lang, to] of [
-      ['en', /\/diogo\.martins\/#project$/],
-      ['pt', /\/diogo\.martins\/pt\/#project$/],
+      ['en', endsUnderBase('#project')],
+      ['pt', endsUnderBase('pt/#project')],
     ] as const) {
       const home = new HomePage(page, lang);
       await home.gotoOldProjectsAddress();

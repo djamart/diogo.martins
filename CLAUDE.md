@@ -9,7 +9,7 @@ The personal website of Diogo Martins, Quality Assurance (QA) Engineer. The audi
 The site is also proof of how Diogo works: it is built like a product, every change passes automated quality gates, and the tests are written and maintained with AI agents guided by this file and the skills next to it. Treat the tests and the docs as part of the product, not as overhead.
 
 - Stack: [Astro](https://astro.build) 7, TypeScript (strict), static output.
-- Hosting: GitHub Pages under the base path `/diogo.martins/`. Live at https://djamart.github.io/diogo.martins/
+- Hosting: GitHub Pages under the base path `/diogo.martins/`. Live at https://djamart.github.io/diogo.martins/. Vercel builds for the root of its domain instead (`src/utils/deployTarget.ts`); never hardcode `/diogo.martins/` in pages or tests, use `import.meta.env.BASE_URL` or `basePath` from `e2e/pages/SitePage.ts`.
 - Content languages: English (default, at the root) and European Portuguese (pt-PT, under `/pt/`). Never hardcode user-facing text in a page; every string and profile text exists in both languages. The CV is in English only, by Diogo's choice. Portuguese uses pt-PT vocabulary (ecrã, telemóvel, contacto, ficheiro), never pt-BR.
 
 ## Project map

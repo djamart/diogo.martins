@@ -5,7 +5,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { HomePage } from './pages/HomePage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import { pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
+import { endsUnderBase, pageLabel, pagesIn, SitePage, sitePages } from './pages/SitePage';
 
 test.describe('Language', () => {
   for (const [english, portuguese] of pagesIn('en').map((page, index) => [
@@ -130,21 +130,20 @@ test.describe('Language', () => {
     }) => {
       const site = new SitePage(page, sitePage.lang);
       await site.goto(sitePage.path);
-      const suffix = sitePage.path === '' ? '/diogo.martins/' : `/diogo.martins/${sitePage.path}/`;
-      const ptSuffix = suffix.replace('/diogo.martins/', '/diogo.martins/pt/');
+      const path = sitePage.path === '' ? '' : `${sitePage.path}/`;
 
       await expect(site.root).toHaveAttribute('lang', sitePage.lang === 'pt' ? 'pt-PT' : 'en');
       await expect(site.head.alternate('en')).toHaveAttribute(
         'href',
-        new RegExp(`^https://.*${suffix}$`),
+        new RegExp(`^https://.*${endsUnderBase(path).source}`),
       );
       await expect(site.head.alternate('pt-PT')).toHaveAttribute(
         'href',
-        new RegExp(`^https://.*${ptSuffix}$`),
+        new RegExp(`^https://.*${endsUnderBase(`pt/${path}`).source}`),
       );
       await expect(site.head.alternate('x-default')).toHaveAttribute(
         'href',
-        new RegExp(`^https://.*${suffix}$`),
+        new RegExp(`^https://.*${endsUnderBase(path).source}`),
       );
     });
   }
@@ -186,7 +185,7 @@ test.describe('Language', () => {
     ] as const) {
       await pageObject.goto();
 
-      await expect(link).toHaveAttribute('href', /\/diogo\.martins\/diogo-martins-cv\.pdf$/);
+      await expect(link).toHaveAttribute('href', endsUnderBase('diogo-martins-cv.pdf'));
       await expect(link).toHaveAttribute('hreflang', 'en');
       await expect(link).toContainText('em inglês');
     }

@@ -1,7 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
+import { deployTarget } from './src/utils/deployTarget';
 
 const port = 4321;
-const basePath = '/diogo.martins/';
+/** The base path the build was made for: /diogo.martins/ for GitHub Pages, / for Vercel. */
+const basePath = `${deployTarget(process.env).base}/`.replace(/\/+$/, '/');
 /** Specs about small touch screens, which only the mobile projects run. */
 const mobileOnly = /mobile\.spec\.ts$/;
 /** Screenshot comparisons, which only Chromium on a desktop and on a phone run. */
